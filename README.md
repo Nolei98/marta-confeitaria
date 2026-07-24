@@ -66,9 +66,13 @@ Três tipos de usuário (`Role` no schema):
 
 ## Painel administrativo (`/admin/dashboard`)
 
+- **Dashboard** — receita por dia (30 dias), pedidos por status, produtos mais vendidos e tiles de receita/pedidos/ticket médio/clientes/produtos ativos. Gráficos em SVG próprio, sem lib externa.
 - **Produtos** — CRUD completo, ligado ao banco (grade de cards)
 - **Pedidos** — lista todos os pedidos com cliente, itens e status editável
+- **Usuários** — lista todas as contas, permite trocar o papel (cliente/parceiro/admin) e excluir. Um admin não consegue rebaixar/excluir a própria conta por essa tela.
 - **Seções da landing** / **Pontos de venda** — ainda usam `localStorage` do navegador (não persistem no banco; cada admin vê sua própria versão local). Migrar isso pro banco é um próximo passo natural.
+
+Para popular o dashboard com dados de teste (clientes e pedidos simulados nos últimos 45 dias): `npm run db:seed-demo`.
 
 ## Scripts
 
