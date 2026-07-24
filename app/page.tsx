@@ -161,9 +161,21 @@ function BolosCta() {
   );
 }
 
+type SectionKey = "hero" | "fatias" | "vendidos" | "bolosCta";
+type DbProduct = { id: string; name: string; category: string; price: number; imageUrl: string | null };
+
+const DAILY_STYLES = [
+  { tag: "Mais pedida", cardBg: "#f6d9dd", lineColor: "#d9a3ac" },
+  { tag: "Clássica", cardBg: "#e6dcef", lineColor: "#b9a3d1" },
+  { tag: "Queridinha", cardBg: "#f3e2cf", lineColor: "#d9b57e" },
+];
+const BESTSELLER_FALLBACK_IMG = "/images/slice-chocolate.webp";
+
 export default function HomePage() {
   const [current, setCurrent] = useState(0);
   const [flavors, setFlavors] = useState<Flavor[]>(FLAVORS);
+  const [sections, setSections] = useState<Record<SectionKey, boolean>>({ hero: true, fatias: true, vendidos: true, bolosCta: true });
+  const [fatiaProducts, setFatiaProducts] = useState<DbProduct[] | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { addToCart } = useCart();
 
@@ -175,10 +187,24 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    try {
-      const storedHero = JSON.parse(localStorage.getItem("martaHeroFlavors") || "null");
-      if (storedHero && storedHero.length) setFlavors(storedHero);
-    } catch {}
+    fetch("/api/public/landing")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.heroFlavors?.length) {
+          setFlavors(
+            FLAVORS.map((fl) => {
+              const match = data.heroFlavors.find((h: { key: string }) => h.key === fl.key);
+              return match ? { ...fl, name: match.name, desc: match.desc, price: match.price, img: match.img, bg: match.bg } : fl;
+            })
+          );
+        }
+        if (data?.sections) setSections((s) => ({ ...s, ...data.sections }));
+      })
+      .catch(() => {});
+    fetch("/api/public/products")
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && setFatiaProducts(data.filter((p: DbProduct) => p.category === "Fatia")))
+      .catch(() => {});
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!reduce) startAutoplay();
     return () => {
@@ -214,16 +240,33 @@ export default function HomePage() {
     shapes: SHAPE_SETS[key],
   }));
 
-  const dailySlices = [
+  const dailySlices = (fatiaProducts && fatiaProducts.length ? fatiaProducts.slice(0, 3) : null)?.map((p, i) => ({
+    name: p.name,
+    tag: DAILY_STYLES[i % DAILY_STYLES.length].tag,
+    price: "R$ " + p.price.toFixed(2).replace(".", ","),
+    img: p.imageUrl || BESTSELLER_FALLBACK_IMG,
+    cardBg: DAILY_STYLES[i % DAILY_STYLES.length].cardBg,
+    lineColor: DAILY_STYLES[i % DAILY_STYLES.length].lineColor,
+    add: () => addToCart(p.name, p.price),
+  })) ?? [
     { name: "Chocolate intenso", tag: "Mais pedida", price: "R$ 12,00", img: "/images/slice-chocolate.webp", cardBg: "#f6d9dd", lineColor: "#d9a3ac", add: () => addToCart("Chocolate intenso", 12) },
     { name: "Red velvet", tag: "Clássica", price: "R$ 14,00", img: "/images/slice-red-velvet.webp", cardBg: "#e6dcef", lineColor: "#b9a3d1", add: () => addToCart("Red velvet", 14) },
     { name: "Cenoura com chocolate", tag: "Queridinha", price: "R$ 10,00", img: "/images/slice-cenoura.webp", cardBg: "#f3e2cf", lineColor: "#d9b57e", add: () => addToCart("Cenoura com chocolate", 10) },
   ];
 
+  const bestsellers = (fatiaProducts && fatiaProducts.length ? fatiaProducts.slice(0, 5) : null)?.map((p, i) => ({
+    name: p.name,
+    price: "R$ " + p.price.toFixed(2).replace(".", ","),
+    priceNum: p.price,
+    img: p.imageUrl || BESTSELLER_FALLBACK_IMG,
+    rank: `${i + 1}º`,
+  })) ?? BESTSELLERS;
+
   return (
     <>
       <SiteHeader floating />
 
+      {sections.hero && (
       <section
         className={hero.heroSection}
         style={{ position: "relative", overflow: "hidden", color: "#fff", backgroundColor: active.bg, transition: "background-color .9s ease", display: "flex", alignItems: "center" }}
@@ -294,8 +337,10 @@ export default function HomePage() {
         <div style={{ position: "absolute", left: 0, bottom: 2, width: "100%", height: 23, background: "radial-gradient(circle at 10px -6px, transparent 11.6px, #c1531c 12.4px) 0 0/24px 22px repeat-x", zIndex: 1 }} />
         <div style={{ position: "absolute", left: 0, bottom: 0, width: "100%", height: 22, background: "radial-gradient(circle at 10px -6px, transparent 11.6px, #f5ead9 12.4px) 0 0/24px 22px repeat-x", zIndex: 2 }} />
       </section>
+      )}
 
       {/* FATIAS DO DIA */}
+      {sections.fatias && (
       <section style={{ padding: "88px 24px 72px", maxWidth: 1160, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 52 }}>
           <div className={grid.eyebrow} style={{ fontFamily: "var(--font-display)", fontSize: 15, letterSpacing: ".24em", textTransform: "uppercase", color: "#c1531c", marginBottom: 10 }}>
@@ -324,8 +369,10 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+      )}
 
       {/* MAIS VENDIDOS */}
+      {sections.vendidos && (
       <section style={{ padding: "72px 24px", background: "#f7f1e8" }}>
         <div style={{ maxWidth: 1160, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 44 }}>
@@ -337,7 +384,7 @@ export default function HomePage() {
             </h2>
           </div>
           <div className={grid.fiveCol} style={{ gap: "24px 16px" }}>
-            {BESTSELLERS.map((sl) => (
+            {bestsellers.map((sl) => (
               <div key={sl.name} style={{ textAlign: "center" }}>
                 <div style={{ position: "relative", background: "#fff", border: "1px solid #eaddd0", borderRadius: 14, padding: "52px 12px 16px", marginTop: 44 }}>
                   <div className={hero.bestsellerBadge} style={{ position: "absolute", top: 8, left: 8, display: "flex", alignItems: "center", gap: 3, color: "#c1531c", fontFamily: "var(--font-display)", zIndex: 1, background: "rgba(251,247,240,.9)", padding: "3px 7px", borderRadius: 12, boxShadow: "0 2px 6px rgba(0,0,0,.08)" }}>
@@ -357,6 +404,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* POR QUE ESCOLHER */}
       <section style={{ padding: "72px 24px", maxWidth: 1160, margin: "0 auto" }}>
@@ -394,6 +442,7 @@ export default function HomePage() {
       </section>
 
       {/* BOLOS CTA */}
+      {sections.bolosCta && (
       <section style={{ padding: "0 24px 80px", maxWidth: 1160, margin: "0 auto" }}>
         <div className={grid.twoCol} style={{ background: "#3b2420", borderRadius: 24, padding: 24, alignItems: "center", gap: 32 }}>
           <div style={{ padding: "24px 12px 24px 24px", color: "#fff" }}>
@@ -414,6 +463,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       <Footer />
     </>

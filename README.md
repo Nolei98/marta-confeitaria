@@ -51,12 +51,16 @@ Três tipos de usuário (`Role` no schema):
 | Papel | Acesso |
 |---|---|
 | `CUSTOMER` | conta padrão — carrinho salvo, histórico de pedidos, log de atividade em `/conta` |
-| `PARTNER` | reservado para pontos de revenda (ver `/revenda`) — ainda sem área própria implementada |
+| `PARTNER` | pontos de revenda — tem área própria em `/parceiro` (dados da conta, pontos de venda cadastrados, log de atividade); login em `/conta` redireciona automaticamente pra lá |
 | `ADMIN` | acesso ao painel `/admin/dashboard` |
 
 - Cadastro/login em `/conta` (`POST /api/register`, depois `signIn` via Auth.js)
-- `middleware.ts` protege `/admin/*` e `/api/admin/*`: sem sessão de `ADMIN`, redireciona pra `/conta`
+- `middleware.ts` protege `/admin/*` e `/api/admin/*` (só `ADMIN`) e `/parceiro/*` (`PARTNER` ou `ADMIN`); sem permissão, redireciona pra `/conta`
 - A config do Auth.js é dividida em `auth.config.ts` (sem dependências de Node — usada pelo middleware, que roda em Edge Runtime) e `auth.ts` (config completa com Prisma/bcrypt, usada nas API routes)
+
+## Catálogo
+
+Home, `/cardapio` e `/bolos` buscam o catálogo real em `/api/public/products` (produtos ativos, por categoria `Fatia` / `Bolo inteiro`). Se o banco estiver vazio, cada página cai num catálogo fixo de fallback para nunca ficar em branco.
 
 ## Carrinho e checkout
 
@@ -70,7 +74,7 @@ Três tipos de usuário (`Role` no schema):
 - **Produtos** — CRUD completo, ligado ao banco (grade de cards)
 - **Pedidos** — lista todos os pedidos com cliente, itens e status editável
 - **Usuários** — lista todas as contas, permite trocar o papel (cliente/parceiro/admin) e excluir. Um admin não consegue rebaixar/excluir a própria conta por essa tela.
-- **Seções da landing** / **Pontos de venda** — ainda usam `localStorage` do navegador (não persistem no banco; cada admin vê sua própria versão local). Migrar isso pro banco é um próximo passo natural.
+- **Seções da landing** / **Pontos de venda** — ligam/desligam blocos da home e cadastram pontos de revenda direto no banco (`HeroFlavor`, `SalesPoint`, `SiteSection`); a home e `/onde-encontrar` leem essas tabelas via `/api/public/landing` e `/api/public/sales-points`.
 
 Para popular o dashboard com dados de teste (clientes e pedidos simulados nos últimos 45 dias): `npm run db:seed-demo`.
 
@@ -92,9 +96,16 @@ vercel --prod --yes
 
 O projeto está sob a org `nolei98s-projects` (plano Hobby). Deploys só passam se o **autor do commit for a conta dona do projeto na Vercel** — plano Hobby não permite colaboradores em repositório privado (o repo hoje é público, o que evita esse bloqueio).
 
-## Pendências conhecidas
+## E-mail (Resend)
 
-- Catálogo público (home, cardápio, bolos) ainda é uma lista fixa no código — não lê do banco. O admin já cadastra produtos reais, mas as páginas de venda não os exibem ainda.
-- Sem recuperação de senha ("esqueci minha senha") nem confirmação de e-mail no cadastro.
-- Upload de imagem de produto salva a foto como base64 direto no banco — funciona, mas não é ideal para muitas imagens grandes (considerar Vercel Blob).
-- Papel `PARTNER` existe no schema mas ainda não tem uma área/permissões próprias definidas.
+- Cadastro envia e-mail de confirmação (`/api/auth/verify-email?token=...`); "esqueci minha senha" em `/esqueci-senha` envia link de redefinição (`/redefinir-senha?token=...`, válido por 1h).
+- Provedor: [Resend](https://resend.com). Sem `RESEND_API_KEY` configurada, o envio degrada com graceful fallback — o e-mail (com o link) é só logado no console do servidor, sem quebrar o fluxo.
+- Variáveis: `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (opcional, default `onboarding@resend.dev`).
+
+## Imagens de produto
+
+Fotos de produto sobem para um **Vercel Blob store** público (`marta-confeitaria-images`) via `POST /api/admin/upload` (admin-only, até 5MB, jpeg/png/webp/gif) — o campo `imageUrl` do produto guarda a URL do blob, não mais base64.
+
+## Segurança
+
+- Login e cadastro têm rate limiting (`LoginAttempt`, banco): 8 tentativas por 15 min por e-mail/IP no login, 8 cadastros por hora por IP.

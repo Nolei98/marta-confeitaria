@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
@@ -21,6 +22,7 @@ const ACTION_LABELS: Record<string, string> = {
   ADD_TO_CART: "Item adicionado ao carrinho",
   REMOVE_FROM_CART: "Item removido do carrinho",
   CHECKOUT: "Pedido finalizado",
+  PASSWORD_RESET: "Senha redefinida",
 };
 
 function LogoutButton({ onClick }: { onClick: () => void }) {
@@ -49,6 +51,7 @@ function SubmitButton({ onClick, children, disabled }: { onClick: () => void; ch
 
 export default function ContaPage() {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -59,12 +62,22 @@ export default function ContaPage() {
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [logs, setLogs] = useState<Log[]>([]);
+  const [verifyBanner, setVerifyBanner] = useState<"success" | "error" | null>(null);
+
+  useEffect(() => {
+    const verify = new URLSearchParams(window.location.search).get("verify");
+    if (verify === "success" || verify === "error") setVerifyBanner(verify);
+  }, []);
 
   useEffect(() => {
     if (status !== "authenticated") return;
+    if (session?.user?.role === "PARTNER") {
+      router.replace("/parceiro");
+      return;
+    }
     fetch("/api/orders").then((r) => r.json()).then((data) => Array.isArray(data) && setOrders(data)).catch(() => {});
     fetch("/api/logs").then((r) => r.json()).then((data) => Array.isArray(data) && setLogs(data)).catch(() => {});
-  }, [status]);
+  }, [status, session, router]);
 
   const isSignup = mode === "signup";
 
@@ -120,6 +133,23 @@ export default function ContaPage() {
   return (
     <>
       <SiteHeader />
+
+      {verifyBanner && (
+        <div style={{ maxWidth: 640, margin: "24px auto 0", padding: "0 24px" }}>
+          <div
+            style={{
+              background: verifyBanner === "success" ? "#e3f0e6" : "#f2e4e4",
+              color: verifyBanner === "success" ? "#3d7a4a" : "#a05353",
+              borderRadius: 12,
+              padding: "12px 18px",
+              fontSize: 14,
+              fontWeight: 600,
+            }}
+          >
+            {verifyBanner === "success" ? "E-mail confirmado com sucesso!" : "Link de confirmação inválido ou expirado."}
+          </div>
+        </div>
+      )}
 
       {session?.user ? (
         <section style={{ maxWidth: 640, margin: "0 auto", padding: "64px 24px 80px" }}>
@@ -196,6 +226,12 @@ export default function ContaPage() {
 
             <label style={labelStyle}>Senha</label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" style={{ ...inputStyle, marginBottom: 8 }} />
+
+            {!isSignup && (
+              <Link href="/esqueci-senha" style={{ display: "inline-block", color: "#a07882", fontSize: 13, textDecoration: "underline", marginBottom: 4 }}>
+                Esqueci minha senha
+              </Link>
+            )}
 
             {error && <p style={{ color: "#b3554d", fontSize: 13, margin: "6px 0 0" }}>{error}</p>}
 

@@ -15,6 +15,7 @@ const PRODUCTS = [
   { name: "Fubá cremoso", category: "Fatia", price: 9, imageUrl: "/images/slice-fuba.webp" },
   { name: "Bolo de aniversário", category: "Bolo inteiro", price: 75, imageUrl: "/images/cake-10.jpg" },
   { name: "Bolo de festa", category: "Bolo inteiro", price: 75, imageUrl: "/images/cake-11.webp" },
+  { name: "Bolo temático", category: "Bolo inteiro", price: 75, imageUrl: "/images/cake-12.jpg" },
 ];
 
 async function main() {

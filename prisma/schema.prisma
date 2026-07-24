@@ -22,16 +22,28 @@ enum OrderStatus {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  role         Role     @default(CUSTOMER)
-  createdAt    DateTime @default(now())
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(CUSTOMER)
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
 
   cartItems CartItem[]
   orders    Order[]
   logs      ActivityLog[]
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  type      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId, type])
 }
 
 model Product {
@@ -87,6 +99,38 @@ model OrderItem {
 
   order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+}
+
+model HeroFlavor {
+  key   String @id
+  name  String
+  desc  String
+  price String
+  img   String
+  bg    String
+  order Int    @default(0)
+}
+
+model SalesPoint {
+  id      String @id @default(cuid())
+  name    String
+  address String
+  lat     Float
+  lng     Float
+  order   Int    @default(0)
+}
+
+model SiteSection {
+  key     String  @id
+  enabled Boolean @default(true)
+}
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  identifier String
+  createdAt DateTime @default(now())
+
+  @@index([identifier, createdAt])
 }
 
 model ActivityLog {

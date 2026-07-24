@@ -9,12 +9,12 @@ import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
 import grid from "@/styles/grid.module.css";
 
-type Point = { id: number; name: string; address: string; lat: number; lng: number };
+type Point = { id: string; name: string; address: string; lat: number; lng: number };
 
 const DEFAULT_POINTS: Point[] = [
-  { id: 1, name: "Marta Confeitaria — Cozinha principal", address: "Rua das Framboesas, 122 — Centro, Salgueiro - PE", lat: -8.0742, lng: -39.1225 },
-  { id: 2, name: "Padaria Bela Vista", address: "Av. Antônio Gomes Sobrinho — Salgueiro - PE", lat: -8.0698, lng: -39.1187 },
-  { id: 3, name: "Empório Vila Doce", address: "Rua Cel. José Ozanan — Salgueiro - PE", lat: -8.0781, lng: -39.1274 },
+  { id: "default-1", name: "Marta Confeitaria — Cozinha principal", address: "Rua das Framboesas, 122 — Centro, Salgueiro - PE", lat: -8.0742, lng: -39.1225 },
+  { id: "default-2", name: "Padaria Bela Vista", address: "Av. Antônio Gomes Sobrinho — Salgueiro - PE", lat: -8.0698, lng: -39.1187 },
+  { id: "default-3", name: "Empório Vila Doce", address: "Rua Cel. José Ozanan — Salgueiro - PE", lat: -8.0781, lng: -39.1274 },
 ];
 
 function PointCard({ point, onFocus }: { point: Point; onFocus: () => void }) {
@@ -43,19 +43,45 @@ function RevendaCta() {
 }
 
 export default function OndeEncontrarPage() {
-  const [points] = useState<Point[]>(DEFAULT_POINTS);
+  const [points, setPoints] = useState<Point[]>(DEFAULT_POINTS);
   const mapElRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
+  const markersRef = useRef<import("leaflet").Marker[]>([]);
+  const [mapReady, setMapReady] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/public/sales-points")
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && data.length && setPoints(data))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     import("leaflet").then((L) => {
       if (cancelled || !mapElRef.current || mapRef.current) return;
-      const map = L.map(mapElRef.current).setView([-8.0742, -39.1225], 14);
+      mapRef.current = L.map(mapElRef.current).setView([-8.0742, -39.1225], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution: "© OpenStreetMap",
-      }).addTo(map);
+      }).addTo(mapRef.current);
+      setMapReady(true);
+    });
+    return () => {
+      cancelled = true;
+      mapRef.current?.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    import("leaflet").then((L) => {
+      const map = mapRef.current;
+      if (cancelled || !map) return;
+
+      markersRef.current.forEach((m) => map.removeLayer(m));
+      markersRef.current = [];
 
       const icon = L.divIcon({
         className: "",
@@ -65,18 +91,14 @@ export default function OndeEncontrarPage() {
       });
 
       points.forEach((p) => {
-        L.marker([p.lat, p.lng], { icon }).addTo(map).bindPopup(`<strong>${p.name}</strong><br/>${p.address}`);
+        const marker = L.marker([p.lat, p.lng], { icon }).addTo(map).bindPopup(`<strong>${p.name}</strong><br/>${p.address}`);
+        markersRef.current.push(marker);
       });
-
-      mapRef.current = map;
     });
     return () => {
       cancelled = true;
-      mapRef.current?.remove();
-      mapRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [points, mapReady]);
 
   const focusPoint = (p: Point) => {
     mapRef.current?.flyTo([p.lat, p.lng], 16);

@@ -6,7 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
 import grid from "@/styles/grid.module.css";
 
-const MODELS = [
+const MODELS_FALLBACK = [
   { name: "Bolo de aniversário", desc: "Chantilly, frutas vermelhas e velinhas — o clássico de toda festa.", img: "/images/cake-10.jpg" },
   { name: "Bolo de festa", desc: "Andares em tons pastel com rosas de açúcar, pra ocasiões especiais.", img: "/images/cake-11.webp" },
   { name: "Bolo temático", desc: "Chocolate coberto de rosas, personalizável para o tema da sua festa.", img: "/images/cake-12.jpg" },
@@ -18,7 +18,9 @@ const SIZES = [
   { key: "G", label: "G", fatias: "30 fatias", price: "R$ 180,00" },
 ] as const;
 
-const FLAVOR_OPTIONS = ["Chocolate intenso", "Red velvet", "Cenoura com chocolate", "Prestígio", "Ninho com Nutella", "Limão siciliano", "Floresta negra", "Maracujá", "Fubá cremoso"];
+const FLAVOR_OPTIONS_FALLBACK = ["Chocolate intenso", "Red velvet", "Cenoura com chocolate", "Prestígio", "Ninho com Nutella", "Limão siciliano", "Floresta negra", "Maracujá", "Fubá cremoso"];
+
+type DbProduct = { id: string; name: string; category: string; price: number; imageUrl: string | null };
 
 const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 15, marginBottom: 20, background: "#f5ead9", fontFamily: "Inter" };
 const labelStyle: React.CSSProperties = { display: "block", fontSize: 13, fontWeight: 600, color: "#c1531c", marginBottom: 6 };
@@ -40,7 +42,8 @@ function SubmitButton({ onClick }: { onClick: () => void }) {
 }
 
 export default function BolosPage() {
-  const [flavor, setFlavor] = useState(FLAVOR_OPTIONS[0]);
+  const [products, setProducts] = useState<DbProduct[] | null>(null);
+  const [flavor, setFlavor] = useState(FLAVOR_OPTIONS_FALLBACK[0]);
   const [size, setSize] = useState<(typeof SIZES)[number]["key"]>("M");
   const [pickupDate, setPickupDate] = useState("");
   const [name, setName] = useState("");
@@ -52,7 +55,21 @@ export default function BolosPage() {
 
   useEffect(() => {
     setCaptcha(newCaptcha());
+    fetch("/api/public/products")
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && setProducts(data))
+      .catch(() => {});
   }, []);
+
+  const dbFatias = products?.filter((p) => p.category === "Fatia") ?? [];
+  const FLAVOR_OPTIONS = dbFatias.length > 0 ? dbFatias.map((p) => p.name) : FLAVOR_OPTIONS_FALLBACK;
+  useEffect(() => {
+    if (!FLAVOR_OPTIONS.includes(flavor)) setFlavor(FLAVOR_OPTIONS[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [FLAVOR_OPTIONS.join("|")]);
+
+  const dbBolos = products?.filter((p) => p.category === "Bolo inteiro") ?? [];
+  const MODELS = dbBolos.length > 0 ? dbBolos.map((p) => ({ name: p.name, desc: "Sob encomenda, personalizável para o tema da sua festa.", img: p.imageUrl || "/images/cake-10.jpg" })) : MODELS_FALLBACK;
 
   const submit = () => {
     if (!captcha || parseInt(captchaInput, 10) !== captcha.a + captcha.b) {

@@ -11,7 +11,7 @@ const cssVars = (vars: Record<string, string>) => vars as React.CSSProperties;
 type Product = { id: string; name: string; category: string; price: number; imageUrl?: string | null; active: boolean };
 type OrderItem = { id: string; nameSnapshot: string; priceSnapshot: number; qty: number };
 type Order = { id: string; code: string; status: string; total: number; createdAt: string; items: OrderItem[]; user: { name: string; email: string } };
-type Ponto = { id: number; name: string; address: string; lat: number; lng: number };
+type Ponto = { id: string; name: string; address: string; lat: number; lng: number };
 type HeroFlavor = { key: string; name: string; desc: string; price: string; img: string; bg: string };
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
@@ -22,18 +22,7 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
 };
 
 const EMPTY_FORM = { id: null as string | null, name: "", price: "", category: "Fatia", image: "" };
-const DEFAULT_PONTOS: Ponto[] = [
-  { id: 1, name: "Marta Confeitaria — Cozinha principal", address: "Rua das Framboesas, 122 — Centro, Salgueiro - PE", lat: -8.0742, lng: -39.1225 },
-  { id: 2, name: "Padaria Bela Vista", address: "Av. Antônio Gomes Sobrinho — Salgueiro - PE", lat: -8.0698, lng: -39.1187 },
-  { id: 3, name: "Empório Vila Doce", address: "Rua Cel. José Ozanan — Salgueiro - PE", lat: -8.0781, lng: -39.1274 },
-];
-const EMPTY_PONTO_FORM = { id: null as number | null, name: "", address: "", lat: "", lng: "" };
-
-const DEFAULT_HERO_FLAVORS: HeroFlavor[] = [
-  { key: "choc", name: "Chocolate intenso", desc: "Camadas de bolo de chocolate úmido com recheio cremoso de brigadeiro de colher.", price: "R$ 12,00", img: "/images/slice-chocolate.webp", bg: "#3a211c" },
-  { key: "red", name: "Red velvet", desc: "Massa aveludada vermelha com recheio de cream cheese e um toque de baunilha.", price: "R$ 14,00", img: "/images/slice-red-velvet.webp", bg: "#4a1620" },
-  { key: "carrot", name: "Cenoura com chocolate", desc: "Bolo de cenoura fofinho coberto com brigadeiro de chocolate na medida certa.", price: "R$ 10,00", img: "/images/slice-cenoura.webp", bg: "#5a3410" },
-];
+const EMPTY_PONTO_FORM = { id: null as string | null, name: "", address: "", lat: "", lng: "" };
 
 const IMAGE_OPTIONS = [
   { value: "/images/slice-chocolate.webp", label: "Chocolate intenso" },
@@ -79,29 +68,51 @@ export default function DashboardPage() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [sections, setSections] = useState<Record<string, boolean>>({ hero: true, fatias: true, vendidos: true, bolosCta: true });
   const [orders, setOrders] = useState<Order[]>([]);
-  const [pontos, setPontos] = useState<Ponto[]>(DEFAULT_PONTOS);
+  const [pontos, setPontos] = useState<Ponto[]>([]);
   const [pontoForm, setPontoForm] = useState(EMPTY_PONTO_FORM);
-  const [heroFlavors, setHeroFlavors] = useState<HeroFlavor[]>(DEFAULT_HERO_FLAVORS);
+  const [heroFlavors, setHeroFlavors] = useState<HeroFlavor[]>([]);
   const [heroExpanded, setHeroExpanded] = useState(false);
   const [users, setUsers] = useState<AppUser[]>([]);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
 
   useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem("martaPontosVenda") || "null");
-      if (stored && stored.length) setPontos(stored);
-    } catch {}
-    try {
-      const storedHero = JSON.parse(localStorage.getItem("martaHeroFlavors") || "null");
-      if (storedHero && storedHero.length) setHeroFlavors(storedHero);
-    } catch {}
     fetchProducts();
     fetchOrders();
     fetchUsers();
     fetchAnalytics();
+    fetchHeroFlavors();
+    fetchPontos();
+    fetchSections();
   }, []);
+
+  const fetchHeroFlavors = () => {
+    fetch("/api/admin/hero-flavors")
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && setHeroFlavors(data))
+      .catch(() => {});
+  };
+  const fetchPontos = () => {
+    fetch("/api/admin/sales-points")
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && setPontos(data))
+      .catch(() => {});
+  };
+  const fetchSections = () => {
+    fetch("/api/admin/sections")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!Array.isArray(data)) return;
+        setSections((s) => {
+          const next = { ...s };
+          for (const sec of data) next[sec.key] = sec.enabled;
+          return next;
+        });
+      })
+      .catch(() => {});
+  };
 
   const fetchProducts = () => {
     fetch("/api/admin/products")
@@ -145,36 +156,45 @@ export default function DashboardPage() {
     }
   };
 
-  const persistHero = (next: HeroFlavor[]) => {
-    setHeroFlavors(next);
-    try {
-      localStorage.setItem("martaHeroFlavors", JSON.stringify(next));
-    } catch {}
-  };
   const updateHeroFlavor = (key: string, field: keyof HeroFlavor, value: string) => {
-    persistHero(heroFlavors.map((f) => (f.key === key ? { ...f, [field]: value } : f)));
+    setHeroFlavors((fs) => fs.map((f) => (f.key === key ? { ...f, [field]: value } : f)));
   };
-  const resetHero = () => persistHero(DEFAULT_HERO_FLAVORS);
+  const saveHeroFlavor = async (key: string) => {
+    const f = heroFlavors.find((fl) => fl.key === key);
+    if (!f) return;
+    await fetch("/api/admin/hero-flavors", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(f) });
+  };
+  const patchHeroFlavor = async (key: string, patch: Partial<HeroFlavor>) => {
+    const updated = heroFlavors.map((f) => (f.key === key ? { ...f, ...patch } : f));
+    setHeroFlavors(updated);
+    const f = updated.find((fl) => fl.key === key);
+    if (!f) return;
+    await fetch("/api/admin/hero-flavors", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(f) });
+  };
+  const resetHero = async () => {
+    const res = await fetch("/api/admin/hero-flavors", { method: "POST" });
+    const data = await res.json().catch(() => null);
+    if (Array.isArray(data)) setHeroFlavors(data);
+  };
 
-  const persistPontos = (next: Ponto[]) => {
-    setPontos(next);
-    try {
-      localStorage.setItem("martaPontosVenda", JSON.stringify(next));
-    } catch {}
-  };
-  const submitPonto = () => {
+  const submitPonto = async () => {
     const lat = parseFloat(pontoForm.lat);
     const lng = parseFloat(pontoForm.lng);
     if (!pontoForm.name.trim() || isNaN(lat) || isNaN(lng)) return;
+    const body = JSON.stringify({ name: pontoForm.name, address: pontoForm.address, lat, lng });
     if (pontoForm.id) {
-      persistPontos(pontos.map((p) => (p.id === pontoForm.id ? { ...p, name: pontoForm.name, address: pontoForm.address, lat, lng } : p)));
+      await fetch(`/api/admin/sales-points/${pontoForm.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body });
     } else {
-      persistPontos([...pontos, { id: Date.now(), name: pontoForm.name, address: pontoForm.address, lat, lng }]);
+      await fetch("/api/admin/sales-points", { method: "POST", headers: { "Content-Type": "application/json" }, body });
     }
     setPontoForm(EMPTY_PONTO_FORM);
+    fetchPontos();
   };
   const editPonto = (p: Ponto) => setPontoForm({ id: p.id, name: p.name, address: p.address, lat: String(p.lat), lng: String(p.lng) });
-  const removePonto = (id: number) => persistPontos(pontos.filter((p) => p.id !== id));
+  const removePonto = async (id: string) => {
+    await fetch(`/api/admin/sales-points/${id}`, { method: "DELETE" });
+    fetchPontos();
+  };
 
   const submitForm = async () => {
     if (!form.name.trim()) return;
@@ -188,12 +208,24 @@ export default function DashboardPage() {
     setForm(EMPTY_FORM);
     fetchProducts();
   };
-  const setFormImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const setFormImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setForm((f) => ({ ...f, image: String(reader.result) }));
-    reader.readAsDataURL(file);
+    setUploadingImage(true);
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const res = await fetch("/api/admin/upload", { method: "POST", body });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data.error || "Não foi possível enviar a imagem.");
+        return;
+      }
+      setForm((f) => ({ ...f, image: data.url }));
+    } finally {
+      setUploadingImage(false);
+      e.target.value = "";
+    }
   };
   const editProduct = (p: Product) => setForm({ id: p.id, name: p.name, price: String(p.price), category: p.category, image: p.imageUrl || "" });
   const removeProduct = async (id: string) => {
@@ -206,7 +238,11 @@ export default function DashboardPage() {
     await fetch(`/api/admin/products/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ active: !active }) });
     fetchProducts();
   };
-  const toggleSection = (key: string) => setSections((s) => ({ ...s, [key]: !s[key] }));
+  const toggleSection = async (key: string) => {
+    const next = !sections[key];
+    setSections((s) => ({ ...s, [key]: next }));
+    await fetch("/api/admin/sections", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, enabled: next }) });
+  };
   const setOrderStatus = async (id: string, status: string) => {
     await fetch(`/api/admin/orders/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
     fetchOrders();
@@ -296,9 +332,9 @@ export default function DashboardPage() {
                     <span style={{ fontSize: 10, color: "#8b7d76", textAlign: "center", padding: 4 }}>Sem foto</span>
                   )}
                 </div>
-                <label style={{ border: "1px solid #eaddd0", background: "#fff", color: "#c1531c", borderRadius: 10, padding: "10px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                  Enviar foto do produto
-                  <input type="file" accept="image/*" onChange={setFormImage} style={{ display: "none" }} />
+                <label style={{ border: "1px solid #eaddd0", background: "#fff", color: "#c1531c", borderRadius: 10, padding: "10px 16px", fontSize: 13, fontWeight: 600, cursor: uploadingImage ? "wait" : "pointer", opacity: uploadingImage ? 0.6 : 1 }}>
+                  {uploadingImage ? "Enviando..." : "Enviar foto do produto"}
+                  <input type="file" accept="image/*" onChange={setFormImage} disabled={uploadingImage} style={{ display: "none" }} />
                 </label>
               </div>
               <div className={styles.formRow} style={cssVars({ "--cols": "1.4fr 1fr 1fr auto" })}>
@@ -399,23 +435,23 @@ export default function DashboardPage() {
                         <div key={fl.key} className={styles.formRow} style={{ ...cssVars({ "--cols": "1.2fr 1.6fr 0.8fr 0.7fr 1fr" }), background: "#f7f1e8", borderRadius: 14, padding: 16, marginBottom: 12, gap: 12 }}>
                           <div>
                             <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#8b7d76", marginBottom: 5 }}>Nome</label>
-                            <input type="text" value={fl.name} onChange={(e) => updateHeroFlavor(fl.key, "name", e.target.value)} style={{ width: "100%", padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 13, fontFamily: "Inter" }} />
+                            <input type="text" value={fl.name} onChange={(e) => updateHeroFlavor(fl.key, "name", e.target.value)} onBlur={() => saveHeroFlavor(fl.key)} style={{ width: "100%", padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 13, fontFamily: "Inter" }} />
                           </div>
                           <div>
                             <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#8b7d76", marginBottom: 5 }}>Descrição</label>
-                            <input type="text" value={fl.desc} onChange={(e) => updateHeroFlavor(fl.key, "desc", e.target.value)} style={{ width: "100%", padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 13, fontFamily: "Inter" }} />
+                            <input type="text" value={fl.desc} onChange={(e) => updateHeroFlavor(fl.key, "desc", e.target.value)} onBlur={() => saveHeroFlavor(fl.key)} style={{ width: "100%", padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 13, fontFamily: "Inter" }} />
                           </div>
                           <div>
                             <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#8b7d76", marginBottom: 5 }}>Preço</label>
-                            <input type="text" value={fl.price} onChange={(e) => updateHeroFlavor(fl.key, "price", e.target.value)} style={{ width: "100%", padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 13, fontFamily: "Inter" }} />
+                            <input type="text" value={fl.price} onChange={(e) => updateHeroFlavor(fl.key, "price", e.target.value)} onBlur={() => saveHeroFlavor(fl.key)} style={{ width: "100%", padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 13, fontFamily: "Inter" }} />
                           </div>
                           <div>
                             <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#8b7d76", marginBottom: 5 }}>Cor</label>
-                            <input type="color" value={fl.bg} onChange={(e) => updateHeroFlavor(fl.key, "bg", e.target.value)} style={{ width: "100%", height: 34, padding: 2, border: "1px solid #eaddd0", borderRadius: 8 }} />
+                            <input type="color" value={fl.bg} onChange={(e) => updateHeroFlavor(fl.key, "bg", e.target.value)} onBlur={() => saveHeroFlavor(fl.key)} style={{ width: "100%", height: 34, padding: 2, border: "1px solid #eaddd0", borderRadius: 8 }} />
                           </div>
                           <div>
                             <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#8b7d76", marginBottom: 5 }}>Produto</label>
-                            <select value={fl.img} onChange={(e) => updateHeroFlavor(fl.key, "img", e.target.value)} style={{ width: "100%", padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 12, fontFamily: "Inter", background: "#fff" }}>
+                            <select value={fl.img} onChange={(e) => patchHeroFlavor(fl.key, { img: e.target.value })} style={{ width: "100%", padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 12, fontFamily: "Inter", background: "#fff" }}>
                               {IMAGE_OPTIONS.map((opt) => (
                                 <option key={opt.value} value={opt.value}>
                                   {opt.label}

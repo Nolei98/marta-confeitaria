@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
@@ -8,10 +8,15 @@ import { useCart } from "@/components/cart/CartContext";
 import { useHoverStyle } from "@/lib/useHover";
 import grid from "@/styles/grid.module.css";
 
+type DbProduct = { id: string; name: string; category: string; price: number; imageUrl: string | null };
+
 const PEDESTAL_COLORS = ["#f6d9dd", "#e6dcef", "#f3e2cf"];
 const LINE_COLORS = ["#c1531c", "#7d52a8", "#d49a37"];
+const FALLBACK_SLICE_IMG = "/images/slice-chocolate.webp";
+const FALLBACK_CAKE_IMG = "/images/cake-10.jpg";
+const FALLBACK_TAG = "Feito na hora";
 
-const SLICES = [
+const SLICES_FALLBACK = [
   { name: "Chocolate intenso", price: "R$ 12,00", priceNum: 12, img: "/images/slice-chocolate.webp", badge: "Mais pedida", tag: "Cacau 70% · Callebaut" },
   { name: "Red velvet", price: "R$ 14,00", priceNum: 14, img: "/images/slice-red-velvet.webp", badge: "", tag: "Cream cheese tradicional" },
   { name: "Cenoura com chocolate", price: "R$ 10,00", priceNum: 10, img: "/images/slice-cenoura.webp", badge: "", tag: "Cobertura fofinha" },
@@ -23,10 +28,10 @@ const SLICES = [
   { name: "Fubá cremoso", price: "R$ 9,00", priceNum: 9, img: "/images/slice-fuba.webp", badge: "", tag: "Erva-doce e queijo" },
 ].map((s, i) => ({ ...s, cardBg: PEDESTAL_COLORS[i % PEDESTAL_COLORS.length], lineColor: LINE_COLORS[i % LINE_COLORS.length] }));
 
-const CAKE_MODELS = [
-  { name: "Bolo de aniversário", desc: "Chantilly, frutas vermelhas e velinhas.", img: "/images/cake-10.jpg" },
-  { name: "Bolo de festa", desc: "Andares em tons pastel com rosas de açúcar.", img: "/images/cake-11.webp" },
-  { name: "Bolo temático", desc: "Chocolate coberto de rosas, personalizável.", img: "/images/cake-12.jpg" },
+const CAKE_MODELS_FALLBACK = [
+  { name: "Bolo de aniversário", desc: "Chantilly, frutas vermelhas e velinhas.", img: "/images/cake-10.jpg", price: "A partir de R$ 75,00" },
+  { name: "Bolo de festa", desc: "Andares em tons pastel com rosas de açúcar.", img: "/images/cake-11.webp", price: "A partir de R$ 75,00" },
+  { name: "Bolo temático", desc: "Chocolate coberto de rosas, personalizável.", img: "/images/cake-12.jpg", price: "A partir de R$ 75,00" },
 ];
 
 function FilterButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
@@ -84,7 +89,40 @@ function EncomendarLink() {
 
 export default function CardapioPage() {
   const [filter, setFilter] = useState<"fatias" | "bolos">("fatias");
+  const [products, setProducts] = useState<DbProduct[] | null>(null);
   const { addToCart } = useCart();
+
+  useEffect(() => {
+    fetch("/api/public/products")
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && setProducts(data))
+      .catch(() => {});
+  }, []);
+
+  const dbFatias = products?.filter((p) => p.category === "Fatia") ?? [];
+  const SLICES =
+    dbFatias.length > 0
+      ? dbFatias.map((p, i) => ({
+          name: p.name,
+          price: "R$ " + p.price.toFixed(2).replace(".", ","),
+          priceNum: p.price,
+          img: p.imageUrl || FALLBACK_SLICE_IMG,
+          badge: "",
+          tag: FALLBACK_TAG,
+          cardBg: PEDESTAL_COLORS[i % PEDESTAL_COLORS.length],
+          lineColor: LINE_COLORS[i % LINE_COLORS.length],
+        }))
+      : products === null
+      ? SLICES_FALLBACK
+      : [];
+
+  const dbBolos = products?.filter((p) => p.category === "Bolo inteiro") ?? [];
+  const CAKE_MODELS =
+    dbBolos.length > 0
+      ? dbBolos.map((p) => ({ name: p.name, desc: "Sob encomenda, personalizável.", img: p.imageUrl || FALLBACK_CAKE_IMG, price: "A partir de R$ " + p.price.toFixed(2).replace(".", ",") }))
+      : products === null
+      ? CAKE_MODELS_FALLBACK
+      : [];
 
   return (
     <>
@@ -146,7 +184,7 @@ export default function CardapioPage() {
                   <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 22, margin: "0 0 8px", color: "#3f2a26", lineHeight: 1.2, letterSpacing: ".02em" }}>{m.name}</h3>
                   <p style={{ fontSize: 14, color: "#8b7d76", margin: "0 0 16px", fontFamily: "var(--font-body)" }}>{m.desc}</p>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "#3f2a26", fontWeight: 600 }}>A partir de R$ 75,00</span>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "#3f2a26", fontWeight: 600 }}>{m.price}</span>
                     <EncomendarLink />
                   </div>
                 </div>
