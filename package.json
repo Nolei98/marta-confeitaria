@@ -9,6 +9,7 @@
     "start": "next start -p 2888",
     "lint": "next lint",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed-demo": "tsx prisma/seed-demo.ts",
     "postinstall": "prisma generate"
   },
   "prisma": {

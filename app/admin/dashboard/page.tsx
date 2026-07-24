@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { SimpleHeader } from "@/components/layout/SimpleHeader";
 import grid from "@/styles/grid.module.css";
 import styles from "./Dashboard.module.css";
+import { StatTile, RevenueChart, StatusBreakdown, TopProductsChart } from "@/components/admin/Charts";
 
 const cssVars = (vars: Record<string, string>) => vars as React.CSSProperties;
 
@@ -59,10 +60,23 @@ const tableHeaderStyle: React.CSSProperties = { padding: "16px 22px", background
 const tableRowStyle: React.CSSProperties = { padding: "16px 22px", alignItems: "center", borderTop: "1px solid #eaddd0", fontSize: 14 };
 const linkButtonStyle = (color: string): React.CSSProperties => ({ border: "none", background: "none", color, fontSize: 13, fontWeight: 600, cursor: "pointer" });
 
-type Tab = "produtos" | "secoes" | "pontos" | "pedidos";
+type Tab = "dashboard" | "produtos" | "secoes" | "pontos" | "pedidos" | "usuarios";
+type AppUser = { id: string; name: string; email: string; role: "CUSTOMER" | "PARTNER" | "ADMIN"; createdAt: string; _count: { orders: number } };
+type Analytics = {
+  totalRevenue: number;
+  totalOrders: number;
+  avgTicket: number;
+  userCount: number;
+  productCount: number;
+  revenueByDay: { date: string; revenue: number; orders: number }[];
+  statusCounts: Record<string, number>;
+  topProducts: { name: string; qty: number; revenue: number }[];
+};
+
+const ROLE_LABELS: Record<string, string> = { CUSTOMER: "Cliente", PARTNER: "Parceiro", ADMIN: "Admin" };
 
 export default function DashboardPage() {
-  const [tab, setTab] = useState<Tab>("produtos");
+  const [tab, setTab] = useState<Tab>("dashboard");
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [sections, setSections] = useState<Record<string, boolean>>({ hero: true, fatias: true, vendidos: true, bolosCta: true });
@@ -71,6 +85,8 @@ export default function DashboardPage() {
   const [pontoForm, setPontoForm] = useState(EMPTY_PONTO_FORM);
   const [heroFlavors, setHeroFlavors] = useState<HeroFlavor[]>(DEFAULT_HERO_FLAVORS);
   const [heroExpanded, setHeroExpanded] = useState(false);
+  const [users, setUsers] = useState<AppUser[]>([]);
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
 
   useEffect(() => {
     try {
@@ -83,6 +99,8 @@ export default function DashboardPage() {
     } catch {}
     fetchProducts();
     fetchOrders();
+    fetchUsers();
+    fetchAnalytics();
   }, []);
 
   const fetchProducts = () => {
@@ -96,6 +114,35 @@ export default function DashboardPage() {
       .then((r) => r.json())
       .then((data) => Array.isArray(data) && setOrders(data))
       .catch(() => {});
+  };
+  const fetchUsers = () => {
+    fetch("/api/admin/users")
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && setUsers(data))
+      .catch(() => {});
+  };
+  const fetchAnalytics = () => {
+    fetch("/api/admin/analytics")
+      .then((r) => r.json())
+      .then((data) => data && !data.error && setAnalytics(data))
+      .catch(() => {});
+  };
+  const changeUserRole = async (id: string, role: string) => {
+    const res = await fetch(`/api/admin/users/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ role }) });
+    if (res.ok) fetchUsers();
+    else {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "Não foi possível atualizar o papel do usuário.");
+      fetchUsers();
+    }
+  };
+  const removeUser = async (id: string) => {
+    const res = await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
+    if (res.ok) fetchUsers();
+    else {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "Não foi possível excluir o usuário.");
+    }
   };
 
   const persistHero = (next: HeroFlavor[]) => {
@@ -173,10 +220,12 @@ export default function DashboardPage() {
         <div style={{ display: "flex", gap: 8, marginBottom: 28, flexWrap: "wrap" }}>
           {(
             [
+              { key: "dashboard", label: "Dashboard" },
               { key: "produtos", label: "Produtos" },
               { key: "secoes", label: "Seções da landing" },
               { key: "pontos", label: "Pontos de venda" },
               { key: "pedidos", label: "Pedidos" },
+              { key: "usuarios", label: "Usuários" },
             ] as { key: Tab; label: string }[]
           ).map((t) => (
             <button
@@ -197,6 +246,40 @@ export default function DashboardPage() {
             </button>
           ))}
         </div>
+
+        {tab === "dashboard" && (
+          <>
+            {!analytics ? (
+              <p style={{ color: "#8b7d76" }}>Carregando...</p>
+            ) : (
+              <>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 24 }}>
+                  <StatTile label="Receita (30 dias)" value={"R$ " + analytics.totalRevenue.toFixed(2).replace(".", ",")} />
+                  <StatTile label="Pedidos (30 dias)" value={String(analytics.totalOrders)} />
+                  <StatTile label="Ticket médio" value={"R$ " + analytics.avgTicket.toFixed(2).replace(".", ",")} />
+                  <StatTile label="Clientes cadastrados" value={String(analytics.userCount)} />
+                  <StatTile label="Produtos ativos" value={String(analytics.productCount)} />
+                </div>
+
+                <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: 24, marginBottom: 24 }}>
+                  <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 18px", color: "#c1531c" }}>Receita por dia — últimos 30 dias</h2>
+                  <RevenueChart data={analytics.revenueByDay} />
+                </div>
+
+                <div className={styles.formRow} style={{ ...cssVars({ "--cols": "1fr 1fr" }), gap: 24, alignItems: "stretch" }}>
+                  <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: 24 }}>
+                    <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 18px", color: "#c1531c" }}>Pedidos por status</h2>
+                    <StatusBreakdown counts={analytics.statusCounts} />
+                  </div>
+                  <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: 24 }}>
+                    <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 18px", color: "#c1531c" }}>Mais vendidos (30 dias)</h2>
+                    <TopProductsChart items={analytics.topProducts} />
+                  </div>
+                </div>
+              </>
+            )}
+          </>
+        )}
 
         {tab === "produtos" && (
           <>
@@ -437,6 +520,44 @@ export default function DashboardPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tab === "usuarios" && (
+          <div className={grid.tableScroll} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, overflow: "hidden" }}>
+            <div className={`${styles.tableGrid} ${styles.tableHeaderRow}`} style={{ ...cssVars({ "--cols": "1.4fr 1.6fr 1fr 0.8fr 1fr auto" }), ...tableHeaderStyle }}>
+              <div>Nome</div>
+              <div>E-mail</div>
+              <div>Papel</div>
+              <div>Pedidos</div>
+              <div>Desde</div>
+              <div>Ações</div>
+            </div>
+            {users.length === 0 && (
+              <div style={{ padding: "22px", color: "#8b7d76", fontSize: 14 }}>Nenhum usuário ainda.</div>
+            )}
+            {users.map((u) => (
+              <div key={u.id} className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1.4fr 1.6fr 1fr 0.8fr 1fr auto" }), ...tableRowStyle }}>
+                <div style={{ fontWeight: 600, color: "#c1531c" }}>{u.name}</div>
+                <div style={{ color: "#8b7d76" }}>{u.email}</div>
+                <select
+                  value={u.role}
+                  onChange={(e) => changeUserRole(u.id, e.target.value)}
+                  style={{ padding: "6px 8px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 12, fontFamily: "Inter", background: "#f5ead9" }}
+                >
+                  {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <div style={{ color: "#8b7d76" }}>{u._count.orders}</div>
+                <div style={{ color: "#8b7d76" }}>{new Date(u.createdAt).toLocaleDateString("pt-BR")}</div>
+                <button onClick={() => removeUser(u.id)} style={linkButtonStyle("#b3554d")}>
+                  Excluir
+                </button>
               </div>
             ))}
           </div>
