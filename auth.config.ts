@@ -10,13 +10,13 @@ export const authConfig = {
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        token.role = (user as { role: "CUSTOMER" | "ADMIN" }).role;
+        token.role = (user as { role: "CUSTOMER" | "PARTNER" | "ADMIN" }).role;
       }
       return token;
     },
     session({ session, token }) {
       if (session.user) {
-        session.user.role = (token.role as "CUSTOMER" | "ADMIN") ?? "CUSTOMER";
+        session.user.role = (token.role as "CUSTOMER" | "PARTNER" | "ADMIN") ?? "CUSTOMER";
         session.user.id = token.sub as string;
       }
       return session;
