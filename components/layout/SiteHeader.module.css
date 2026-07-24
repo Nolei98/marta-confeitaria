@@ -1,0 +1,71 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 100%;
+  height: 76px;
+  z-index: 50;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.header.solid,
+.header.scrolled {
+  height: 72px;
+  background: rgba(193, 83, 28, 0.96);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 32px rgba(193, 83, 28, 0.45), 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+.header.solid {
+  position: sticky;
+}
+
+.whatsapp {
+  transition: all 0.2s ease;
+}
+.whatsapp:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.03);
+}
+
+.navLink {
+  transition: all 0.2s;
+}
+.navLink:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.navLinkActive {
+  color: #fff;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+.logoLink {
+  transition: transform 0.2s ease;
+}
+.logoLink:hover {
+  transform: scale(1.08);
+}
+
+.loginLink {
+  transition: all 0.2s ease;
+}
+.loginLink:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: #fff;
+}
+
+.cartButton {
+  transition: transform 0.2s, background-color 0.2s;
+}
+.cartButton:hover {
+  transform: scale(1.05);
+  background: #fff;
+}
