@@ -7,6 +7,7 @@ import "leaflet/dist/leaflet.css";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
+import grid from "@/styles/grid.module.css";
 
 type Point = { id: number; name: string; address: string; lat: number; lng: number };
 
@@ -93,7 +94,7 @@ export default function OndeEncontrarPage() {
         </p>
       </section>
 
-      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 24, alignItems: "start" }}>
+      <section className={grid.mapGrid} style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", gap: 24, alignItems: "start" }}>
         <div ref={mapElRef} style={{ height: 460, borderRadius: 20, overflow: "hidden", border: "1px solid #eaddd0", background: "#eee" }} />
         <div style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: 460, overflowY: "auto" }}>
           {points.map((p) => (

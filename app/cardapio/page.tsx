@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useCart } from "@/components/cart/CartContext";
 import { useHoverStyle } from "@/lib/useHover";
+import grid from "@/styles/grid.module.css";
 
 const PEDESTAL_COLORS = ["#f6d9dd", "#e6dcef", "#f3e2cf"];
 const LINE_COLORS = ["#c1531c", "#7d52a8", "#d49a37"];
@@ -107,7 +108,7 @@ export default function CardapioPage() {
 
       {filter === "fatias" && (
         <section style={{ padding: "24px 24px 80px", maxWidth: 1160, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "40px 32px" }}>
+          <div className={grid.threeCol} style={{ gap: "40px 32px" }}>
             {SLICES.map((s) => (
               <div key={s.name} style={{ textAlign: "center" }}>
                 <div style={{ position: "relative", background: s.cardBg, borderRadius: 14, padding: "76px 20px 22px", marginTop: 64 }}>
@@ -136,7 +137,7 @@ export default function CardapioPage() {
 
       {filter === "bolos" && (
         <section style={{ padding: "24px 24px 80px", maxWidth: 1160, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 32 }}>
+          <div className={grid.threeCol} style={{ gap: 32 }}>
             {CAKE_MODELS.map((m) => (
               <div key={m.name} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 16, overflow: "hidden" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}

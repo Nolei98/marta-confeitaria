@@ -1,0 +1,17 @@
+.formRow {
+  display: grid;
+  grid-template-columns: var(--cols);
+  gap: 14px;
+  align-items: end;
+}
+@media (max-width: 700px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tableGrid {
+  display: grid;
+  grid-template-columns: var(--cols);
+  min-width: 640px;
+}

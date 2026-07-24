@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
+import grid from "@/styles/grid.module.css";
 
 const MODELS = [
   { name: "Bolo de aniversário", desc: "Chantilly, frutas vermelhas e velinhas — o clássico de toda festa.", img: "/images/cake-10.jpg" },
@@ -88,7 +89,7 @@ export default function BolosPage() {
       </section>
 
       <section style={{ padding: "0 24px 60px", maxWidth: 1160, margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 32 }}>
+        <div className={grid.threeCol} style={{ gap: 32 }}>
           {MODELS.map((m) => (
             <div key={m.name} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 16, overflow: "hidden" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -103,7 +104,7 @@ export default function BolosPage() {
       </section>
 
       <section style={{ padding: "0 24px 80px", maxWidth: 760, margin: "0 auto" }}>
-        <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24, padding: 40 }}>
+        <div className={grid.formPanel} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24 }}>
           <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 24, margin: "0 0 6px", textAlign: "center" }}>Monte seu pedido</h2>
           <p style={{ color: "#8b7d76", textAlign: "center", margin: "0 0 28px", fontSize: 14 }}>Preencha os dados e envie direto pelo WhatsApp</p>
 
@@ -117,7 +118,7 @@ export default function BolosPage() {
           </select>
 
           <label style={{ ...labelStyle, marginBottom: 10 }}>Tamanho</label>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 20 }}>
+          <div className={grid.sizeGrid} style={{ gap: 12, marginBottom: 20 }}>
             {SIZES.map((sz) => (
               <div
                 key={sz.key}

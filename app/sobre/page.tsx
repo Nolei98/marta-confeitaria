@@ -1,5 +1,6 @@
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
+import grid from "@/styles/grid.module.css";
 
 function HeartIcon() {
   return (
@@ -38,7 +39,7 @@ export default function SobrePage() {
     <>
       <SiteHeader />
 
-      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "64px 24px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
+      <section className={grid.twoCol} style={{ maxWidth: 1160, margin: "0 auto", padding: "64px 24px 24px", gap: 48, alignItems: "center" }}>
         <div>
           <div style={{ fontSize: 13, letterSpacing: ".14em", textTransform: "uppercase", color: "#a07882", marginBottom: 14 }}>Nossa história</div>
           <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(30px,4vw,40px)", margin: "0 0 18px", lineHeight: 1.15 }}>
@@ -70,7 +71,7 @@ export default function SobrePage() {
 
       <section style={{ padding: "72px 24px", maxWidth: 1160, margin: "0 auto" }}>
         <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 30, textAlign: "center", margin: "0 0 40px" }}>Nossos valores</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24 }}>
+        <div className={grid.threeCol} style={{ gap: 24 }}>
           {VALUES.map((v) => (
             <div key={v.title} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: 28 }}>
               <div style={{ width: 50, height: 50, borderRadius: 14, background: v.bg, marginBottom: 14, display: "grid", placeItems: "center" }}>
