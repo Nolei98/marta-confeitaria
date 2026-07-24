@@ -33,15 +33,18 @@ export function Footer() {
   );
 
   return (
-    <footer style={{ background: "#a8431a", color: "rgba(255,255,255,.75)", padding: "56px 24px 30px" }}>
+    <footer style={{ position: "relative", background: "#a8431a", color: "rgba(255,255,255,.75)", padding: "56px 24px 30px" }}>
+      <div style={{ position: "absolute", left: 0, top: 0, width: "100%", height: 22, background: "radial-gradient(circle at 10px -6px, transparent 11.6px, #f5ead9 12.4px) 0 0/24px 22px repeat-x", transform: "scaleY(-1)", zIndex: 2 }} />
       <div className={grid.footerGrid} style={{ maxWidth: 1160, margin: "0 auto", gap: 32, alignItems: "start" }}>
-        <div>
-          <Link href="/" style={{ display: "inline-block", marginBottom: 14 }} aria-label="Marta Confeitaria">
-            <Image src="/images/logo.png" alt="Marta Confeitaria" width={76} height={76} style={{ height: 76, width: "auto", objectFit: "contain", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.3))" }} />
-          </Link>
-          <p style={{ fontSize: 14, maxWidth: 280, lineHeight: 1.5, margin: "0 0 12px", color: "rgba(255,255,255,.85)" }}>
-            Bolos caseiros feitos com carinho, fatia por fatia, desde a nossa cozinha para a sua mesa.
-          </p>
+        <div className={grid.footerLogoCol}>
+          <div className={grid.footerLogoRow} style={{ marginBottom: 12 }}>
+            <Link href="/" style={{ display: "inline-block", flexShrink: 0 }} aria-label="Marta Confeitaria">
+              <Image src="/images/logo.png" alt="Marta Confeitaria" width={76} height={76} style={{ height: 76, width: "auto", objectFit: "contain", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.3))" }} />
+            </Link>
+            <p style={{ fontSize: 14, maxWidth: 280, lineHeight: 1.5, margin: "0 0 12px", color: "rgba(255,255,255,.85)" }}>
+              Bolos caseiros feitos com carinho, fatia por fatia, desde a nossa cozinha para a sua mesa.
+            </p>
+          </div>
           <Link href="/admin/dashboard" {...dashboardHover.handlers} style={dashboardHover.style}>
             Painel administrativo
           </Link>
@@ -57,23 +60,21 @@ export function Footer() {
         </div>
 
         <div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <h4 style={{ color: "#fff", fontFamily: "'Playfair Display',serif", margin: 0, fontSize: 16 }}>Onde nos encontrar</h4>
-            <Link href="/onde-encontrar" style={{ fontSize: 13, color: "#fff", textDecoration: "underline" }}>
-              Ver no mapa completo →
-            </Link>
-          </div>
+          <h4 style={{ color: "#fff", fontFamily: "'Playfair Display',serif", marginBottom: 14, fontSize: 16 }}>Onde nos encontrar</h4>
           <iframe
             srcDoc={MAP_SRCDOC}
             width="100%"
-            height={220}
             frameBorder="0"
-            style={{ border: "none", borderRadius: 16, boxShadow: "0 6px 20px rgba(0,0,0,0.25)" }}
+            className={grid.footerMapFrame}
+            style={{ border: "none", borderRadius: 16, boxShadow: "0 6px 20px rgba(0,0,0,0.25)", display: "block", marginBottom: 8 }}
           />
+          <Link href="/onde-encontrar" style={{ fontSize: 12, color: "#fff", textDecoration: "underline" }}>
+            Ver no mapa completo →
+          </Link>
         </div>
       </div>
 
-      <div style={{ maxWidth: 1160, margin: "40px auto 0", paddingTop: 24, borderTop: "1px solid rgba(255,255,255,.1)", fontSize: 13, color: "rgba(255,255,255,.5)", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+      <div className={grid.footerBottomRow} style={{ maxWidth: 1160, margin: "40px auto 0", paddingTop: 24, borderTop: "1px solid rgba(255,255,255,.1)", fontSize: 13, color: "rgba(255,255,255,.5)", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
         <span>© 2026 Marta Confeitaria. Todos os direitos reservados.</span>
         <a href="https://portfolio-jr-lilac.vercel.app/" target="_blank" rel="noreferrer" {...devHover.handlers} style={devHover.style}>
           Desenvolvido por João Rodrigues

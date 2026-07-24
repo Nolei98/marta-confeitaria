@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
@@ -20,7 +20,7 @@ const SIZES = [
 
 const FLAVOR_OPTIONS = ["Chocolate intenso", "Red velvet", "Cenoura com chocolate", "Prestígio", "Ninho com Nutella", "Limão siciliano", "Floresta negra", "Maracujá", "Fubá cremoso"];
 
-const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 15, marginBottom: 20, background: "#fbf7f0", fontFamily: "Inter" };
+const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 15, marginBottom: 20, background: "#f5ead9", fontFamily: "Inter" };
 const labelStyle: React.CSSProperties = { display: "block", fontSize: 13, fontWeight: 600, color: "#c1531c", marginBottom: 6 };
 
 function newCaptcha() {
@@ -46,12 +46,16 @@ export default function BolosPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
-  const [captcha, setCaptcha] = useState(newCaptcha());
+  const [captcha, setCaptcha] = useState<{ a: number; b: number } | null>(null);
   const [captchaInput, setCaptchaInput] = useState("");
   const [captchaError, setCaptchaError] = useState(false);
 
+  useEffect(() => {
+    setCaptcha(newCaptcha());
+  }, []);
+
   const submit = () => {
-    if (parseInt(captchaInput, 10) !== captcha.a + captcha.b) {
+    if (!captcha || parseInt(captchaInput, 10) !== captcha.a + captcha.b) {
       setCaptchaError(true);
       setCaptcha(newCaptcha());
       setCaptchaInput("");
@@ -77,7 +81,7 @@ export default function BolosPage() {
       <SiteHeader />
 
       <section style={{ padding: "64px 24px 20px", maxWidth: 1160, margin: "0 auto", textAlign: "center" }}>
-        <div style={{ fontFamily: "var(--font-display)", fontSize: 15, letterSpacing: ".24em", textTransform: "uppercase", color: "#c1531c", marginBottom: 10 }}>
+        <div className={grid.eyebrow} style={{ fontFamily: "var(--font-display)", fontSize: 15, letterSpacing: ".24em", textTransform: "uppercase", color: "#c1531c", marginBottom: 10 }}>
           Festa · Aniversário · Celebração
         </div>
         <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "clamp(32px,4.6vw,44px)", letterSpacing: ".05em", textTransform: "uppercase", color: "#3f2a26", margin: "0 0 14px" }}>
@@ -130,7 +134,7 @@ export default function BolosPage() {
                   padding: 16,
                   textAlign: "center",
                   cursor: "pointer",
-                  background: size === sz.key ? "#fff" : "#fbf7f0",
+                  background: size === sz.key ? "#fff" : "#f5ead9",
                   transition: "all .15s ease",
                 }}
               >
@@ -160,7 +164,7 @@ export default function BolosPage() {
           />
 
           <label style={labelStyle}>
-            Confirmação: quanto é {captcha.a} + {captcha.b}?
+            Confirmação: quanto é {captcha ? `${captcha.a} + ${captcha.b}` : "..."}?
           </label>
           <input
             type="number"

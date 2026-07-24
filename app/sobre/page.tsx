@@ -1,31 +1,12 @@
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import grid from "@/styles/grid.module.css";
-
-function HeartIcon() {
-  return (
-    <div style={{ position: "relative", width: 20, height: 18 }}>
-      <div style={{ position: "absolute", width: 11, height: 11, background: "#fff", borderRadius: "50%", top: 0, left: 0 }} />
-      <div style={{ position: "absolute", width: 11, height: 11, background: "#fff", borderRadius: "50%", top: 0, right: 0 }} />
-      <div style={{ position: "absolute", width: 15, height: 15, background: "#fff", transform: "rotate(45deg)", bottom: 0, left: 2.5 }} />
-    </div>
-  );
-}
-function LeafIcon() {
-  return <div style={{ width: 20, height: 14, borderRadius: "10px 10px 10px 2px", background: "#fff", transform: "rotate(-45deg)" }} />;
-}
-function PinIcon() {
-  return (
-    <div style={{ width: 20, height: 20, border: "2px solid #fff", borderRadius: "50%", display: "grid", placeItems: "center" }}>
-      <div style={{ width: 7, height: 7, background: "#fff", borderRadius: "50%" }} />
-    </div>
-  );
-}
+import { HeartIcon, LeafIcon, MapPinIcon } from "@/components/icons";
 
 const VALUES = [
-  { title: "Afeto em cada fatia", desc: "Cozinhamos como se fosse para nossa própria família, com tempo e cuidado.", bg: "#e6dcef", Icon: HeartIcon },
-  { title: "Ingredientes de verdade", desc: "Sem atalhos: manteiga, ovos e frutas frescas em cada receita.", bg: "#f6d9dd", Icon: LeafIcon },
-  { title: "Perto de quem pede", desc: "Atendimento próximo, do pedido até a entrega na sua porta.", bg: "#f3e2cf", Icon: PinIcon },
+  { title: "Afeto em cada fatia", desc: "Cozinhamos como se fosse para nossa própria família, com tempo e cuidado.", bg: "#e6dcef", color: "#7d52a8", Icon: HeartIcon },
+  { title: "Ingredientes de verdade", desc: "Sem atalhos: manteiga, ovos e frutas frescas em cada receita.", bg: "#f6d9dd", color: "#c1531c", Icon: LeafIcon },
+  { title: "Perto de quem pede", desc: "Atendimento próximo, do pedido até a entrega na sua porta.", bg: "#f3e2cf", color: "#d49a37", Icon: MapPinIcon },
 ];
 
 const STATS = [
@@ -41,7 +22,7 @@ export default function SobrePage() {
 
       <section className={grid.twoCol} style={{ maxWidth: 1160, margin: "0 auto", padding: "64px 24px 24px", gap: 48, alignItems: "center" }}>
         <div>
-          <div style={{ fontSize: 13, letterSpacing: ".14em", textTransform: "uppercase", color: "#a07882", marginBottom: 14 }}>Nossa história</div>
+          <div className={grid.eyebrow} style={{ fontSize: 13, letterSpacing: ".14em", textTransform: "uppercase", color: "#a07882", marginBottom: 14 }}>Nossa história</div>
           <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(30px,4vw,40px)", margin: "0 0 18px", lineHeight: 1.15 }}>
             De uma cozinha de casa para o bairro inteiro
           </h1>
@@ -74,7 +55,7 @@ export default function SobrePage() {
         <div className={grid.threeCol} style={{ gap: 24 }}>
           {VALUES.map((v) => (
             <div key={v.title} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: 28 }}>
-              <div style={{ width: 50, height: 50, borderRadius: 14, background: v.bg, marginBottom: 14, display: "grid", placeItems: "center" }}>
+              <div style={{ width: 50, height: 50, borderRadius: 14, background: v.bg, marginBottom: 14, display: "grid", placeItems: "center", color: v.color }}>
                 <v.Icon />
               </div>
               <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 19, margin: "0 0 8px", color: "#c1531c" }}>{v.title}</h3>

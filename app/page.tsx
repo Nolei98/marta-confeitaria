@@ -8,6 +8,7 @@ import { useCart } from "@/components/cart/CartContext";
 import { useHoverStyle } from "@/lib/useHover";
 import grid from "@/styles/grid.module.css";
 import hero from "./HomeHero.module.css";
+import { HeartIcon, ClockIcon, TagIcon } from "@/components/icons";
 
 type Flavor = { key: string; name: string; desc: string; price: string; img: string; bg: string; bgImg: string };
 
@@ -50,10 +51,18 @@ const SHAPE_SETS: Record<string, { top: string; left: string; size: number; colo
 };
 
 function wrapStyle(offset: number): React.CSSProperties {
-  const base: React.CSSProperties = { position: "absolute", top: "50%", left: "50%", width: 250, height: 330, transition: "transform .8s cubic-bezier(.22,1,.36,1), opacity .6s ease", cursor: "pointer" };
+  const base: React.CSSProperties = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    width: "clamp(150px, 44vw, 250px)",
+    height: "clamp(198px, 58vw, 330px)",
+    transition: "transform .8s cubic-bezier(.22,1,.36,1), opacity .6s ease",
+    cursor: "pointer",
+  };
   if (offset === 0) return { ...base, transform: "translate(-50%,-50%) scale(1.18) rotateY(0deg)", opacity: 1, zIndex: 3 };
-  if (offset === -1) return { ...base, transform: "translate(-50%,-50%) translateX(-165px) translateY(18px) scale(.66) rotateY(30deg)", opacity: 0.5, zIndex: 1 };
-  return { ...base, transform: "translate(-50%,-50%) translateX(165px) translateY(18px) scale(.66) rotateY(-30deg)", opacity: 0.5, zIndex: 1 };
+  if (offset === -1) return { ...base, transform: "translate(-50%,-50%) translateX(clamp(-165px,-24vw,-78px)) translateY(18px) scale(.66) rotateY(30deg)", opacity: 0.5, zIndex: 1 };
+  return { ...base, transform: "translate(-50%,-50%) translateX(clamp(78px,24vw,165px)) translateY(18px) scale(.66) rotateY(-30deg)", opacity: 0.5, zIndex: 1 };
 }
 function imgStyle(offset: number): React.CSSProperties {
   const base: React.CSSProperties = { width: "100%", height: "100%", objectFit: "contain", transition: "filter .6s ease" };
@@ -80,8 +89,30 @@ function CardapioCta() {
   );
   return (
     <Link href="/cardapio" {...hover.handlers} style={hover.style}>
-      Ver cardápio
+      Comprar agora
     </Link>
+  );
+}
+
+function WhatsAppHeroButton() {
+  const hover = useHoverStyle(
+    { width: 40, height: 40, borderRadius: "50%", background: "transparent", border: "1.5px solid #fff", color: "#fff", display: "grid", placeItems: "center", flexShrink: 0 },
+    { background: "rgba(255,255,255,.15)", transform: "scale(1.08)" }
+  );
+  return (
+    <a
+      href="https://wa.me/5587998765432"
+      target="_blank"
+      rel="noreferrer"
+      title="Falar no WhatsApp"
+      aria-label="Falar no WhatsApp"
+      {...hover.handlers}
+      style={hover.style}
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.85 9.85 0 0 0 12.04 2zm5.8 14.07c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.12.11-1.81-.11-.42-.13-.95-.31-1.64-.6-2.88-1.24-4.76-4.14-4.9-4.33-.14-.19-1.17-1.55-1.17-2.96 0-1.4.74-2.09 1-2.38.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.18.01.41-.07.64.49.24.57.81 1.98.88 2.12.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.42.49-.14.14-.28.29-.12.57.16.28.71 1.17 1.52 1.9 1.05.94 1.93 1.23 2.21 1.37.28.14.44.12.6-.07.16-.19.69-.8.88-1.08.19-.28.37-.23.63-.14.26.09 1.64.77 1.92.91.28.14.47.21.53.33.07.12.07.68-.17 1.36z" />
+      </svg>
+    </a>
   );
 }
 
@@ -112,7 +143,7 @@ function BestsellerAddButton({ onClick }: { onClick: () => void }) {
     { color: "#fff", background: "#c1531c", transform: "scale(1.15)" }
   );
   return (
-    <button onClick={onClick} aria-label="Adicionar ao carrinho" {...hover.handlers} style={hover.style}>
+    <button onClick={onClick} aria-label="Adicionar ao carrinho" className={hero.bestsellerAdd} {...hover.handlers} style={hover.style}>
       +
     </button>
   );
@@ -211,7 +242,7 @@ export default function HomePage() {
         ))}
 
         <div className={`${hero.heroWrap} ${grid.heroGrid}`} style={{ position: "relative", zIndex: 1, maxWidth: 1160, margin: "0 auto", gap: 40, alignItems: "center", width: "100%" }}>
-          <div style={{ minWidth: 0 }}>
+          <div className={hero.heroTextCol} style={{ minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", marginBottom: 18 }}>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(255,255,255,.8)" }}>
                 Feito à mão, fatia por fatia
@@ -229,6 +260,7 @@ export default function HomePage() {
                 {active.price} <span style={{ fontFamily: "Inter,sans-serif", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,.7)" }}>/ fatia</span>
               </div>
               <CardapioCta />
+              <WhatsAppHeroButton />
               <div style={{ width: 64, height: 64, borderRadius: "50%", border: "1.5px dashed rgba(255,255,255,.55)", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", transform: "rotate(-8deg)", flexShrink: 0 }}>
                 <span style={{ fontFamily: "'Playfair Display',serif", fontSize: 11, fontStyle: "italic", color: "rgba(255,255,255,.85)", lineHeight: 1.15 }}>
                   100%
@@ -237,13 +269,13 @@ export default function HomePage() {
                 </span>
               </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative", zIndex: 5 }}>
+            <div className={hero.prevNextDesktop} style={{ alignItems: "center", gap: 10, position: "relative", zIndex: 5 }}>
               <PrevNextButton onClick={prev} label="Sabor anterior">‹</PrevNextButton>
               <PrevNextButton onClick={next} label="Próximo sabor">›</PrevNextButton>
             </div>
           </div>
 
-          <div>
+          <div className={hero.heroImageCol}>
             <div className={hero.coverflow} style={{ position: "relative", perspective: 1300 }}>
               {slides.map((s) => (
                 // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
@@ -253,16 +285,20 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
+            <div className={hero.prevNextMobile} style={{ alignItems: "center", gap: 10, position: "relative", zIndex: 5 }}>
+              <PrevNextButton onClick={prev} label="Sabor anterior">‹</PrevNextButton>
+              <PrevNextButton onClick={next} label="Próximo sabor">›</PrevNextButton>
+            </div>
           </div>
         </div>
         <div style={{ position: "absolute", left: 0, bottom: 2, width: "100%", height: 23, background: "radial-gradient(circle at 10px -6px, transparent 11.6px, #c1531c 12.4px) 0 0/24px 22px repeat-x", zIndex: 1 }} />
-        <div style={{ position: "absolute", left: 0, bottom: 0, width: "100%", height: 22, background: "radial-gradient(circle at 10px -6px, transparent 11.6px, #fbf7f0 12.4px) 0 0/24px 22px repeat-x", zIndex: 2 }} />
+        <div style={{ position: "absolute", left: 0, bottom: 0, width: "100%", height: 22, background: "radial-gradient(circle at 10px -6px, transparent 11.6px, #f5ead9 12.4px) 0 0/24px 22px repeat-x", zIndex: 2 }} />
       </section>
 
       {/* FATIAS DO DIA */}
       <section style={{ padding: "88px 24px 72px", maxWidth: 1160, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 52 }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 15, letterSpacing: ".24em", textTransform: "uppercase", color: "#c1531c", marginBottom: 10 }}>
+          <div className={grid.eyebrow} style={{ fontFamily: "var(--font-display)", fontSize: 15, letterSpacing: ".24em", textTransform: "uppercase", color: "#c1531c", marginBottom: 10 }}>
             Feito à mão · Fresquinho · Afeto
           </div>
           <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 40, letterSpacing: ".06em", textTransform: "uppercase", color: "#3f2a26", margin: 0 }}>
@@ -293,7 +329,7 @@ export default function HomePage() {
       <section style={{ padding: "72px 24px", background: "#f7f1e8" }}>
         <div style={{ maxWidth: 1160, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 44 }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 15, letterSpacing: ".24em", textTransform: "uppercase", color: "#c1531c", marginBottom: 10 }}>
+            <div className={grid.eyebrow} style={{ fontFamily: "var(--font-display)", fontSize: 15, letterSpacing: ".24em", textTransform: "uppercase", color: "#c1531c", marginBottom: 10 }}>
               Provado · Aprovado · Repetido
             </div>
             <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 38, letterSpacing: ".06em", textTransform: "uppercase", color: "#3f2a26", margin: 0 }}>
@@ -304,7 +340,7 @@ export default function HomePage() {
             {BESTSELLERS.map((sl) => (
               <div key={sl.name} style={{ textAlign: "center" }}>
                 <div style={{ position: "relative", background: "#fff", border: "1px solid #eaddd0", borderRadius: 14, padding: "52px 12px 16px", marginTop: 44 }}>
-                  <div style={{ position: "absolute", top: 8, left: 8, display: "flex", alignItems: "center", gap: 3, color: "#c1531c", fontFamily: "var(--font-display)", zIndex: 1, background: "rgba(251,247,240,.9)", padding: "3px 7px", borderRadius: 12, boxShadow: "0 2px 6px rgba(0,0,0,.08)" }}>
+                  <div className={hero.bestsellerBadge} style={{ position: "absolute", top: 8, left: 8, display: "flex", alignItems: "center", gap: 3, color: "#c1531c", fontFamily: "var(--font-display)", zIndex: 1, background: "rgba(251,247,240,.9)", padding: "3px 7px", borderRadius: 12, boxShadow: "0 2px 6px rgba(0,0,0,.08)" }}>
                     <span style={{ fontSize: 11 }}>★</span>
                     <span style={{ fontSize: 13, fontWeight: 700 }}>{sl.rank}</span>
                   </div>
@@ -325,7 +361,7 @@ export default function HomePage() {
       {/* POR QUE ESCOLHER */}
       <section style={{ padding: "72px 24px", maxWidth: 1160, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 15, letterSpacing: ".24em", textTransform: "uppercase", color: "#c1531c", marginBottom: 10 }}>
+          <div className={grid.eyebrow} style={{ fontFamily: "var(--font-display)", fontSize: 15, letterSpacing: ".24em", textTransform: "uppercase", color: "#c1531c", marginBottom: 10 }}>
             Simples · Honesto · Nosso
           </div>
           <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 38, letterSpacing: ".06em", textTransform: "uppercase", color: "#3f2a26", margin: 0 }}>
@@ -334,31 +370,22 @@ export default function HomePage() {
         </div>
         <div className={grid.threeCol} style={{ gap: 24 }}>
           <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: "30px 26px", textAlign: "center" }}>
-            <div style={{ width: 50, height: 50, borderRadius: "50%", background: "#f6d9dd", margin: "0 auto 16px", display: "grid", placeItems: "center" }}>
-              <div style={{ position: "relative", width: 20, height: 18 }}>
-                <div style={{ position: "absolute", width: 11, height: 11, background: "#fff", borderRadius: "50%", top: 0, left: 0 }} />
-                <div style={{ position: "absolute", width: 11, height: 11, background: "#fff", borderRadius: "50%", top: 0, right: 0 }} />
-                <div style={{ position: "absolute", width: 15, height: 15, background: "#fff", transform: "rotate(45deg)", bottom: 0, left: 2.5 }} />
-              </div>
+            <div style={{ width: 50, height: 50, borderRadius: "50%", background: "#f6d9dd", margin: "0 auto 16px", display: "grid", placeItems: "center", color: "#c1531c" }}>
+              <HeartIcon />
             </div>
             <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 8px", color: "#c1531c" }}>Receita caseira</h3>
             <p style={{ fontSize: 14, color: "#8b7d76", margin: 0 }}>Feita com ingredientes simples, do jeito que a vó fazia.</p>
           </div>
           <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: "30px 26px", textAlign: "center" }}>
-            <div style={{ width: 50, height: 50, borderRadius: "50%", background: "#e6dcef", margin: "0 auto 16px", display: "grid", placeItems: "center" }}>
-              <div style={{ width: 22, height: 22, border: "2px solid #fff", borderRadius: "50%", position: "relative" }}>
-                <div style={{ position: "absolute", top: 2, left: 9, width: 2, height: 7, background: "#fff" }} />
-                <div style={{ position: "absolute", top: 8, left: 9, width: 6, height: 2, background: "#fff" }} />
-              </div>
+            <div style={{ width: 50, height: 50, borderRadius: "50%", background: "#e6dcef", margin: "0 auto 16px", display: "grid", placeItems: "center", color: "#7d52a8" }}>
+              <ClockIcon />
             </div>
             <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 8px", color: "#c1531c" }}>Sempre fresquinho</h3>
             <p style={{ fontSize: 14, color: "#8b7d76", margin: 0 }}>Assamos todos os dias — nada fica na prateleira.</p>
           </div>
           <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: "30px 26px", textAlign: "center" }}>
-            <div style={{ width: 50, height: 50, borderRadius: "50%", background: "#f3e2cf", margin: "0 auto 16px", display: "grid", placeItems: "center" }}>
-              <div style={{ width: 16, height: 16, background: "#fff", borderRadius: 3, transform: "rotate(45deg)", position: "relative" }}>
-                <div style={{ position: "absolute", top: 4, left: 4, width: 4, height: 4, background: "#f3e2cf", borderRadius: "50%" }} />
-              </div>
+            <div style={{ width: 50, height: 50, borderRadius: "50%", background: "#f3e2cf", margin: "0 auto 16px", display: "grid", placeItems: "center", color: "#d49a37" }}>
+              <TagIcon />
             </div>
             <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 8px", color: "#c1531c" }}>Preço justo</h3>
             <p style={{ fontSize: 14, color: "#8b7d76", margin: 0 }}>Qualidade de confeitaria fina, sem pesar no bolso.</p>
@@ -370,7 +397,7 @@ export default function HomePage() {
       <section style={{ padding: "0 24px 80px", maxWidth: 1160, margin: "0 auto" }}>
         <div className={grid.twoCol} style={{ background: "#3b2420", borderRadius: 24, padding: 24, alignItems: "center", gap: 32 }}>
           <div style={{ padding: "24px 12px 24px 24px", color: "#fff" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 13, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(255,255,255,.75)", marginBottom: 16 }}>
+            <div className={grid.eyebrow} style={{ fontFamily: "var(--font-display)", fontSize: 13, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(255,255,255,.75)", marginBottom: 16 }}>
               Sob encomenda
             </div>
             <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 32, letterSpacing: ".04em", textTransform: "uppercase", margin: "0 0 16px", lineHeight: 1.2 }}>

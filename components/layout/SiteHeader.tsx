@@ -47,28 +47,19 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
   return (
     <header
       className={`${styles.header} ${floating ? (scrolled ? styles.scrolled : "") : styles.solid}`}
+      style={mobileOpen ? { left: 0, transform: "none", backdropFilter: "none", WebkitBackdropFilter: "none", transition: "none" } : undefined}
     >
-      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "0 24px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", color: "#fff" }}>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <a
-            href="https://wa.me/5587998765432"
-            target="_blank"
-            rel="noreferrer"
-            title="Falar no WhatsApp"
-            className={`${styles.whatsapp} ${styles.desktopOnly}`}
-            style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,.15)", border: "1px solid rgba(255,255,255,.28)", color: "#fff", borderRadius: 30, padding: "7px 16px", fontSize: 13, fontWeight: 600, backdropFilter: "blur(6px)" }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-            </svg>
-            (87) 99876-5432
-          </a>
+      <div style={{ position: "relative", maxWidth: 1180, margin: "0 auto", padding: "0 24px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", color: "#fff" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <Link href="/" aria-label="Marta Confeitaria" className={styles.mobileLogo}>
+            <Image src="/images/logo.png" alt="Marta Confeitaria" height={40} width={40} style={{ height: 40, width: "auto", objectFit: "contain", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.3))" }} />
+          </Link>
           <button
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Menu"
             aria-expanded={mobileOpen}
             className={styles.mobileToggle}
-            style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,.15)", border: "none", color: "#fff", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+            style={{ width: 40, height: 40, background: "transparent", border: "none", color: "#fff", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               {mobileOpen ? <path d="M18 6 6 18M6 6l12 12" /> : <path d="M3 6h18M3 12h18M3 18h18" />}
@@ -76,7 +67,7 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
           </button>
         </div>
 
-        <div className={styles.desktopOnly} style={{ display: "flex", alignItems: "center", gap: 22 }}>
+        <div className={styles.desktopOnly} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 22 }}>
           <nav style={{ display: "flex", gap: 16, fontSize: 14, fontWeight: 500, alignItems: "center" }}>
             <Link href="/" className={navLinkClass("/")} style={{ padding: "6px 12px", borderRadius: 20 }}>
               Início
@@ -88,8 +79,8 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
             ))}
           </nav>
 
-          <Link href="/" aria-label="Marta Confeitaria" className={styles.logoLink} style={{ display: "flex", alignItems: "center", margin: "0 4px" }}>
-            <Image src="/images/logo.png" alt="Marta Confeitaria" height={56} width={56} style={{ height: 56, width: "auto", objectFit: "contain", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.3))" }} />
+          <Link href="/" aria-label="Marta Confeitaria" className={styles.logoLink} style={{ display: "flex", alignItems: "center", flexShrink: 0, margin: "0 4px" }}>
+            <Image src="/images/logo.png" alt="Marta Confeitaria" height={56} width={56} style={{ height: 56, width: 56, objectFit: "contain", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.3))" }} />
           </Link>
 
           <nav style={{ display: "flex", gap: 16, fontSize: 14, fontWeight: 500, alignItems: "center" }}>
@@ -101,29 +92,66 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
           </nav>
         </div>
 
-        <Link href="/" aria-label="Marta Confeitaria" className={styles.mobileLogo}>
-          <Image src="/images/logo.png" alt="Marta Confeitaria" height={44} width={44} style={{ height: 44, width: "auto", objectFit: "contain", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.3))" }} />
-        </Link>
-
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Link
             href="/conta"
+            title="Entrar"
+            aria-label="Entrar"
             className={`${styles.loginLink} ${styles.desktopOnly}`}
-            style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,.9)", padding: "7px 15px", borderRadius: 20, border: "1px solid rgba(255,255,255,.3)", backdropFilter: "blur(6px)" }}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", color: "rgba(255,255,255,.9)", border: "1px solid rgba(255,255,255,.3)", backdropFilter: "blur(6px)" }}
           >
-            Login
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <path d="M10 17l5-5-5-5" />
+              <path d="M15 12H3" />
+            </svg>
           </Link>
+          <div className={styles.mobileOnly} style={{ position: "relative", alignItems: "center" }}>
+            <Link
+              href="/cardapio"
+              title="Ver Cardápio"
+              aria-label="Ver Cardápio"
+              style={{ display: "flex", width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,.15)", border: "1.5px solid #c1531c", color: "#fff", alignItems: "center", justifyContent: "center" }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                <path d="M8 7h8M8 11h6"></path>
+              </svg>
+            </Link>
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 10px)",
+                right: -4,
+                background: "#fff",
+                color: "#3f2a26",
+                padding: "8px 12px",
+                borderRadius: 10,
+                fontSize: 12,
+                fontWeight: 600,
+                boxShadow: "0 8px 24px rgba(58,33,28,.2)",
+                whiteSpace: "nowrap",
+                border: "1px solid #eaddd0",
+                animation: "speechBubbleFade 6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards",
+              }}
+            >
+              <div style={{ position: "absolute", right: 14, top: -5, transform: "rotate(45deg)", width: 9, height: 9, background: "#fff", borderLeft: "1px solid #eaddd0", borderTop: "1px solid #eaddd0" }} />
+              Confira nosso Cardápio
+            </div>
+          </div>
           <button
             onClick={toggleCart}
+            aria-label="Carrinho"
+            title="Carrinho"
             className={styles.cartButton}
-            style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", color: "#c1531c", borderRadius: 30, padding: "8px 18px", fontSize: 14, fontWeight: 700, position: "relative", border: "none", cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 14px rgba(0,0,0,.18)" }}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, background: "#fff", color: "#c1531c", borderRadius: "50%", position: "relative", border: "none", cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 14px rgba(0,0,0,.18)" }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="9" cy="21" r="1"></circle>
               <circle cx="20" cy="21" r="1"></circle>
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
             </svg>
-            <span className={styles.cartLabel}>Carrinho</span>
             {cartCount > 0 && (
               <span style={{ position: "absolute", top: -6, right: -6, background: "#a07882", color: "#fff", borderRadius: "50%", minWidth: 20, height: 20, fontSize: 11, display: "grid", placeItems: "center", padding: "0 4px", boxShadow: "0 2px 6px rgba(0,0,0,.25)" }}>
                 {cartCount}

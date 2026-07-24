@@ -5,6 +5,7 @@ import { CartProvider } from "@/components/cart/CartContext";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { BackToTop } from "./BackToTop";
 import { CardapioShortcut } from "./CardapioShortcut";
+import { PageDecor } from "./PageDecor";
 
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -12,7 +13,10 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <CartProvider>
-      {children}
+      <div style={{ position: "relative" }}>
+        {!isAdmin && <PageDecor />}
+        {children}
+      </div>
       {!isAdmin && (
         <>
           <CardapioShortcut />

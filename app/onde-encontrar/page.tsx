@@ -87,7 +87,7 @@ export default function OndeEncontrarPage() {
       <SiteHeader />
 
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "56px 24px 20px", textAlign: "center" }}>
-        <div style={{ fontSize: 13, letterSpacing: ".14em", textTransform: "uppercase", color: "#a07882", marginBottom: 12 }}>Nossos pontos de venda</div>
+        <div className={grid.eyebrow} style={{ fontSize: 13, letterSpacing: ".14em", textTransform: "uppercase", color: "#a07882", marginBottom: 12 }}>Nossos pontos de venda</div>
         <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,4vw,38px)", margin: "0 0 12px" }}>Onde nos encontrar</h1>
         <p style={{ color: "#8b7d76", maxWidth: 520, margin: "0 auto 32px" }}>
           Além da nossa cozinha, você encontra as fatias da Marta em pontos parceiros pela cidade.
@@ -106,7 +106,7 @@ export default function OndeEncontrarPage() {
       <section style={{ padding: "0 24px 80px", maxWidth: 1160, margin: "0 auto" }}>
         <div style={{ background: "#c1531c", borderRadius: 26, padding: "44px 40px", color: "#fff", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
           <div>
-            <div style={{ fontSize: 13, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(255,255,255,.75)", marginBottom: 10 }}>
+            <div className={grid.eyebrow} style={{ fontSize: 13, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(255,255,255,.75)", marginBottom: 10 }}>
               Tem uma loja ou padaria?
             </div>
             <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 24, margin: "0 0 8px" }}>Seja um ponto de venda parceiro</h2>

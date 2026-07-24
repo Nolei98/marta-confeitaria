@@ -5,14 +5,15 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
 import grid from "@/styles/grid.module.css";
+import { BoxIcon, TrendingUpIcon, MessageCircleIcon } from "@/components/icons";
 
-const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 15, marginBottom: 18, background: "#fbf7f0", fontFamily: "Inter" };
+const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 15, marginBottom: 18, background: "#f5ead9", fontFamily: "Inter" };
 const labelStyle: React.CSSProperties = { display: "block", fontSize: 13, fontWeight: 600, color: "#c1531c", marginBottom: 6 };
 
 const PERKS = [
-  { bg: "#f6d9dd", title: "Entrega programada", desc: "Fatias fresquinhas entregues nos dias combinados, sem complicação.", icon: <div style={{ width: 18, height: 18, border: "2px solid #fff", borderRadius: 4 }} /> },
-  { bg: "#e6dcef", title: "Margem atrativa", desc: "Preço especial para revenda, com boa margem pro seu negócio.", icon: <div style={{ width: 20, height: 20, border: "2px solid #fff", borderRadius: "50%" }} /> },
-  { bg: "#f3e2cf", title: "Suporte próximo", desc: "Time direto no WhatsApp pra combinar tudo, do pedido à reposição.", icon: <div style={{ width: 20, height: 14, borderRadius: "10px 10px 10px 2px", background: "#fff" }} /> },
+  { bg: "#f6d9dd", color: "#c1531c", title: "Entrega programada", desc: "Fatias fresquinhas entregues nos dias combinados, sem complicação.", icon: <BoxIcon size={22} /> },
+  { bg: "#e6dcef", color: "#7d52a8", title: "Margem atrativa", desc: "Preço especial para revenda, com boa margem pro seu negócio.", icon: <TrendingUpIcon size={22} /> },
+  { bg: "#f3e2cf", color: "#d49a37", title: "Suporte próximo", desc: "Time direto no WhatsApp pra combinar tudo, do pedido à reposição.", icon: <MessageCircleIcon size={22} /> },
 ];
 
 function SubmitButton({ onClick }: { onClick: () => void }) {
@@ -51,7 +52,7 @@ export default function RevendaPage() {
       <SiteHeader />
 
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "56px 24px 20px", textAlign: "center" }}>
-        <div style={{ fontSize: 13, letterSpacing: ".14em", textTransform: "uppercase", color: "#a07882", marginBottom: 12 }}>Parceria</div>
+        <div className={grid.eyebrow} style={{ fontSize: 13, letterSpacing: ".14em", textTransform: "uppercase", color: "#a07882", marginBottom: 12 }}>Parceria</div>
         <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,4vw,38px)", margin: "0 0 12px" }}>Seja revendedor</h1>
         <p style={{ color: "#8b7d76", maxWidth: 560, margin: "0 auto 32px" }}>
           Tem uma padaria, cafeteria ou loja de conveniência? Revenda as fatias da Marta e aumente seu cardápio de doces sem colocar a mão na massa.
@@ -61,7 +62,7 @@ export default function RevendaPage() {
       <section className={grid.threeCol} style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", gap: 24 }}>
         {PERKS.map((p) => (
           <div key={p.title} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: 28, textAlign: "center" }}>
-            <div style={{ width: 50, height: 50, borderRadius: "50%", background: p.bg, margin: "0 auto 16px", display: "grid", placeItems: "center" }}>{p.icon}</div>
+            <div style={{ width: 50, height: 50, borderRadius: "50%", background: p.bg, margin: "0 auto 16px", display: "grid", placeItems: "center", color: p.color }}>{p.icon}</div>
             <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 8px", color: "#c1531c" }}>{p.title}</h3>
             <p style={{ fontSize: 14, color: "#8b7d76", margin: 0 }}>{p.desc}</p>
           </div>

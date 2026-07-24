@@ -1,0 +1,15 @@
+@media (max-width: 900px) {
+  .cardapioWrap {
+    display: none !important;
+  }
+  .backTopBtn {
+    right: 14px !important;
+    width: 30px !important;
+    height: 30px !important;
+    bottom: 20px !important;
+  }
+  .backTopBtn svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+}

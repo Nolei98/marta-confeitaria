@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body style={{ fontFamily: "Inter, system-ui, sans-serif", color: "#3a2b28", background: "#fbf7f0", lineHeight: 1.5, minHeight: "100vh", margin: 0 }}>
+      <body style={{ fontFamily: "Inter, system-ui, sans-serif", color: "#3a2b28", background: "#f5ead9", lineHeight: 1.5, minHeight: "100vh", margin: 0 }}>
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>

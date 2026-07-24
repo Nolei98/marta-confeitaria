@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useHoverStyle } from "@/lib/useHover";
 import styles from "./SimpleHeader.module.css";
+import { LogOutIcon } from "@/components/icons";
 
 function BackLink({ style }: { style: React.CSSProperties }) {
   const hover = useHoverStyle(style, { color: "#fff" });
@@ -29,9 +30,8 @@ function LegalHeader() {
 }
 
 function AdminHeader() {
-  const backHover = useHoverStyle({ fontSize: 14, color: "rgba(255,255,255,.85)" }, { color: "#fff" });
   const exitHover = useHoverStyle(
-    { fontSize: 13, fontWeight: 600, color: "#fff", background: "rgba(0,0,0,.2)", padding: "6px 14px", borderRadius: 20, border: "1px solid rgba(255,255,255,.25)" },
+    { display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, color: "#fff", background: "rgba(0,0,0,.2)", borderRadius: "50%", border: "1px solid rgba(255,255,255,.25)" },
     { background: "rgba(0,0,0,.35)" }
   );
   return (
@@ -41,14 +41,9 @@ function AdminHeader() {
           <Image src="/images/logo.png" alt="Marta Confeitaria" width={48} height={48} style={{ height: 48, width: "auto", objectFit: "contain" }} />
           <span className={styles.adminTitleText}>Painel administrativo</span>
         </div>
-        <div className={styles.adminActions} style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <Link href="/" {...backHover.handlers} style={backHover.style}>
-            ← Voltar ao site
-          </Link>
-          <Link href="/" {...exitHover.handlers} style={exitHover.style}>
-            Sair do painel
-          </Link>
-        </div>
+        <Link href="/" title="Sair do painel" aria-label="Sair do painel" {...exitHover.handlers} style={exitHover.style}>
+          <LogOutIcon size={17} />
+        </Link>
       </div>
     </header>
   );

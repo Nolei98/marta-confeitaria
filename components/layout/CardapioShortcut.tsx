@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useHoverStyle } from "@/lib/useHover";
+import styles from "./FloatingActions.module.css";
+import { BookOpenIcon, CakeSliceIcon } from "@/components/icons";
 
 export function CardapioShortcut() {
   const fabHover = useHoverStyle(
@@ -9,51 +11,56 @@ export function CardapioShortcut() {
       width: 54,
       height: 54,
       borderRadius: "50%",
-      background: "#c1531c",
-      color: "#fff",
+      background: "rgba(193,83,28,.12)",
+      color: "#c1531c",
       display: "grid",
       placeItems: "center",
-      boxShadow: "0 10px 28px rgba(193,83,28,.45), 0 4px 12px rgba(0,0,0,.12), inset 0 2px 4px rgba(255,255,255,.35)",
+      border: "1.5px solid rgba(193,83,28,.4)",
+      boxShadow: "0 12px 30px rgba(58,33,26,.16), 0 2px 8px rgba(0,0,0,.06)",
       pointerEvents: "auto",
       textDecoration: "none",
+      backdropFilter: "blur(6px)",
       animation: "fabAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both",
     },
-    { transform: "translateY(-4px) scale(1.08)", background: "#9c3f14" }
+    { transform: "translateY(-4px) scale(1.08)", background: "rgba(193,83,28,.22)", borderColor: "rgba(193,83,28,.6)" }
   );
 
   return (
-    <div style={{ position: "fixed", left: 24, bottom: 24, zIndex: 60, display: "flex", alignItems: "center", gap: 12, pointerEvents: "none" }}>
+    <div className={styles.cardapioWrap} style={{ position: "fixed", right: 24, bottom: 24, zIndex: 60, display: "flex", flexDirection: "row-reverse", alignItems: "center", gap: 12, pointerEvents: "none" }}>
       <Link
         href="/cardapio"
         title="Ver Cardápio"
         aria-label="Ver Cardápio"
+        className={styles.cardapioBtn}
         {...fabHover.handlers}
         style={fabHover.style}
       >
-        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-          <path d="M8 7h8M8 11h6"></path>
-        </svg>
+        <BookOpenIcon size={22} />
       </Link>
       <div
         style={{
           position: "relative",
           background: "#fff",
           color: "#3f2a26",
-          padding: "9px 14px",
+          padding: "10px 16px",
           borderRadius: 12,
           fontSize: 13,
           fontWeight: 600,
-          boxShadow: "0 8px 24px rgba(58,33,28,.2)",
+          boxShadow: "0 12px 28px rgba(58,33,28,.22), 0 2px 8px rgba(58,33,28,.08)",
           whiteSpace: "nowrap",
           pointerEvents: "auto",
           animation: "speechBubbleFade 6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards",
-          border: "1px solid #eaddd0",
+          border: "1px solid rgba(193,83,28,.16)",
+          transform: "translateY(-10px)",
         }}
       >
-        <div style={{ position: "absolute", left: -6, top: "50%", transform: "translateY(-50%) rotate(45deg)", width: 10, height: 10, background: "#fff", borderLeft: "1px solid #eaddd0", borderBottom: "1px solid #eaddd0" }} />
-        Confira nosso cardápio! 🍰
+        <div style={{ position: "absolute", right: -5, top: "calc(50% + 10px)", transform: "translateY(-50%) rotate(45deg)", width: 9, height: 9, background: "#fff", borderTop: "1px solid rgba(193,83,28,.16)", borderRight: "1px solid rgba(193,83,28,.16)" }} />
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+          <span style={{ color: "#c1531c", display: "flex" }}>
+            <CakeSliceIcon size={14} />
+          </span>
+          Confira nosso cardápio!
+        </span>
       </div>
     </div>
   );

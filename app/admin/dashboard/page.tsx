@@ -226,42 +226,39 @@ export default function DashboardPage() {
               )}
             </div>
 
-            <div className={grid.tableScroll} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, overflow: "hidden" }}>
-              <div className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1.6fr 1fr 1fr 1fr auto" }), ...tableHeaderStyle }}>
-                <div>Nome</div>
-                <div>Categoria</div>
-                <div>Preço</div>
-                <div>Status</div>
-                <div>Ações</div>
-              </div>
+            <div className={styles.productGrid}>
               {products.map((p) => (
-                <div key={p.id} className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1.6fr 1fr 1fr 1fr auto" }), ...tableRowStyle }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 600, color: "#c1531c" }}>
-                    <span style={{ width: 32, height: 32, borderRadius: 8, background: "#f7f1e8", overflow: "hidden", flexShrink: 0, display: "grid", placeItems: "center" }}>
-                      {p.image && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      )}
-                    </span>
-                    {p.name}
+                <div key={p.id} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                  <div style={{ height: 140, background: "#f7f1e8", display: "grid", placeItems: "center", overflow: "hidden" }}>
+                    {p.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <span style={{ fontSize: 12, color: "#8b7d76" }}>Sem foto</span>
+                    )}
                   </div>
-                  <div style={{ color: "#8b7d76" }}>{p.category}</div>
-                  <div style={{ color: "#8b7d76" }}>{p.price}</div>
-                  <div>
-                    <button
-                      onClick={() => toggleActive(p.id)}
-                      style={{ border: "none", borderRadius: 20, padding: "6px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", background: p.active ? "#e3f0e6" : "#f2e4e4", color: p.active ? "#3d7a4a" : "#a05353" }}
-                    >
-                      {p.active ? "Ativo" : "Oculto"}
-                    </button>
-                  </div>
-                  <div style={{ display: "flex", gap: 10 }}>
-                    <button onClick={() => editProduct(p)} style={linkButtonStyle("#a07882")}>
-                      Editar
-                    </button>
-                    <button onClick={() => removeProduct(p.id)} style={linkButtonStyle("#b3554d")}>
-                      Excluir
-                    </button>
+                  <div style={{ padding: "16px 18px 18px", display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                      <div style={{ fontWeight: 700, color: "#c1531c", fontSize: 15, lineHeight: 1.3 }}>{p.name}</div>
+                      <button
+                        onClick={() => toggleActive(p.id)}
+                        style={{ flexShrink: 0, border: "none", borderRadius: 20, padding: "4px 11px", fontSize: 11, fontWeight: 700, cursor: "pointer", background: p.active ? "#e3f0e6" : "#f2e4e4", color: p.active ? "#3d7a4a" : "#a05353" }}
+                      >
+                        {p.active ? "Ativo" : "Oculto"}
+                      </button>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 13, color: "#8b7d76" }}>
+                      <span style={{ background: "#f7f1e8", padding: "3px 10px", borderRadius: 20, fontSize: 12 }}>{p.category}</span>
+                      <span style={{ fontWeight: 600, color: "#3f2a26" }}>{p.price}</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 14, marginTop: "auto", paddingTop: 8, borderTop: "1px solid #eaddd0" }}>
+                      <button onClick={() => editProduct(p)} style={linkButtonStyle("#a07882")}>
+                        Editar
+                      </button>
+                      <button onClick={() => removeProduct(p.id)} style={linkButtonStyle("#b3554d")}>
+                        Excluir
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -369,7 +366,7 @@ export default function DashboardPage() {
             </div>
 
             <div className={grid.tableScroll} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, overflow: "hidden" }}>
-              <div className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1.6fr 1fr 1fr 2fr auto" }), ...tableHeaderStyle }}>
+              <div className={`${styles.tableGrid} ${styles.tableHeaderRow}`} style={{ ...cssVars({ "--cols": "1.6fr 1fr 1fr 2fr auto" }), ...tableHeaderStyle }}>
                 <div>Nome</div>
                 <div>Lat</div>
                 <div>Lng</div>
@@ -398,7 +395,7 @@ export default function DashboardPage() {
 
         {tab === "pedidos" && (
           <div className={grid.tableScroll} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, overflow: "hidden" }}>
-            <div className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1fr 1.4fr 1fr 1fr 1fr" }), ...tableHeaderStyle }}>
+            <div className={`${styles.tableGrid} ${styles.tableHeaderRow}`} style={{ ...cssVars({ "--cols": "1fr 1.4fr 1fr 1fr 1fr" }), ...tableHeaderStyle }}>
               <div>Pedido</div>
               <div>Cliente</div>
               <div>Item</div>
@@ -411,7 +408,7 @@ export default function DashboardPage() {
                 <div style={{ color: "#8b7d76" }}>{o.customer}</div>
                 <div style={{ color: "#8b7d76" }}>{o.item}</div>
                 <div style={{ color: "#8b7d76" }}>{o.date}</div>
-                <select value={o.status} onChange={(e) => setOrderStatus(o.id, e.target.value)} style={{ padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 13, fontFamily: "Inter", background: "#fbf7f0" }}>
+                <select value={o.status} onChange={(e) => setOrderStatus(o.id, e.target.value)} style={{ padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 13, fontFamily: "Inter", background: "#f5ead9" }}>
                   <option>Pendente</option>
                   <option>Em preparo</option>
                   <option>Pronto</option>

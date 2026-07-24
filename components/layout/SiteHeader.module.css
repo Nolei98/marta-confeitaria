@@ -25,14 +25,6 @@
   transform: none;
 }
 
-.whatsapp {
-  transition: all 0.2s ease;
-}
-.whatsapp:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: scale(1.03);
-}
-
 .navLink {
   transition: all 0.2s;
 }
@@ -81,6 +73,9 @@
 .mobileMenu {
   display: none;
 }
+.mobileOnly {
+  display: none;
+}
 
 @media (max-width: 900px) {
   .desktopOnly {
@@ -92,11 +87,62 @@
   .mobileLogo {
     display: flex;
   }
-  .cartLabel {
-    display: none;
+  .mobileOnly {
+    display: flex;
   }
   .mobileMenu.open {
     display: flex;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: center;
+    padding: 24px 28px;
+    overflow-y: auto;
+    animation: menuBgIn 0.3s ease both;
+    backdrop-filter: none;
+    box-shadow: none;
+    background: #a34214;
+    will-change: opacity;
+  }
+  .mobileMenu.open a {
+    padding: 16px 10px;
+    font-size: 19px;
+  }
+  .mobileMenu.open > * {
+    opacity: 0;
+    animation: menuItemIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    will-change: transform, opacity;
+  }
+  .mobileMenu.open > *:nth-child(1) { animation-delay: 0.06s; }
+  .mobileMenu.open > *:nth-child(2) { animation-delay: 0.11s; }
+  .mobileMenu.open > *:nth-child(3) { animation-delay: 0.16s; }
+  .mobileMenu.open > *:nth-child(4) { animation-delay: 0.21s; }
+  .mobileMenu.open > *:nth-child(5) { animation-delay: 0.26s; }
+  .mobileMenu.open > *:nth-child(6) { animation-delay: 0.31s; }
+  .mobileMenu.open > *:nth-child(7) { animation-delay: 0.36s; }
+  .mobileMenu.open > *:nth-child(8) { animation-delay: 0.41s; }
+  .mobileMenu.open > *:nth-child(9) { animation-delay: 0.46s; }
+}
+
+@keyframes menuBgIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes menuItemIn {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

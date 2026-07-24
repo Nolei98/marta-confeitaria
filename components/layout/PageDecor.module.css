@@ -1,0 +1,19 @@
+.wrap {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  display: none;
+}
+
+@media (min-width: 1300px) {
+  .wrap {
+    display: block;
+  }
+}
+
+.shape {
+  position: absolute;
+  color: #c1531c;
+  opacity: 0.14;
+}

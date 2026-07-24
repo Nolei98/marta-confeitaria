@@ -20,7 +20,13 @@
 @media (max-width: 560px) { .fiveCol { grid-template-columns: repeat(2, 1fr); } }
 
 .footerGrid { display: grid; grid-template-columns: 1.2fr 0.8fr 2fr; }
-@media (max-width: 900px) { .footerGrid { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .footerGrid { grid-template-columns: 1fr 1fr; } }
+
+.footerLogoCol { }
+@media (max-width: 900px) { .footerLogoCol { grid-column: 1 / -1; } }
+
+.footerMapFrame { height: 220px; }
+@media (max-width: 900px) { .footerMapFrame { height: 140px; } }
 
 .mapGrid { display: grid; grid-template-columns: 1.4fr 1fr; }
 @media (max-width: 900px) { .mapGrid { grid-template-columns: 1fr; } }
@@ -29,6 +35,34 @@
 @media (max-width: 420px) { .sizeGrid { grid-template-columns: 1fr; } }
 
 .tableScroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.eyebrow { }
+@media (max-width: 480px) {
+  .eyebrow {
+    font-size: 10.5px !important;
+    letter-spacing: 0.1em !important;
+    white-space: nowrap;
+  }
+}
+
+.footerBottomRow { }
+@media (max-width: 900px) {
+  .footerBottomRow {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center;
+    gap: 6px !important;
+  }
+}
+
+.footerLogoRow { }
+@media (max-width: 900px) {
+  .footerLogoRow {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+}
 
 .formPanel { padding: 40px; }
 @media (max-width: 560px) { .formPanel { padding: 26px 20px; } }

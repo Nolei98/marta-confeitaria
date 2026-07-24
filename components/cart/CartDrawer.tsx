@@ -32,7 +32,7 @@ export function CartDrawer() {
           height: "100%",
           width: 380,
           maxWidth: "90vw",
-          background: "#fbf7f0",
+          background: "#f5ead9",
           zIndex: 91,
           boxShadow: "-16px 0 40px rgba(0,0,0,.18)",
           display: "flex",
