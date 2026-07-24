@@ -1,0 +1,25 @@
+.adminHeaderRow {
+  min-height: 68px;
+  height: auto;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.adminTitle {
+  display: block;
+}
+.adminActions {
+  flex-wrap: wrap;
+  gap: 10px 14px !important;
+}
+
+@media (max-width: 480px) {
+  .adminTitleText {
+    display: none;
+  }
+  .legalBackLink {
+    font-size: 13px !important;
+  }
+}

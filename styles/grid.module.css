@@ -1,0 +1,34 @@
+/* Shared responsive grid layouts, reused across pages.
+   Only grid-template-columns is set here; gap/padding/etc stay inline per usage. */
+
+.heroGrid { display: grid; grid-template-columns: 1.05fr .95fr; }
+@media (max-width: 900px) { .heroGrid { grid-template-columns: 1fr; } }
+
+.twoCol { display: grid; grid-template-columns: 1fr 1fr; }
+@media (max-width: 900px) { .twoCol { grid-template-columns: 1fr; } }
+
+.threeCol { display: grid; grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 900px) { .threeCol { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .threeCol { grid-template-columns: 1fr; } }
+
+.fourCol { display: grid; grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 900px) { .fourCol { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .fourCol { grid-template-columns: 1fr; } }
+
+.fiveCol { display: grid; grid-template-columns: repeat(5, 1fr); }
+@media (max-width: 900px) { .fiveCol { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .fiveCol { grid-template-columns: repeat(2, 1fr); } }
+
+.footerGrid { display: grid; grid-template-columns: 1.2fr 0.8fr 2fr; }
+@media (max-width: 900px) { .footerGrid { grid-template-columns: 1fr; } }
+
+.mapGrid { display: grid; grid-template-columns: 1.4fr 1fr; }
+@media (max-width: 900px) { .mapGrid { grid-template-columns: 1fr; } }
+
+.sizeGrid { display: grid; grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 420px) { .sizeGrid { grid-template-columns: 1fr; } }
+
+.tableScroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.formPanel { padding: 40px; }
+@media (max-width: 560px) { .formPanel { padding: 26px 20px; } }

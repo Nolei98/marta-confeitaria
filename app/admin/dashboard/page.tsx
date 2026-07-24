@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { SimpleHeader } from "@/components/layout/SimpleHeader";
+import grid from "@/styles/grid.module.css";
+import styles from "./Dashboard.module.css";
+
+const cssVars = (vars: Record<string, string>) => vars as React.CSSProperties;
 
 type Product = { id: number; name: string; category: string; price: string; image?: string; active: boolean };
 type Order = { id: number; code: string; customer: string; item: string; date: string; status: string };
@@ -147,7 +151,7 @@ export default function DashboardPage() {
       <SimpleHeader variant="admin" />
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px 80px" }}>
-        <div style={{ display: "flex", gap: 8, marginBottom: 28 }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 28, flexWrap: "wrap" }}>
           {(
             [
               { key: "produtos", label: "Produtos" },
@@ -195,7 +199,7 @@ export default function DashboardPage() {
                   <input type="file" accept="image/*" onChange={setFormImage} style={{ display: "none" }} />
                 </label>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr auto", gap: 14, alignItems: "end" }}>
+              <div className={styles.formRow} style={cssVars({ "--cols": "1.4fr 1fr 1fr auto" })}>
                 <div>
                   <label style={smallLabelStyle}>Nome</label>
                   <input type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Nome do produto" style={inputStyle} />
@@ -222,8 +226,8 @@ export default function DashboardPage() {
               )}
             </div>
 
-            <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, overflow: "hidden" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr auto", ...tableHeaderStyle }}>
+            <div className={grid.tableScroll} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, overflow: "hidden" }}>
+              <div className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1.6fr 1fr 1fr 1fr auto" }), ...tableHeaderStyle }}>
                 <div>Nome</div>
                 <div>Categoria</div>
                 <div>Preço</div>
@@ -231,7 +235,7 @@ export default function DashboardPage() {
                 <div>Ações</div>
               </div>
               {products.map((p) => (
-                <div key={p.id} style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr auto", ...tableRowStyle }}>
+                <div key={p.id} className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1.6fr 1fr 1fr 1fr auto" }), ...tableRowStyle }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 600, color: "#c1531c" }}>
                     <span style={{ width: 32, height: 32, borderRadius: 8, background: "#f7f1e8", overflow: "hidden", flexShrink: 0, display: "grid", placeItems: "center" }}>
                       {p.image && (
@@ -293,7 +297,7 @@ export default function DashboardPage() {
                   {expanded && (
                     <div style={{ padding: "0 0 22px" }}>
                       {heroFlavors.map((fl) => (
-                        <div key={fl.key} style={{ background: "#f7f1e8", borderRadius: 14, padding: 16, marginBottom: 12, display: "grid", gridTemplateColumns: "1.2fr 1.6fr 0.8fr 0.7fr 1fr", gap: 12, alignItems: "end" }}>
+                        <div key={fl.key} className={styles.formRow} style={{ ...cssVars({ "--cols": "1.2fr 1.6fr 0.8fr 0.7fr 1fr" }), background: "#f7f1e8", borderRadius: 14, padding: 16, marginBottom: 12, gap: 12 }}>
                           <div>
                             <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#8b7d76", marginBottom: 5 }}>Nome</label>
                             <input type="text" value={fl.name} onChange={(e) => updateHeroFlavor(fl.key, "name", e.target.value)} style={{ width: "100%", padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 13, fontFamily: "Inter" }} />
@@ -337,7 +341,7 @@ export default function DashboardPage() {
           <>
             <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: 28, marginBottom: 24 }}>
               <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 19, margin: "0 0 18px", color: "#c1531c" }}>Adicionar ponto de venda</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr auto", gap: 14, alignItems: "end", marginBottom: 14 }}>
+              <div className={styles.formRow} style={{ ...cssVars({ "--cols": "1.6fr 1fr 1fr auto" }), marginBottom: 14 }}>
                 <div>
                   <label style={smallLabelStyle}>Nome do ponto</label>
                   <input type="text" value={pontoForm.name} onChange={(e) => setPontoForm((f) => ({ ...f, name: e.target.value }))} placeholder="Ex: Padaria Bela Vista" style={inputStyle} />
@@ -364,8 +368,8 @@ export default function DashboardPage() {
               )}
             </div>
 
-            <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, overflow: "hidden" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 2fr auto", ...tableHeaderStyle }}>
+            <div className={grid.tableScroll} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, overflow: "hidden" }}>
+              <div className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1.6fr 1fr 1fr 2fr auto" }), ...tableHeaderStyle }}>
                 <div>Nome</div>
                 <div>Lat</div>
                 <div>Lng</div>
@@ -373,7 +377,7 @@ export default function DashboardPage() {
                 <div>Ações</div>
               </div>
               {pontos.map((p) => (
-                <div key={p.id} style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 2fr auto", ...tableRowStyle }}>
+                <div key={p.id} className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1.6fr 1fr 1fr 2fr auto" }), ...tableRowStyle }}>
                   <div style={{ fontWeight: 600, color: "#c1531c" }}>{p.name}</div>
                   <div style={{ color: "#8b7d76" }}>{p.lat}</div>
                   <div style={{ color: "#8b7d76" }}>{p.lng}</div>
@@ -393,8 +397,8 @@ export default function DashboardPage() {
         )}
 
         {tab === "pedidos" && (
-          <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, overflow: "hidden" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr 1fr 1fr 1fr", ...tableHeaderStyle }}>
+          <div className={grid.tableScroll} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, overflow: "hidden" }}>
+            <div className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1fr 1.4fr 1fr 1fr 1fr" }), ...tableHeaderStyle }}>
               <div>Pedido</div>
               <div>Cliente</div>
               <div>Item</div>
@@ -402,7 +406,7 @@ export default function DashboardPage() {
               <div>Status</div>
             </div>
             {orders.map((o) => (
-              <div key={o.id} style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr 1fr 1fr 1fr", ...tableRowStyle }}>
+              <div key={o.id} className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1fr 1.4fr 1fr 1fr 1fr" }), ...tableRowStyle }}>
                 <div style={{ fontWeight: 600, color: "#c1531c" }}>{o.code}</div>
                 <div style={{ color: "#8b7d76" }}>{o.customer}</div>
                 <div style={{ color: "#8b7d76" }}>{o.item}</div>
