@@ -1,18 +1,25 @@
 {
   "name": "marta-confeitaria",
   "version": "1.0.0",
+  "private": true,
   "description": "Website Marta Confeitaria",
-  "main": "server.js",
-  "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "next dev -p 2888",
+    "build": "next build",
+    "start": "next start -p 2888",
+    "lint": "next lint"
   },
-  "keywords": [
-    "marta-confeitaria",
-    "bakery",
-    "confeitaria"
-  ],
-  "author": "",
-  "license": "ISC"
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "next": "^14.2.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.21",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.5.0"
+  }
 }

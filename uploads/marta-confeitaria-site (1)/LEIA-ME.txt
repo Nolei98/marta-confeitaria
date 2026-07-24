@@ -1,4 +1,0 @@
-Marta Confeitaria — site mockup
-
-Abra index.html no navegador. Todas as imagens já estão embutidas nas páginas (data URI), então funcionam offline.
-A pasta images/ contém as fotos já tratadas (fatias com fundo removido/transparente em .webp) para reuso no desenvolvimento.
