@@ -7,30 +7,20 @@ import styles from "./Dashboard.module.css";
 
 const cssVars = (vars: Record<string, string>) => vars as React.CSSProperties;
 
-type Product = { id: number; name: string; category: string; price: string; image?: string; active: boolean };
-type Order = { id: number; code: string; customer: string; item: string; date: string; status: string };
+type Product = { id: string; name: string; category: string; price: number; imageUrl?: string | null; active: boolean };
+type OrderItem = { id: string; nameSnapshot: string; priceSnapshot: number; qty: number };
+type Order = { id: string; code: string; status: string; total: number; createdAt: string; items: OrderItem[]; user: { name: string; email: string } };
 type Ponto = { id: number; name: string; address: string; lat: number; lng: number };
 type HeroFlavor = { key: string; name: string; desc: string; price: string; img: string; bg: string };
 
-const INITIAL_PRODUCTS: Product[] = [
-  { id: 1, name: "Chocolate intenso", category: "Fatia", price: "R$ 12,00", active: true },
-  { id: 2, name: "Red velvet", category: "Fatia", price: "R$ 14,00", active: true },
-  { id: 3, name: "Cenoura com chocolate", category: "Fatia", price: "R$ 10,00", active: true },
-  { id: 4, name: "Prestígio", category: "Fatia", price: "R$ 13,00", active: true },
-  { id: 5, name: "Ninho com Nutella", category: "Fatia", price: "R$ 15,00", active: true },
-  { id: 6, name: "Bolo de aniversário", category: "Bolo inteiro", price: "R$ 75,00 – R$ 180,00", active: true },
-  { id: 7, name: "Bolo de festa", category: "Bolo inteiro", price: "R$ 75,00 – R$ 180,00", active: true },
-];
+const ORDER_STATUS_LABELS: Record<string, string> = {
+  PENDENTE: "Pendente",
+  EM_PREPARO: "Em preparo",
+  PRONTO: "Pronto",
+  ENTREGUE: "Entregue",
+};
 
-const INITIAL_ORDERS: Order[] = [
-  { id: 1, code: "#1042", customer: "Ana Paula", item: "Bolo G · Red velvet", date: "24/07", status: "Em preparo" },
-  { id: 2, code: "#1041", customer: "Carlos Meira", item: "4x Fatia chocolate", date: "23/07", status: "Entregue" },
-  { id: 3, code: "#1040", customer: "Juliana Reis", item: "Bolo M · Ninho", date: "23/07", status: "Pronto" },
-  { id: 4, code: "#1039", customer: "Rafael Costa", item: "2x Fatia maracujá", date: "22/07", status: "Pendente" },
-  { id: 5, code: "#1038", customer: "Fernanda Lima", item: "Bolo P · Cenoura", date: "21/07", status: "Entregue" },
-];
-
-const EMPTY_FORM = { id: null as number | null, name: "", price: "", category: "Fatia", image: "" };
+const EMPTY_FORM = { id: null as string | null, name: "", price: "", category: "Fatia", image: "" };
 const DEFAULT_PONTOS: Ponto[] = [
   { id: 1, name: "Marta Confeitaria — Cozinha principal", address: "Rua das Framboesas, 122 — Centro, Salgueiro - PE", lat: -8.0742, lng: -39.1225 },
   { id: 2, name: "Padaria Bela Vista", address: "Av. Antônio Gomes Sobrinho — Salgueiro - PE", lat: -8.0698, lng: -39.1187 },
@@ -73,10 +63,10 @@ type Tab = "produtos" | "secoes" | "pontos" | "pedidos";
 
 export default function DashboardPage() {
   const [tab, setTab] = useState<Tab>("produtos");
-  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [sections, setSections] = useState<Record<string, boolean>>({ hero: true, fatias: true, vendidos: true, bolosCta: true });
-  const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [pontos, setPontos] = useState<Ponto[]>(DEFAULT_PONTOS);
   const [pontoForm, setPontoForm] = useState(EMPTY_PONTO_FORM);
   const [heroFlavors, setHeroFlavors] = useState<HeroFlavor[]>(DEFAULT_HERO_FLAVORS);
@@ -91,7 +81,22 @@ export default function DashboardPage() {
       const storedHero = JSON.parse(localStorage.getItem("martaHeroFlavors") || "null");
       if (storedHero && storedHero.length) setHeroFlavors(storedHero);
     } catch {}
+    fetchProducts();
+    fetchOrders();
   }, []);
+
+  const fetchProducts = () => {
+    fetch("/api/admin/products")
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && setProducts(data.map((p: Product) => ({ ...p, price: Number(p.price) }))))
+      .catch(() => {});
+  };
+  const fetchOrders = () => {
+    fetch("/api/admin/orders")
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && setOrders(data))
+      .catch(() => {});
+  };
 
   const persistHero = (next: HeroFlavor[]) => {
     setHeroFlavors(next);
@@ -124,14 +129,17 @@ export default function DashboardPage() {
   const editPonto = (p: Ponto) => setPontoForm({ id: p.id, name: p.name, address: p.address, lat: String(p.lat), lng: String(p.lng) });
   const removePonto = (id: number) => persistPontos(pontos.filter((p) => p.id !== id));
 
-  const submitForm = () => {
+  const submitForm = async () => {
     if (!form.name.trim()) return;
+    const price = parseFloat(form.price.replace(",", ".").replace(/[^\d.]/g, ""));
+    const body = { name: form.name, category: form.category, price: isNaN(price) ? 0 : price, imageUrl: form.image || null };
     if (form.id) {
-      setProducts(products.map((p) => (p.id === form.id ? { ...p, name: form.name, price: form.price, category: form.category, image: form.image } : p)));
+      await fetch(`/api/admin/products/${form.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     } else {
-      setProducts([...products, { id: Date.now(), name: form.name, price: form.price, category: form.category, image: form.image, active: true }]);
+      await fetch("/api/admin/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     }
     setForm(EMPTY_FORM);
+    fetchProducts();
   };
   const setFormImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
@@ -140,11 +148,22 @@ export default function DashboardPage() {
     reader.onload = () => setForm((f) => ({ ...f, image: String(reader.result) }));
     reader.readAsDataURL(file);
   };
-  const editProduct = (p: Product) => setForm({ id: p.id, name: p.name, price: p.price, category: p.category, image: p.image || "" });
-  const removeProduct = (id: number) => setProducts(products.filter((p) => p.id !== id));
-  const toggleActive = (id: number) => setProducts(products.map((p) => (p.id === id ? { ...p, active: !p.active } : p)));
+  const editProduct = (p: Product) => setForm({ id: p.id, name: p.name, price: String(p.price), category: p.category, image: p.imageUrl || "" });
+  const removeProduct = async (id: string) => {
+    // Deleting the product silently drops it from any customer carts (cascade)
+    // and just unlinks it from past order history, which keeps its snapshot.
+    await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+    fetchProducts();
+  };
+  const toggleActive = async (id: string, active: boolean) => {
+    await fetch(`/api/admin/products/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ active: !active }) });
+    fetchProducts();
+  };
   const toggleSection = (key: string) => setSections((s) => ({ ...s, [key]: !s[key] }));
-  const setOrderStatus = (id: number, status: string) => setOrders(orders.map((o) => (o.id === id ? { ...o, status } : o)));
+  const setOrderStatus = async (id: string, status: string) => {
+    await fetch(`/api/admin/orders/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
+    fetchOrders();
+  };
 
   return (
     <>
@@ -230,9 +249,9 @@ export default function DashboardPage() {
               {products.map((p) => (
                 <div key={p.id} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
                   <div style={{ height: 140, background: "#f7f1e8", display: "grid", placeItems: "center", overflow: "hidden" }}>
-                    {p.image ? (
+                    {p.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <img src={p.imageUrl} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     ) : (
                       <span style={{ fontSize: 12, color: "#8b7d76" }}>Sem foto</span>
                     )}
@@ -241,7 +260,7 @@ export default function DashboardPage() {
                     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
                       <div style={{ fontWeight: 700, color: "#c1531c", fontSize: 15, lineHeight: 1.3 }}>{p.name}</div>
                       <button
-                        onClick={() => toggleActive(p.id)}
+                        onClick={() => toggleActive(p.id, p.active)}
                         style={{ flexShrink: 0, border: "none", borderRadius: 20, padding: "4px 11px", fontSize: 11, fontWeight: 700, cursor: "pointer", background: p.active ? "#e3f0e6" : "#f2e4e4", color: p.active ? "#3d7a4a" : "#a05353" }}
                       >
                         {p.active ? "Ativo" : "Oculto"}
@@ -249,7 +268,7 @@ export default function DashboardPage() {
                     </div>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 13, color: "#8b7d76" }}>
                       <span style={{ background: "#f7f1e8", padding: "3px 10px", borderRadius: 20, fontSize: 12 }}>{p.category}</span>
-                      <span style={{ fontWeight: 600, color: "#3f2a26" }}>{p.price}</span>
+                      <span style={{ fontWeight: 600, color: "#3f2a26" }}>R$ {p.price.toFixed(2).replace(".", ",")}</span>
                     </div>
                     <div style={{ display: "flex", gap: 14, marginTop: "auto", paddingTop: 8, borderTop: "1px solid #eaddd0" }}>
                       <button onClick={() => editProduct(p)} style={linkButtonStyle("#a07882")}>
@@ -402,17 +421,21 @@ export default function DashboardPage() {
               <div>Data</div>
               <div>Status</div>
             </div>
+            {orders.length === 0 && (
+              <div style={{ padding: "22px", color: "#8b7d76", fontSize: 14 }}>Nenhum pedido ainda.</div>
+            )}
             {orders.map((o) => (
               <div key={o.id} className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1fr 1.4fr 1fr 1fr 1fr" }), ...tableRowStyle }}>
                 <div style={{ fontWeight: 600, color: "#c1531c" }}>{o.code}</div>
-                <div style={{ color: "#8b7d76" }}>{o.customer}</div>
-                <div style={{ color: "#8b7d76" }}>{o.item}</div>
-                <div style={{ color: "#8b7d76" }}>{o.date}</div>
+                <div style={{ color: "#8b7d76" }}>{o.user?.name || "-"}</div>
+                <div style={{ color: "#8b7d76" }}>{o.items.map((i) => `${i.qty}x ${i.nameSnapshot}`).join(", ")}</div>
+                <div style={{ color: "#8b7d76" }}>{new Date(o.createdAt).toLocaleDateString("pt-BR")}</div>
                 <select value={o.status} onChange={(e) => setOrderStatus(o.id, e.target.value)} style={{ padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 13, fontFamily: "Inter", background: "#f5ead9" }}>
-                  <option>Pendente</option>
-                  <option>Em preparo</option>
-                  <option>Pronto</option>
-                  <option>Entregue</option>
+                  {Object.entries(ORDER_STATUS_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
                 </select>
               </div>
             ))}

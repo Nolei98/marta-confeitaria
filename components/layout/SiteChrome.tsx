@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { SessionProvider } from "next-auth/react";
 import { CartProvider } from "@/components/cart/CartContext";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { BackToTop } from "./BackToTop";
@@ -12,18 +13,20 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isAdmin = pathname?.startsWith("/admin");
 
   return (
-    <CartProvider>
-      <div style={{ position: "relative" }}>
-        {!isAdmin && <PageDecor />}
-        {children}
-      </div>
-      {!isAdmin && (
-        <>
-          <CardapioShortcut />
-          <BackToTop />
-          <CartDrawer />
-        </>
-      )}
-    </CartProvider>
+    <SessionProvider>
+      <CartProvider>
+        <div style={{ position: "relative" }}>
+          {!isAdmin && <PageDecor />}
+          {children}
+        </div>
+        {!isAdmin && (
+          <>
+            <CardapioShortcut />
+            <BackToTop />
+            <CartDrawer />
+          </>
+        )}
+      </CartProvider>
+    </SessionProvider>
   );
 }

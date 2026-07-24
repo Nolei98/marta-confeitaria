@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDENTE
+  EM_PREPARO
+  PRONTO
+  ENTREGUE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+
+  cartItems CartItem[]
+  orders    Order[]
+  logs      ActivityLog[]
+}
+
+model Product {
+  id        String   @id @default(cuid())
+  name      String
+  category  String
+  price     Decimal  @db.Decimal(10, 2)
+  imageUrl  String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  // Deleting a product silently drops it from any open carts (no error for the customer).
+  cartItems  CartItem[]
+  // Order history keeps its own name/price snapshot, so it survives product deletion.
+  orderItems OrderItem[]
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  qty       Int      @default(1)
+  addedAt   DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  code      String      @unique
+  userId    String
+  status    OrderStatus @default(PENDENTE)
+  total     Decimal     @db.Decimal(10, 2)
+  createdAt DateTime    @default(now())
+
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String?
+
+  // Snapshot of the product at purchase time, so the order history keeps
+  // showing the right name/price even after the product is deleted.
+  nameSnapshot  String
+  priceSnapshot Decimal @db.Decimal(10, 2)
+  qty           Int
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

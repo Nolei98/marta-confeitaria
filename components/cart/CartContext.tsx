@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export type CartItem = { name: string; price: number; qty: number };
 
@@ -25,25 +26,41 @@ const WHATSAPP_NUMBER = "5511967891234";
 const STORAGE_KEY = "martaCart";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession();
+  const loggedIn = status === "authenticated" && !!session?.user;
+
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
 
+  // Guests keep the original localStorage-only cart. Logged-in customers get
+  // their cart from the database, so it's saved to their account/history.
   useEffect(() => {
+    if (loggedIn) {
+      fetch("/api/cart")
+        .then((r) => r.json())
+        .then((items: CartItem[]) => setCart(Array.isArray(items) ? items : []))
+        .catch(() => {});
+      return;
+    }
     try {
       setCart(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
     } catch {
       // ignore malformed storage
     }
-  }, []);
+  }, [loggedIn]);
 
-  const persistCart = useCallback((next: CartItem[]) => {
-    setCart(next);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      // storage unavailable — cart still works in-memory
-    }
-  }, []);
+  const persistCart = useCallback(
+    (next: CartItem[]) => {
+      setCart(next);
+      if (loggedIn) return;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // storage unavailable — cart still works in-memory
+      }
+    },
+    [loggedIn]
+  );
 
   const addToCart = useCallback(
     (name: string, price: number) => {
@@ -53,28 +70,45 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           idx >= 0
             ? prev.map((c, i) => (i === idx ? { ...c, qty: c.qty + 1 } : c))
             : [...prev, { name, price, qty: 1 }];
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-        } catch {}
+        if (!loggedIn) {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+          } catch {}
+        }
         return next;
       });
       setCartOpen(true);
+      if (loggedIn) {
+        fetch("/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, price, qty: 1 }),
+        }).catch(() => {});
+      }
     },
-    []
+    [loggedIn]
   );
 
   const incQty = useCallback(
     (name: string) => {
-      persistCart(cart.map((c) => (c.name === name ? { ...c, qty: c.qty + 1 } : c)));
+      const next = cart.map((c) => (c.name === name ? { ...c, qty: c.qty + 1 } : c));
+      persistCart(next);
+      if (loggedIn) {
+        const item = next.find((c) => c.name === name);
+        if (item) fetch("/api/cart/" + encodeURIComponent(name), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ qty: item.qty }) }).catch(() => {});
+      }
     },
-    [cart, persistCart]
+    [cart, persistCart, loggedIn]
   );
 
   const removeItem = useCallback(
     (name: string) => {
       persistCart(cart.filter((c) => c.name !== name));
+      if (loggedIn) {
+        fetch("/api/cart/" + encodeURIComponent(name), { method: "DELETE" }).catch(() => {});
+      }
     },
-    [cart, persistCart]
+    [cart, persistCart, loggedIn]
   );
 
   const decQty = useCallback(
@@ -84,19 +118,34 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         removeItem(name);
         return;
       }
-      persistCart(cart.map((c) => (c.name === name ? { ...c, qty: c.qty - 1 } : c)));
+      const next = cart.map((c) => (c.name === name ? { ...c, qty: c.qty - 1 } : c));
+      persistCart(next);
+      if (loggedIn) {
+        const updated = next.find((c) => c.name === name);
+        if (updated) fetch("/api/cart/" + encodeURIComponent(name), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ qty: updated.qty }) }).catch(() => {});
+      }
     },
-    [cart, persistCart, removeItem]
+    [cart, persistCart, removeItem, loggedIn]
   );
 
   const toggleCart = useCallback(() => setCartOpen((v) => !v), []);
   const closeCart = useCallback(() => setCartOpen(false), []);
 
   const checkout = useCallback(() => {
+    if (loggedIn) {
+      fetch("/api/orders", { method: "POST" })
+        .then((r) => r.json())
+        .then((data: { whatsappUrl?: string; error?: string }) => {
+          if (data.whatsappUrl) window.open(data.whatsappUrl, "_blank");
+          setCart([]);
+        })
+        .catch(() => {});
+      return;
+    }
     const lines = cart.map((c) => `${c.qty}x ${c.name} — R$ ${c.price * c.qty}`);
     const msg = encodeURIComponent(`Olá! Quero fazer este pedido:\n${lines.join("\n")}`);
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
-  }, [cart]);
+  }, [cart, loggedIn]);
 
   const cartCount = cart.reduce((n, c) => n + c.qty, 0);
   const cartTotal =
