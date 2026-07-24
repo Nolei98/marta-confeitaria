@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Pinyon+Script&family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#fbf7f0}
+    a{color:inherit;text-decoration:none}
+    :root{--font-display:'Cormorant Garamond',serif;--font-script:'Pinyon Script',cursive;--font-body:'Inter',sans-serif}
+    ::-webkit-scrollbar{width:10px}
+    ::-webkit-scrollbar-track{background:#fbf7f0}
+    ::-webkit-scrollbar-thumb{background:#c1531c;border-radius:6px;border:2px solid #fbf7f0}
+    ::-webkit-scrollbar-thumb:hover{background:#9c3f14}
+    @keyframes fabAppear{0%{opacity:0;transform:scale(0) translateY(20px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+    @keyframes speechBubbleFade{0%{opacity:0;transform:translateX(-8px) scale(.85)}15%{opacity:1;transform:translateX(0) scale(1)}82%{opacity:1;transform:translateX(0) scale(1)}100%{opacity:0;transform:translateX(-12px) scale(.9);pointer-events:none}}
+  </style>
+</helmet>
+<div style="font-family:Inter,system-ui,sans-serif;color:#3a2b28;background:#fbf7f0;min-height:100vh">
+  <header style="position:sticky;top:0;z-index:50;background:rgba(193,83,28,.95);backdrop-filter:blur(12px);box-shadow:0 4px 20px rgba(58,33,28,.12)">
+    <div style="max-width:1160px;margin:0 auto;padding:0 24px;height:74px;display:flex;align-items:center;justify-content:space-between;color:#fff">
+      <a href="index.html" style="display:flex;align-items:center;transition:transform .2s" style-hover="transform:scale(1.04)" aria-label="Marta Confeitaria">
+        <img src="images/logo.png" alt="Marta Confeitaria" style="width:54px;height:54px;border-radius:50%;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.25)" />
+      </a>
+      <a href="Home.dc.html" style="font-size:14px;color:rgba(255,255,255,.9);font-weight:500" style-hover="color:#fff">← Voltar ao site</a>
+    </div>
+  </header>
+
+  <section style="max-width:760px;margin:0 auto;padding:56px 24px 80px">
+    <div style="font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#c1531c;margin-bottom:12px">Legal</div>
+    <h1 style="font-family:'Playfair Display',serif;font-size:32px;margin:0 0 8px">Política de Privacidade</h1>
+    <p style="color:#8b7d76;font-size:14px;margin:0 0 32px">Última atualização: julho de 2026</p>
+
+    <div style="color:#4a3934;font-size:15px;line-height:1.8">
+      <h2 style="font-family:'Playfair Display',serif;font-size:19px;color:#3f2a26;margin:28px 0 10px">1. Quais dados coletamos</h2>
+      <p>Coletamos apenas os dados que você nos fornece: nome, e-mail, telefone e endereço, ao criar uma conta, fazer um pedido ou entrar em contato conosco.</p>
+
+      <h2 style="font-family:'Playfair Display',serif;font-size:19px;color:#3f2a26;margin:28px 0 10px">2. Como usamos seus dados</h2>
+      <p>Usamos seus dados para processar pedidos, manter seu histórico de compras, enviar notificações sobre promoções (quando você optar por isso) e melhorar nosso atendimento. Não vendemos seus dados a terceiros.</p>
+
+      <h2 style="font-family:'Playfair Display',serif;font-size:19px;color:#3f2a26;margin:28px 0 10px">3. Conta opcional</h2>
+      <p>Você pode navegar e comprar sem criar conta. A conta é usada apenas para quem deseja histórico de pedidos, participação em promoções e notificações por e-mail.</p>
+
+      <h2 style="font-family:'Playfair Display',serif;font-size:19px;color:#3f2a26;margin:28px 0 10px">4. Armazenamento</h2>
+      <p>Seus dados são armazenados de forma segura e mantidos apenas pelo tempo necessário para as finalidades descritas nesta política.</p>
+
+      <h2 style="font-family:'Playfair Display',serif;font-size:19px;color:#3f2a26;margin:28px 0 10px">5. Seus direitos</h2>
+      <p>Você pode solicitar a qualquer momento a correção ou exclusão dos seus dados, ou cancelar notificações por e-mail, entrando em contato conosco.</p>
+
+      <h2 style="font-family:'Playfair Display',serif;font-size:19px;color:#3f2a26;margin:28px 0 10px">6. Contato</h2>
+      <p>Para dúvidas sobre esta política, fale conosco em contato@martaconfeitaria.com.br ou pelo WhatsApp (11) 96789-1234.</p>
+    </div>
+  </section>
+
+  <footer style="background:#a8431a;color:rgba(255,255,255,.75);padding:56px 24px 30px">
+    <div style="max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1.2fr 0.8fr 2fr;gap:32px;align-items:start">
+      <div>
+        <a href="index.html" style="display:inline-block;margin-bottom:14px" aria-label="Marta Confeitaria">
+          <img src="images/logo.png" alt="Marta Confeitaria" style="height:76px;width:auto;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.3))" />
+        </a>
+        <p style="font-size:14px;max-width:280px;line-height:1.5;margin:0 0 12px;color:rgba(255,255,255,.85)">Bolos caseiros feitos com carinho, fatia por fatia, desde a nossa cozinha para a sua mesa.</p>
+        <a href="Dashboard.dc.html" style="display:inline-block;font-size:12px;color:rgba(255,255,255,.45)" style-hover="color:rgba(255,255,255,.9)">Painel administrativo</a>
+      </div>
+      <div>
+        <h4 style="color:#fff;font-family:'Playfair Display',serif;margin-bottom:14px;font-size:16px">Navegue</h4>
+        <a href="Home.dc.html" style="display:block;padding:4px 0;font-size:14px" style-hover="color:#fff">Início</a>
+        <a href="Cardapio.dc.html" style="display:block;padding:4px 0;font-size:14px" style-hover="color:#fff">Cardápio</a>
+        <a href="Bolos.dc.html" style="display:block;padding:4px 0;font-size:14px" style-hover="color:#fff">Bolos</a>
+        <a href="Sobre.dc.html" style="display:block;padding:4px 0;font-size:14px" style-hover="color:#fff">Sobre</a>
+        <a href="Onde.dc.html" style="display:block;padding:4px 0;font-size:14px" style-hover="color:#fff">Onde encontrar</a>
+        <a href="Revenda.dc.html" style="display:block;padding:4px 0;font-size:14px" style-hover="color:#fff">Seja revendedor</a>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <h4 style="color:#fff;font-family:'Playfair Display',serif;margin:0;font-size:16px">Onde nos encontrar</h4>
+          <a href="Onde.dc.html" style="font-size:13px;color:#fff;text-decoration:underline">Ver no mapa completo →</a>
+        </div>
+        <iframe srcdoc="<!DOCTYPE html><html><head><meta charset='utf-8'/><link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'/><script src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'></script><style>html,body,#map{margin:0;padding:0;height:100%;width:100%}.leaflet-popup-content{margin:8px 10px;font-family:sans-serif;font-size:12px;color:#3f2a26}</style></head><body><div id='map'></div><script>window.onload=function(){const map=L.map('map',{zoomControl:true,attributionControl:false}).setView([-8.0742,-39.1225],14);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);setTimeout(()=>{map.invalidateSize()},200);const icon=L.divIcon({className:'',html:'<div style=\'width:28px;height:28px;border-radius:50% 50% 50% 0;background:#c1531c;border:2px solid #fff;transform:rotate(-45deg);box-shadow:0 3px 8px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center\'><span style=\'transform:rotate(45deg);color:#fff;font-family:serif;font-weight:700;font-size:12px\'>M</span></div>\',iconSize:[28,28],iconAnchor:[14,28]});const pts=[{name:'<b>Marta Confeitaria</b><br>Cozinha Principal · Salgueiro PE',lat:-8.0742,lng:-39.1225},{name:'<b>Padaria Bela Vista</b><br>Ponto de Revenda',lat:-8.0698,lng:-39.1187},{name:'<b>Empório Vila Doce</b><br>Ponto de Revenda',lat:-8.0781,lng:-39.1274}];pts.forEach((p,i)=>{const m=L.marker([p.lat,p.lng],{icon}).addTo(map).bindPopup(p.name);if(i===0)m.openPopup();});};</script></body></html>" width="100%" height="220" frameborder="0" style="border:none;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,0.25)"></iframe>
+      </div>
+    </div>
+    <div style="max-width:1160px;margin:40px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);font-size:13px;color:rgba(255,255,255,.5);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>© 2026 Marta Confeitaria. Todos os direitos reservados.</span>
+      <a href="https://portfolio-jr-lilac.vercel.app/" target="_blank" style-hover="color:#fff">Desenvolvido por João Rodrigues</a>
+    </div>
+  </footer>
+
+  <!-- FLOATING CARDÁPIO BUTTON COM BALÃO DE FALA -->
+  <div style="position:fixed;left:24px;bottom:24px;z-index:60;display:flex;align-items:center;gap:12px;pointer-events:none">
+    <a href="Cardapio.dc.html" title="Ver Cardápio" aria-label="Ver Cardápio" style="width:52px;height:52px;border-radius:50%;background:#c1531c;color:#fff;display:grid;place-items:center;box-shadow:0 10px 24px rgba(193,83,28,.4);pointer-events:auto;transition:transform .2s ease, background-color .2s ease;text-decoration:none;animation:fabAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both" style-hover="transform:scale(1.12);background:#9c3f14">
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        <path d="M8 7h8M8 11h6"></path>
+      </svg>
+    </a>
+    <div style="position:relative;background:#fff;color:#3f2a26;padding:9px 14px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(58,33,28,.2);white-space:nowrap;pointer-events:auto;animation:speechBubbleFade 6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;border:1px solid #eaddd0">
+      <div style="position:absolute;left:-6px;top:50%;transform:translateY(-50%) rotate(45deg);width:10px;height:10px;background:#fff;border-left:1px solid #eaddd0;border-bottom:1px solid #eaddd0"></div>
+      Confira nosso cardápio! 🍰
+    </div>
+  </div>
+</div>
+
+</x-dc>
+</body>
+</html>

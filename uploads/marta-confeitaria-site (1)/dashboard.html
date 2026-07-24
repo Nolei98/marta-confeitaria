@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel · Marta Confeitaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--brown:#3f2a26;--brown-2:#5a3b34;--mauve:#a07882;--mauve-deep:#8a6470;--cream:#f7f1e8;--cream-2:#fbf7f0;--pink:#f6d9dd;--lav:#e6dcef;--peach:#f3e2cf;--ink:#3a2b28;--muted:#8b7d76;--border:#eaddd0;--ok:#3f9d6a;--okbg:#e3f3e9;--off:#c47d54;--offbg:#f6e7da;--shadow:0 1px 2px rgba(63,42,38,.05),0 12px 30px rgba(63,42,38,.08);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--cream-2);-webkit-font-smoothing:antialiased}
+h1,h2,h3,.serif{font-family:'Playfair Display',Georgia,serif}
+.layout{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+/* sidebar */
+.side{background:#2f201d;color:rgba(255,255,255,.75);padding:24px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.side .brand{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#fff;padding:6px 8px 22px}
+.side .brand .dot{width:30px;height:30px;border-radius:50%;background:var(--mauve);display:grid;place-items:center;font-size:15px}
+.side .grp{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);padding:14px 12px 8px}
+.side a{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;color:rgba(255,255,255,.72);font-size:14.5px;cursor:pointer;font-weight:500}
+.side a .i{width:20px;text-align:center}
+.side a:hover{background:rgba(255,255,255,.06);color:#fff}
+.side a.active{background:var(--mauve);color:#fff}
+.side .spacer{flex:1}
+.side .me{display:flex;align-items:center;gap:10px;padding:12px;border-top:1px solid rgba(255,255,255,.1);margin-top:10px}
+.side .me .av{width:34px;height:34px;border-radius:50%;background:var(--peach);display:grid;place-items:center;color:var(--brown);font-weight:700}
+.side .me small{display:block;color:rgba(255,255,255,.5);font-size:12px}
+/* topbar */
+.main{display:flex;flex-direction:column;min-width:0}
+.top{height:70px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:20}
+.top h1{font-size:22px;color:var(--brown)}
+.top .r{display:flex;align-items:center;gap:14px}
+.search{display:flex;align-items:center;gap:8px;background:var(--cream);border:1px solid var(--border);border-radius:30px;padding:9px 16px;color:var(--muted);font-size:14px}
+.search input{border:none;background:none;outline:none;font-family:inherit;font-size:14px;width:150px}
+.viewsite{color:var(--mauve-deep);font-weight:600;font-size:14px}
+.content{padding:28px;max-width:1100px;width:100%}
+.view{display:none}.view.show{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* stats */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:26px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+.stat-card .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;font-size:19px;margin-bottom:14px}
+.stat-card .v{font-family:'Playfair Display',serif;font-size:28px;color:var(--brown);font-weight:700}
+.stat-card .l{color:var(--muted);font-size:13px;margin-top:2px}
+/* panel + table */
+.panel{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--border)}
+.panel-head h2{font-size:19px;color:var(--brown)}
+.panel-head p{color:var(--muted);font-size:13px;margin-top:2px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:14px 22px;border-bottom:1px solid var(--border);font-weight:600}
+td{padding:14px 22px;border-bottom:1px solid var(--border);font-size:14.5px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--cream-2)}
+.prod{display:flex;align-items:center;gap:12px}
+.prod .sw{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none}
+.prod b{color:var(--brown);font-weight:600}
+.prod small{display:block;color:var(--muted);font-size:12px;font-weight:400}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:20px}
+.badge.on{background:var(--okbg);color:var(--ok)}
+.badge.off{background:var(--offbg);color:var(--off)}
+.tagp{display:inline-block;font-size:12px;color:var(--mauve-deep);background:var(--lav);padding:3px 9px;border-radius:6px;font-weight:600}
+.acts{display:flex;gap:8px;justify-content:flex-end}
+.iconbtn{width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:#fff;display:grid;place-items:center;cursor:pointer;font-size:14px}
+.iconbtn:hover{background:var(--cream);border-color:var(--mauve)}
+.iconbtn.del:hover{background:#fbe9e9;border-color:#e0a3a3}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--brown);color:#fff;border:none;padding:11px 20px;border-radius:30px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--brown-2)}
+.btn.sm{padding:9px 16px;font-size:13px}
+.btn.ghost{background:var(--cream);color:var(--brown);border:1px solid var(--border)}
+.btn.ghost:hover{background:var(--cream-2)}
+/* sections list */
+.seclist{padding:10px 0}
+.secrow{display:flex;align-items:center;gap:16px;padding:16px 22px;border-bottom:1px solid var(--border)}
+.secrow:last-child{border-bottom:none}
+.secrow .drag{color:var(--border);cursor:grab;font-size:18px}
+.secrow .txt{flex:1}
+.secrow .txt b{color:var(--brown);display:block;font-size:15px}
+.secrow .txt small{color:var(--muted);font-size:13px}
+.switch{position:relative;width:46px;height:26px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#d8cabb;border-radius:30px;transition:.25s;cursor:pointer}
+.slider:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch input:checked + .slider{background:var(--ok)}
+.switch input:checked + .slider:before{transform:translateX(20px)}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(47,32,29,.5);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:18px;width:100%;max-width:520px;box-shadow:0 30px 70px rgba(0,0,0,.3);overflow:hidden;animation:pop .2s ease}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border)}
+.modal-head h3{font-size:20px;color:var(--brown)}
+.modal-head .x{cursor:pointer;color:var(--muted);font-size:22px;background:none;border:none}
+.modal-body{padding:24px;max-height:70vh;overflow:auto}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:12px}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.field label{font-size:13px;font-weight:600;color:var(--brown)}
+.field input,.field select,.field textarea{font-family:inherit;font-size:15px;color:var(--ink);border:1px solid var(--border);border-radius:11px;padding:11px 13px;background:var(--cream-2);width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--mauve);border-color:var(--mauve)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.check{display:flex;align-items:center;gap:9px;font-size:14px;color:var(--brown);cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--mauve)}
+.empty{padding:50px;text-align:center;color:var(--muted)}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--brown);color:#fff;padding:13px 24px;border-radius:30px;font-size:14px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;transition:.3s;z-index:80}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+@media(max-width:860px){.layout{grid-template-columns:1fr}.side{position:fixed;left:-260px;transition:.25s;z-index:70}.side.open{left:0}.stat-row{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.search{display:none}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side" id="side">
+    <div class="brand"><span class="dot">🍰</span> Marta · Admin</div>
+    <div class="grp">Geral</div>
+    <a data-view="overview" class="active"><span class="i">📊</span> Visão geral</a>
+    <a data-view="pedidos"><span class="i">🧾</span> Pedidos</a>
+    <div class="grp">Catálogo</div>
+    <a data-view="produtos"><span class="i">🍰</span> Fatias</a>
+    <a data-view="bolos"><span class="i">🎂</span> Bolos inteiros</a>
+    <div class="grp">Site</div>
+    <a data-view="secoes"><span class="i">🧩</span> Seções da landing</a>
+    <a data-view="config"><span class="i">⚙️</span> Configurações</a>
+    <div class="spacer"></div>
+    <a href="index.html"><span class="i">↗️</span> Ver o site</a>
+    <div class="me"><span class="av">M</span><div><b style="color:#fff;font-size:14px">Marta</b><small>Proprietária</small></div></div>
+  </aside>
+  <div class="main">
+    <div class="top">
+      <h1 id="pageTitle">Visão geral</h1>
+      <div class="r">
+        <div class="search">🔍 <input id="search" placeholder="Buscar produto..."></div>
+        <button class="btn sm" id="topAdd">+ Adicionar</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- OVERVIEW -->
+      <div class="view show" id="view-overview">
+        <div class="stat-row">
+          <div class="stat-card"><div class="ic" style="background:var(--pink)">🍰</div><div class="v" id="stProd">0</div><div class="l">Produtos ativos</div></div>
+          <div class="stat-card"><div class="ic" style="background:var(--lav)">🧾</div><div class="v">12</div><div class="l">Pedidos hoje</div></div>
+          <div class="stat-card"><div class="ic" style="background:var(--peach)">💰</div><div class="v">R$ 486</div><div class="l">Faturamento hoje</div></div>
+          <div class="stat-card"><div class="ic" style="background:var(--okbg)">⭐</div><div class="v">4,9</div><div class="l">Avaliação média</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Pedidos recentes</h2><p>Últimos pedidos recebidos pelo site</p></div><button class="btn ghost sm" data-goto="pedidos">Ver todos</button></div>
+          <table><thead><tr><th>Cliente</th><th>Item</th><th>Total</th><th>Status</th></tr></thead><tbody>
+            <tr><td>Ana Souza</td><td>2x Red velvet</td><td>R$ 28,00</td><td><span class="badge on">Entregue</span></td></tr>
+            <tr><td>Carlos Lima</td><td>Bolo M · Cenoura</td><td>R$ 130,00</td><td><span class="badge off">Preparando</span></td></tr>
+            <tr><td>Beatriz R.</td><td>4x Chocolate intenso</td><td>R$ 48,00</td><td><span class="badge on">Entregue</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <!-- PRODUTOS / BOLOS (mesma tabela, filtrada) -->
+      <div class="view" id="view-produtos">
+        <div class="panel">
+          <div class="panel-head"><div><h2 id="catTitle">Fatias</h2><p id="catSub">Gerencie os sabores vendidos por fatia</p></div><button class="btn" id="addProd">+ Adicionar produto</button></div>
+          <table><thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Status</th><th style="text-align:right">Ações</th></tr></thead><tbody id="rows"></tbody></table>
+          <div class="empty" id="empty" style="display:none">Nenhum produto por aqui ainda. Clique em “+ Adicionar produto”.</div>
+        </div>
+      </div>
+      <div class="view" id="view-bolos"></div>
+
+      <!-- SECOES -->
+      <div class="view" id="view-secoes">
+        <div class="panel">
+          <div class="panel-head"><div><h2>Seções da landing page</h2><p>Mostre, esconda e reordene os blocos da página inicial</p></div></div>
+          <div class="seclist" id="secList"></div>
+        </div>
+      </div>
+
+      <!-- PEDIDOS -->
+      <div class="view" id="view-pedidos">
+        <div class="panel">
+          <div class="panel-head"><div><h2>Pedidos</h2><p>Acompanhe e atualize o status de cada pedido</p></div></div>
+          <table><thead><tr><th>#</th><th>Cliente</th><th>Itens</th><th>Total</th><th>Status</th></tr></thead><tbody>
+            <tr><td>#1042</td><td>Ana Souza</td><td>2x Red velvet</td><td>R$ 28,00</td><td><span class="badge on">Entregue</span></td></tr>
+            <tr><td>#1041</td><td>Carlos Lima</td><td>Bolo M · Cenoura</td><td>R$ 130,00</td><td><span class="badge off">Preparando</span></td></tr>
+            <tr><td>#1040</td><td>Beatriz R.</td><td>4x Chocolate</td><td>R$ 48,00</td><td><span class="badge on">Entregue</span></td></tr>
+            <tr><td>#1039</td><td>Diego M.</td><td>Bolo G · Prestígio</td><td>R$ 180,00</td><td><span class="badge on">Entregue</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <!-- CONFIG -->
+      <div class="view" id="view-config">
+        <div class="panel"><div class="panel-head"><div><h2>Configurações da loja</h2><p>Dados que aparecem no site</p></div></div>
+          <div style="padding:22px">
+            <div class="grid2">
+              <div class="field"><label>Nome da loja</label><input value="Marta Confeitaria"></div>
+              <div class="field"><label>WhatsApp</label><input value="(00) 90000-0000"></div>
+            </div>
+            <div class="field"><label>Endereço</label><input value="Rua das Flores, 123 – Seu bairro"></div>
+            <div class="grid2">
+              <div class="field"><label>Abre às</label><input type="time" value="08:00"></div>
+              <div class="field"><label>Fecha às</label><input type="time" value="19:00"></div>
+            </div>
+            <button class="btn" onclick="toast('Configurações salvas (mockup)')">Salvar alterações</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PRODUTO -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modalTitle">Adicionar produto</h3><button class="x" id="closeX">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Nome do produto</label><input id="fNome" placeholder="Ex: Bolo de limão"></div>
+      <div class="grid2">
+        <div class="field"><label>Categoria</label><select id="fCat"><option>Fatia</option><option>Bolo inteiro</option></select></div>
+        <div class="field"><label>Preço (R$)</label><input id="fPreco" type="number" step="0.01" placeholder="12,00"></div>
+      </div>
+      <div class="field"><label>Descrição</label><textarea id="fDesc" rows="3" placeholder="Um resuminho gostoso do sabor..."></textarea></div>
+      <label class="check" style="margin-bottom:10px"><input type="checkbox" id="fAtivo" checked> Disponível para venda</label>
+      <label class="check"><input type="checkbox" id="fDestaque"> Marcar como destaque (flag no card)</label>
+    </div>
+    <div class="modal-foot"><button class="btn ghost" id="cancelBtn">Cancelar</button><button class="btn" id="saveBtn">Salvar</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var products = [
+  {id:1,nome:'Chocolate intenso',cat:'Fatia',preco:12,desc:'Brigadeiro e ganache cremosa.',ativo:true,destaque:true},
+  {id:2,nome:'Red velvet',cat:'Fatia',preco:14,desc:'Cream cheese e morango.',ativo:true,destaque:false},
+  {id:3,nome:'Cenoura com chocolate',cat:'Fatia',preco:10,desc:'Cobertura cremosa e granulado.',ativo:true,destaque:false},
+  {id:4,nome:'Ninho com Nutella',cat:'Fatia',preco:15,desc:'Leite ninho e avelã.',ativo:false,destaque:false},
+  {id:5,nome:'Bolo de aniversário',cat:'Bolo inteiro',preco:75,desc:'Personalizado do seu jeito.',ativo:true,destaque:true},
+  {id:6,nome:'Bolo de festa',cat:'Bolo inteiro',preco:130,desc:'Para grandes comemorações.',ativo:true,destaque:false}
+];
+var sections = [
+  {nome:'Hero (fatia em destaque)',desc:'Carrossel animado no topo',on:true},
+  {nome:'As fatias do dia',desc:'Grade com os produtos por fatia',on:true},
+  {nome:'Por que escolher',desc:'Bloco de diferenciais',on:true},
+  {nome:'Bolos inteiros',desc:'Chamada para encomenda',on:true},
+  {nome:'Faixa de call-to-action',desc:'Convite final para pedir',on:false}
+];
+var seq = 7, editingId = null, currentCat = 'Fatia';
+var money = function(v){ return 'R$ ' + Number(v).toFixed(2).replace('.',','); };
+var swColor = function(cat){ return cat==='Fatia' ? 'var(--pink)' : 'var(--lav)'; };
+var $ = function(id){ return document.getElementById(id); };
+
+function renderRows(){
+  var term = ($('search').value||'').toLowerCase();
+  var list = products.filter(function(p){ return p.cat===currentCat && p.nome.toLowerCase().indexOf(term)>=0; });
+  var tb = $('rows'); tb.innerHTML='';
+  $('empty').style.display = list.length? 'none':'block';
+  list.forEach(function(p){
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><div class="prod"><span class="sw" style="background:'+swColor(p.cat)+'">🍰</span>'+
+      '<span><b>'+p.nome+'</b><small>'+(p.desc||'')+'</small></span></div></td>'+
+      '<td>'+p.cat+(p.destaque?' <span class="tagp">Destaque</span>':'')+'</td>'+
+      '<td>'+money(p.preco)+'</td>'+
+      '<td>'+(p.ativo?'<span class="badge on">● Ativo</span>':'<span class="badge off">○ Inativo</span>')+'</td>'+
+      '<td><div class="acts"><button class="iconbtn" title="Editar" data-edit="'+p.id+'">✏️</button>'+
+      '<button class="iconbtn del" title="Excluir" data-del="'+p.id+'">🗑️</button></div></td>';
+    tb.appendChild(tr);
+  });
+  $('stProd').textContent = products.filter(function(p){return p.ativo;}).length;
+}
+function renderSections(){
+  var w = $('secList'); w.innerHTML='';
+  sections.forEach(function(s,i){
+    var row=document.createElement('div'); row.className='secrow';
+    row.innerHTML='<span class="drag">☰</span><div class="txt"><b>'+s.nome+'</b><small>'+s.desc+'</small></div>'+
+      '<label class="switch"><input type="checkbox" '+(s.on?'checked':'')+' data-sec="'+i+'"><span class="slider"></span></label>';
+    w.appendChild(row);
+  });
+}
+function openModal(prod){
+  editingId = prod? prod.id : null;
+  $('modalTitle').textContent = prod? 'Editar produto':'Adicionar produto';
+  $('fNome').value = prod? prod.nome:'';
+  $('fCat').value = prod? prod.cat:currentCat;
+  $('fPreco').value = prod? prod.preco:'';
+  $('fDesc').value = prod? prod.desc:'';
+  $('fAtivo').checked = prod? prod.ativo:true;
+  $('fDestaque').checked = prod? prod.destaque:false;
+  $('overlay').classList.add('show');
+}
+function closeModal(){ $('overlay').classList.remove('show'); }
+function save(){
+  var nome=$('fNome').value.trim();
+  if(!nome){ toast('Digite um nome para o produto'); return; }
+  var data={nome:nome,cat:$('fCat').value,preco:parseFloat($('fPreco').value||0),desc:$('fDesc').value.trim(),ativo:$('fAtivo').checked,destaque:$('fDestaque').checked};
+  if(editingId){ products=products.map(function(p){ return p.id===editingId? Object.assign({},p,data):p; }); toast('Produto atualizado'); }
+  else { data.id=seq++; products.push(data); toast('Produto adicionado'); }
+  currentCat=data.cat; syncCatView(); closeModal(); renderRows();
+}
+function del(id){
+  var p=products.find(function(x){return x.id===id;});
+  if(confirm('Excluir "'+p.nome+'"? Essa ação não pode ser desfeita.')){ products=products.filter(function(x){return x.id!==id;}); toast('Produto excluído'); renderRows(); }
+}
+var toastT;
+function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show');},2200); }
+
+function syncCatView(){
+  $('catTitle').textContent = currentCat==='Fatia'?'Fatias':'Bolos inteiros';
+  $('catSub').textContent = currentCat==='Fatia'?'Gerencie os sabores vendidos por fatia':'Gerencie os bolos inteiros por encomenda';
+}
+var titles={overview:'Visão geral',pedidos:'Pedidos',produtos:'Fatias',bolos:'Bolos inteiros',secoes:'Seções da landing',config:'Configurações'};
+function show(view){
+  var real = (view==='bolos')?'produtos':view;
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('show');});
+  $('view-'+real).classList.add('show');
+  document.querySelectorAll('.side a[data-view]').forEach(function(a){a.classList.toggle('active',a.getAttribute('data-view')===view);});
+  $('pageTitle').textContent=titles[view]||'Painel';
+  $('topAdd').style.display=(view==='produtos'||view==='bolos')?'inline-flex':'none';
+  if(view==='produtos'||view==='bolos'){ currentCat=(view==='bolos')?'Bolo inteiro':'Fatia'; syncCatView(); renderRows(); }
+}
+
+document.querySelectorAll('.side a[data-view]').forEach(function(a){ a.addEventListener('click',function(){ show(a.getAttribute('data-view')); }); });
+document.querySelectorAll('[data-goto]').forEach(function(b){ b.addEventListener('click',function(){ show(b.getAttribute('data-goto')); }); });
+$('addProd').addEventListener('click',function(){ openModal(null); });
+$('topAdd').addEventListener('click',function(){ openModal(null); });
+$('closeX').addEventListener('click',closeModal);
+$('cancelBtn').addEventListener('click',closeModal);
+$('saveBtn').addEventListener('click',save);
+$('overlay').addEventListener('click',function(e){ if(e.target===$('overlay')) closeModal(); });
+$('search').addEventListener('input',renderRows);
+$('rows').addEventListener('click',function(e){
+  var ed=e.target.closest('[data-edit]'); var dl=e.target.closest('[data-del]');
+  if(ed){ openModal(products.find(function(p){return p.id==ed.getAttribute('data-edit');})); }
+  if(dl){ del(parseInt(dl.getAttribute('data-del'))); }
+});
+$('secList').addEventListener('change',function(e){ var s=e.target.getAttribute('data-sec'); if(s!==null){ sections[s].on=e.target.checked; toast(sections[s].on?'Seção ativada':'Seção ocultada'); } });
+
+renderSections(); show('overview');
+</script>
+</body>
+</html>

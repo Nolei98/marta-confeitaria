@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Pinyon+Script&family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#fbf7f0}
+    a{color:inherit;text-decoration:none}
+    :root{--font-display:'Cormorant Garamond',serif;--font-script:'Pinyon Script',cursive;--font-body:'Inter',sans-serif}
+    ::-webkit-scrollbar{width:10px}
+    ::-webkit-scrollbar-track{background:#fbf7f0}
+    ::-webkit-scrollbar-thumb{background:#c1531c;border-radius:6px;border:2px solid #fbf7f0}
+    ::-webkit-scrollbar-thumb:hover{background:#9c3f14}
+    @keyframes fabAppear{0%{opacity:0;transform:scale(0) translateY(20px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+    @keyframes speechBubbleFade{0%{opacity:0;transform:translateX(-8px) scale(.85)}15%{opacity:1;transform:translateX(0) scale(1)}82%{opacity:1;transform:translateX(0) scale(1)}100%{opacity:0;transform:translateX(-12px) scale(.9);pointer-events:none}}
+  </style>
+</helmet>
+<div style="font-family:Inter,system-ui,sans-serif;color:#3a2b28;background:#fbf7f0;min-height:100vh">
+  <header style="position:sticky;top:0;z-index:50;background:rgba(193,83,28,.96);backdrop-filter:blur(14px);box-shadow:0 10px 32px rgba(193,83,28,.4), 0 4px 12px rgba(0,0,0,.15), inset 0 2px 4px rgba(255,255,255,.3)">
+    <div style="max-width:1180px;margin:0 auto;padding:0 24px;height:72px;display:flex;align-items:center;justify-content:space-between;color:#fff">
+      <a href="https://wa.me/5587998765432" target="_blank" title="Falar no WhatsApp" style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:30px;padding:7px 16px;font-size:13px;font-weight:600;transition:all .2s ease" style-hover="background:rgba(255,255,255,.25);transform:scale(1.03)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        (87) 99876-5432
+      </a>
+      <div style="display:flex;align-items:center;gap:22px">
+        <nav style="display:flex;gap:16px;font-size:14px;font-weight:500;align-items:center">
+          <a href="Home.dc.html" style="padding:6px 12px;border-radius:20px;transition:all .2s" style-hover="color:#fff;background:rgba(255,255,255,.1)">Início</a>
+          <a href="Cardapio.dc.html" style="padding:6px 12px;border-radius:20px;transition:all .2s" style-hover="color:#fff;background:rgba(255,255,255,.1)">Cardápio</a>
+          <a href="Bolos.dc.html" style="color:#fff;font-weight:600;background:rgba(255,255,255,.15);padding:6px 14px;border-radius:20px">Bolos</a>
+        </nav>
+        <a href="index.html" style="display:flex;align-items:center;margin:0 4px;transition:transform .2s ease" style-hover="transform:scale(1.08)" aria-label="Marta Confeitaria">
+          <img src="images/logo.png" alt="Marta Confeitaria" style="height:56px;width:auto;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.3))" />
+        </a>
+        <nav style="display:flex;gap:16px;font-size:14px;font-weight:500;align-items:center">
+          <a href="Sobre.dc.html" style="padding:6px 12px;border-radius:20px;transition:all .2s" style-hover="color:#fff;background:rgba(255,255,255,.1)">Sobre</a>
+          <a href="Onde.dc.html" style="padding:6px 12px;border-radius:20px;transition:all .2s;white-space:nowrap" style-hover="color:#fff;background:rgba(255,255,255,.1)">Onde encontrar</a>
+          <a href="Contato.dc.html" style="padding:6px 12px;border-radius:20px;transition:all .2s" style-hover="color:#fff;background:rgba(255,255,255,.1)">Contato</a>
+        </nav>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <a href="Conta.dc.html" style="font-size:14px;font-weight:600;color:rgba(255,255,255,.9);padding:7px 15px;border-radius:20px;transition:all .2s ease;border:1px solid rgba(255,255,255,.3)" style-hover="color:#fff;background:rgba(255,255,255,.18);border-color:#fff">Login</a>
+        <button onClick="{{ toggleCart }}" style="display:flex;align-items:center;gap:8px;background:#fff;color:#c1531c;border-radius:30px;padding:8px 18px;font-size:14px;font-weight:700;position:relative;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s, background-color .2s" style-hover="transform:scale(1.05);background:#fff">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          Carrinho
+          <sc-if value="{{ cartCount }}" hint-placeholder-val="{{ false }}">
+            <span style="position:absolute;top:-6px;right:-6px;background:#a07882;color:#fff;border-radius:50%;min-width:20px;height:20px;font-size:11px;display:grid;place-items:center;padding:0 4px;box-shadow:0 2px 6px rgba(0,0,0,.25)">{{ cartCount }}</span>
+          </sc-if>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section style="padding:64px 24px 20px;max-width:1160px;margin:0 auto;text-align:center">
+    <div style="font-family:var(--font-display);font-size:15px;letter-spacing:.24em;text-transform:uppercase;color:#c1531c;margin-bottom:10px">Festa · Aniversário · Celebração</div>
+    <h1 style="font-family:var(--font-display);font-weight:600;font-size:clamp(32px,4.6vw,44px);letter-spacing:.05em;text-transform:uppercase;color:#3f2a26;margin:0 0 14px">Bolos inteiros</h1>
+    <p style="color:#8b7d76;max-width:520px;margin:0 auto 40px;font-family:var(--font-body)">Perfeitos para aniversários, festas e comemorações especiais. Escolha o modelo e monte seu pedido.</p>
+  </section>
+
+  <section style="padding:0 24px 60px;max-width:1160px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px">
+      <sc-for list="{{ models }}" as="m" hint-placeholder-count="3">
+        <div style="background:#fff;border:1px solid #eaddd0;border-radius:16px;overflow:hidden">
+          <img src="{{ m.img }}" alt="{{ m.name }}" style="width:100%;height:220px;object-fit:cover" />
+          <div style="padding:22px">
+            <h3 style="font-family:var(--font-display);font-weight:600;font-size:22px;margin:0 0 8px;color:#3f2a26;line-height:1.2;letter-spacing:.02em">{{ m.name }}</h3>
+            <p style="font-size:14px;color:#8b7d76;margin:0;font-family:var(--font-body)">{{ m.desc }}</p>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding:0 24px 80px;max-width:760px;margin:0 auto">
+    <div style="background:#fff;border:1px solid #eaddd0;border-radius:24px;padding:40px">
+      <h2 style="font-family:'Playfair Display',serif;font-size:24px;margin:0 0 6px;text-align:center">Monte seu pedido</h2>
+      <p style="color:#8b7d76;text-align:center;margin:0 0 28px;font-size:14px">Preencha os dados e envie direto pelo WhatsApp</p>
+
+      <label style="display:block;font-size:13px;font-weight:600;color:#c1531c;margin-bottom:6px">Sabor</label>
+      <select value="{{ flavor }}" onChange="{{ setFlavor }}" style="width:100%;padding:13px 14px;border:1px solid #eaddd0;border-radius:12px;font-size:15px;margin-bottom:20px;background:#fbf7f0;font-family:Inter">
+        <sc-for list="{{ flavorOptions }}" as="fo" hint-placeholder-count="5">
+          <option value="{{ fo }}">{{ fo }}</option>
+        </sc-for>
+      </select>
+
+      <label style="display:block;font-size:13px;font-weight:600;color:#c1531c;margin-bottom:10px">Tamanho</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+        <sc-for list="{{ sizes }}" as="sz" hint-placeholder-count="3">
+          <div onClick="{{ sz.select }}" style="{{ sz.style }}">
+            <strong style="display:block;font-family:'Playfair Display',serif;color:#c1531c;font-size:18px">{{ sz.label }}</strong>
+            <small style="color:#8b7d76;font-size:13px;display:block">{{ sz.fatias }}</small>
+            <small style="color:#8a6470;font-size:13px;font-weight:600">{{ sz.price }}</small>
+          </div>
+        </sc-for>
+      </div>
+
+      <label style="display:block;font-size:13px;font-weight:600;color:#c1531c;margin-bottom:6px">Data de retirada</label>
+      <input type="date" value="{{ pickupDate }}" onChange="{{ setPickupDate }}" style="width:100%;padding:13px 14px;border:1px solid #eaddd0;border-radius:12px;font-size:15px;margin-bottom:20px;background:#fbf7f0;font-family:Inter" />
+
+      <label style="display:block;font-size:13px;font-weight:600;color:#c1531c;margin-bottom:6px">Seu nome</label>
+      <input type="text" value="{{ name }}" onChange="{{ setName }}" placeholder="Nome completo" style="width:100%;padding:13px 14px;border:1px solid #eaddd0;border-radius:12px;font-size:15px;margin-bottom:20px;background:#fbf7f0;font-family:Inter" />
+
+      <label style="display:block;font-size:13px;font-weight:600;color:#c1531c;margin-bottom:6px">WhatsApp</label>
+      <input type="tel" value="{{ phone }}" onChange="{{ setPhone }}" placeholder="(11) 90000-0000" style="width:100%;padding:13px 14px;border:1px solid #eaddd0;border-radius:12px;font-size:15px;margin-bottom:20px;background:#fbf7f0;font-family:Inter" />
+
+      <label style="display:block;font-size:13px;font-weight:600;color:#c1531c;margin-bottom:6px">Observações</label>
+      <textarea value="{{ notes }}" onChange="{{ setNotes }}" placeholder="Mensagem no topo, cor da faixa, alergias..." rows="3" style="width:100%;padding:13px 14px;border:1px solid #eaddd0;border-radius:12px;font-size:15px;margin-bottom:20px;background:#fbf7f0;font-family:Inter;resize:vertical"></textarea>
+
+      <label style="display:block;font-size:13px;font-weight:600;color:#c1531c;margin-bottom:6px">Confirmação: quanto é {{ captchaA }} + {{ captchaB }}?</label>
+      <input type="number" value="{{ captchaInput }}" onChange="{{ setCaptchaInput }}" placeholder="Sua resposta" style="width:100%;padding:13px 14px;border:1px solid #eaddd0;border-radius:12px;font-size:15px;margin-bottom:8px;background:#fbf7f0;font-family:Inter" />
+      <sc-if value="{{ captchaError }}" hint-placeholder-val="{{ false }}">
+        <p style="color:#b3554d;font-size:13px;margin:0 0 18px">Resposta incorreta, tente novamente.</p>
+      </sc-if>
+
+      <button onClick="{{ submit }}" style="width:100%;border:none;background:#c1531c;color:#fff;border-radius:40px;padding:16px;font-weight:600;font-size:15px;cursor:pointer;min-height:44px;margin-top:14px" style-hover="background:#9c3f14">Enviar pedido pelo WhatsApp</button>
+    </div>
+  </section>
+
+  <footer style="background:#a8431a;color:rgba(255,255,255,.75);padding:56px 24px 30px">
+    <div style="max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1.2fr 0.8fr 2fr;gap:32px;align-items:start">
+      <div>
+        <a href="index.html" style="display:inline-block;margin-bottom:14px" aria-label="Marta Confeitaria">
+          <img src="images/logo.png" alt="Marta Confeitaria" style="height:76px;width:auto;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.3))" />
+        </a>
+        <p style="font-size:14px;max-width:280px;line-height:1.5;margin:0 0 12px;color:rgba(255,255,255,.85)">Bolos caseiros feitos com carinho, fatia por fatia, desde a nossa cozinha para a sua mesa.</p>
+        <a href="Dashboard.dc.html" style="display:inline-block;font-size:12px;color:rgba(255,255,255,.45)" style-hover="color:rgba(255,255,255,.9)">Painel administrativo</a>
+      </div>
+      <div>
+        <h4 style="color:#fff;font-family:'Playfair Display',serif;margin-bottom:14px;font-size:16px">Navegue</h4>
+        <a href="Home.dc.html" style="display:block;padding:4px 0;font-size:14px" style-hover="color:#fff">Início</a>
+        <a href="Cardapio.dc.html" style="display:block;padding:4px 0;font-size:14px" style-hover="color:#fff">Cardápio</a>
+        <a href="Bolos.dc.html" style="display:block;padding:4px 0;font-size:14px" style-hover="color:#fff">Bolos</a>
+        <a href="Sobre.dc.html" style="display:block;padding:4px 0;font-size:14px" style-hover="color:#fff">Sobre</a>
+        <a href="Onde.dc.html" style="display:block;padding:4px 0;font-size:14px" style-hover="color:#fff">Onde encontrar</a>
+        <a href="Revenda.dc.html" style="display:block;padding:4px 0;font-size:14px" style-hover="color:#fff">Seja revendedor</a>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <h4 style="color:#fff;font-family:'Playfair Display',serif;margin:0;font-size:16px">Onde nos encontrar</h4>
+          <a href="Onde.dc.html" style="font-size:13px;color:#fff;text-decoration:underline">Ver no mapa completo →</a>
+        </div>
+        <iframe src="map-footer.html" width="100%" height="220" frameborder="0" style="border:none;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,0.25)"></iframe>
+      </div>
+    </div>
+    <div style="max-width:1160px;margin:40px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);font-size:13px;color:rgba(255,255,255,.5);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>© 2026 Marta Confeitaria. Todos os direitos reservados.</span>
+      <a href="https://portfolio-jr-lilac.vercel.app/" target="_blank" style-hover="color:#fff">Desenvolvido por João Rodrigues</a>
+    </div>
+  </footer>
+
+  <!-- FLOATING CARDÁPIO BUTTON COM BALÃO DE FALA -->
+  <div style="position:fixed;left:24px;bottom:24px;z-index:60;display:flex;align-items:center;gap:12px;pointer-events:none">
+    <a href="Cardapio.dc.html" title="Ver Cardápio" aria-label="Ver Cardápio" style="width:54px;height:54px;border-radius:50%;background:#c1531c;color:#fff;display:grid;place-items:center;box-shadow:0 10px 28px rgba(193,83,28,.45), 0 4px 12px rgba(0,0,0,.12), inset 0 2px 4px rgba(255,255,255,.35);pointer-events:auto;transition:transform .25s ease, background-color .2s ease;text-decoration:none;animation:fabAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both" style-hover="transform:translateY(-4px) scale(1.08);background:#9c3f14">
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        <path d="M8 7h8M8 11h6"></path>
+      </svg>
+    </a>
+    <div style="position:relative;background:#fff;color:#3f2a26;padding:9px 14px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(58,33,28,.2);white-space:nowrap;pointer-events:auto;animation:speechBubbleFade 6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;border:1px solid #eaddd0">
+      <div style="position:absolute;left:-6px;top:50%;transform:translateY(-50%) rotate(45deg);width:10px;height:10px;background:#fff;border-left:1px solid #eaddd0;border-bottom:1px solid #eaddd0"></div>
+      Confira nosso cardápio! 🍰
+    </div>
+  </div>
+
+  <!-- BOTÃO VOLTAR AO TOPO -->
+  <sc-if value="{{ showTop }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ scrollToTop }}" title="Voltar ao topo" aria-label="Voltar ao topo" style="position:fixed;right:24px;bottom:24px;width:46px;height:46px;border-radius:50%;background:#c1531c;color:#fff;border:none;display:grid;place-items:center;box-shadow:0 10px 28px rgba(193,83,28,.45), 0 4px 12px rgba(0,0,0,.12), inset 0 2px 4px rgba(255,255,255,.35);z-index:70;cursor:pointer;animation:fabAppear 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;transition:transform .25s ease, background-color .2s ease" style-hover="transform:translateY(-4px) scale(1.08);background:#9c3f14">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+    </button>
+  </sc-if>
+
+  <sc-if value="{{ cartOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeCart }}" style="position:fixed;inset:0;background:rgba(47,32,29,.45);z-index:90"></div>
+    <div style="position:fixed;top:0;right:0;height:100%;width:380px;max-width:90vw;background:#fbf7f0;z-index:91;box-shadow:-16px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 24px;border-bottom:1px solid #eaddd0">
+        <div style="display:flex;align-items:center;gap:10px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c1531c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          <h3 style="font-family:'Playfair Display',serif;font-size:20px;margin:0;color:#c1531c;font-weight:700">Seu carrinho</h3>
+        </div>
+        <button onClick="{{ closeCart }}" style="border:none;background:none;font-size:24px;color:#8b7d76;cursor:pointer;line-height:1">×</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:16px 24px">
+        <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
+          <p style="color:#8b7d76;font-size:14px;text-align:center;margin-top:40px">Seu carrinho está vazio. Que tal uma fatia?</p>
+        </sc-if>
+        <sc-for list="{{ cartItems }}" as="ci" hint-placeholder-count="0">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #eaddd0">
+            <div>
+              <div style="font-weight:600;color:#c1531c;font-size:14px;margin-bottom:4px">{{ ci.name }}</div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <button onClick="{{ ci.dec }}" style="width:24px;height:24px;border-radius:50%;border:1px solid #eaddd0;background:#fff;color:#c1531c;cursor:pointer;font-size:14px;line-height:1">–</button>
+                <span style="font-size:13px;color:#8b7d76;min-width:14px;text-align:center">{{ ci.qty }}</span>
+                <button onClick="{{ ci.inc }}" style="width:24px;height:24px;border-radius:50%;border:1px solid #eaddd0;background:#fff;color:#c1531c;cursor:pointer;font-size:14px;line-height:1">+</button>
+              </div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:'Playfair Display',serif;color:#c1531c;font-weight:600;font-size:14px;margin-bottom:6px">{{ ci.lineTotal }}</div>
+              <button onClick="{{ ci.remove }}" style="border:none;background:none;color:#b3554d;font-size:12px;cursor:pointer;text-decoration:underline">remover</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="padding:20px 24px;border-top:1px solid #eaddd0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+          <span style="color:#8b7d76;font-size:14px">Subtotal</span>
+          <span style="font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#c1531c">{{ cartTotal }}</span>
+        </div>
+        <button onClick="{{ checkoutCart }}" style="width:100%;border:none;background:#c1531c;color:#fff;border-radius:40px;padding:15px;font-weight:600;font-size:15px;cursor:pointer;min-height:44px" style-hover="background:#9c3f14">Finalizar pelo WhatsApp</button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const MODELS = [
+  { name: 'Bolo de aniversário', desc: 'Chantilly, frutas vermelhas e velinhas — o clássico de toda festa.', img: 'images/cake-10.jpg' },
+  { name: 'Bolo de festa', desc: 'Andares em tons pastel com rosas de açúcar, pra ocasiões especiais.', img: 'images/cake-11.webp' },
+  { name: 'Bolo temático', desc: 'Chocolate coberto de rosas, personalizável para o tema da sua festa.', img: 'images/cake-12.jpg' }
+];
+const SIZES = [
+  { key: 'P', label: 'P', fatias: '10 fatias', price: 'R$ 75,00' },
+  { key: 'M', label: 'M', fatias: '20 fatias', price: 'R$ 130,00' },
+  { key: 'G', label: 'G', fatias: '30 fatias', price: 'R$ 180,00' }
+];
+const FLAVOR_OPTIONS = ['Chocolate intenso', 'Red velvet', 'Cenoura com chocolate', 'Prestígio', 'Ninho com Nutella', 'Limão siciliano', 'Floresta negra', 'Maracujá', 'Fubá cremoso'];
+
+function newCaptcha() { return { a: 1 + Math.floor(Math.random() * 8), b: 1 + Math.floor(Math.random() * 8) }; }
+
+class Component extends DCLogic {
+  state = { flavor: FLAVOR_OPTIONS[0], size: 'M', pickupDate: '', name: '', phone: '', notes: '', cart: [], cartOpen: false, captcha: newCaptcha(), captchaInput: '', captchaError: false, showTop: false };
+
+  componentDidMount() {
+    try { this.setState({ cart: JSON.parse(localStorage.getItem('martaCart') || '[]') }); } catch (e) {}
+    this._onScroll = () => this.setState({ showTop: window.scrollY > 300 });
+    window.addEventListener('scroll', this._onScroll);
+  }
+  componentWillUnmount() { window.removeEventListener('scroll', this._onScroll); }
+  scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  persistCart(cart) { this.setState({ cart }); try { localStorage.setItem('martaCart', JSON.stringify(cart)); } catch (e) {} }
+  incQty(name) { this.persistCart(this.state.cart.map(c => c.name === name ? { ...c, qty: c.qty + 1 } : c)); }
+  decQty(name) { const it = this.state.cart.find(c => c.name === name); if (it && it.qty <= 1) return this.removeItem(name); this.persistCart(this.state.cart.map(c => c.name === name ? { ...c, qty: c.qty - 1 } : c)); }
+  removeItem(name) { this.persistCart(this.state.cart.filter(c => c.name !== name)); }
+  toggleCart() { this.setState(s => ({ cartOpen: !s.cartOpen })); }
+  closeCart() { this.setState({ cartOpen: false }); }
+  checkoutCart() {
+    const lines = this.state.cart.map(c => c.qty + 'x ' + c.name + ' — R$ ' + (c.price * c.qty));
+    window.open('https://wa.me/5511967891234?text=' + encodeURIComponent('Olá! Quero fazer este pedido:\n' + lines.join('\n')), '_blank');
+  }
+
+  submit() {
+    const s = this.state;
+    if (parseInt(s.captchaInput, 10) !== s.captcha.a + s.captcha.b) {
+      this.setState({ captchaError: true, captcha: newCaptcha(), captchaInput: '' });
+      return;
+    }
+    this.setState({ captchaError: false, captcha: newCaptcha(), captchaInput: '' });
+    const sizeInfo = SIZES.find(sz => sz.key === s.size);
+    const lines = [
+      'Olá! Gostaria de encomendar um bolo inteiro:',
+      'Sabor: ' + s.flavor,
+      'Tamanho: ' + sizeInfo.label + ' (' + sizeInfo.fatias + ') — ' + sizeInfo.price,
+      s.pickupDate ? 'Retirada: ' + s.pickupDate : '',
+      'Nome: ' + (s.name || '-'),
+      s.notes ? 'Observações: ' + s.notes : ''
+    ].filter(Boolean);
+    const msg = encodeURIComponent(lines.join('\n'));
+    window.open('https://wa.me/5511967891234?text=' + msg, '_blank');
+  }
+
+  renderVals() {
+    const s = this.state;
+    const cart = s.cart;
+    const cartItems = cart.map(c => ({
+      name: c.name, qty: c.qty, lineTotal: 'R$ ' + (c.price * c.qty).toFixed(2).replace('.', ','),
+      inc: () => this.incQty(c.name), dec: () => this.decQty(c.name), remove: () => this.removeItem(c.name)
+    }));
+    return {
+      models: MODELS,
+      cartOpen: s.cartOpen, toggleCart: () => this.toggleCart(), closeCart: () => this.closeCart(),
+      cartCount: cart.reduce((n, c) => n + c.qty, 0) || false,
+      cartItems, cartEmpty: cart.length === 0, cartTotal: 'R$ ' + cart.reduce((n, c) => n + c.price * c.qty, 0).toFixed(2).replace('.', ','),
+      checkoutCart: () => this.checkoutCart(),
+      flavor: s.flavor, setFlavor: e => this.setState({ flavor: e.target.value }),
+      flavorOptions: FLAVOR_OPTIONS,
+      sizes: SIZES.map(sz => ({
+        label: sz.label, fatias: sz.fatias, price: sz.price,
+        select: () => this.setState({ size: sz.key }),
+        style: 'position:relative;border:1px solid ' + (s.size === sz.key ? '#a07882' : '#eaddd0') + ';border-radius:14px;padding:16px;text-align:center;cursor:pointer;background:' + (s.size === sz.key ? '#fff' : '#fbf7f0') + ';transition:all .15s ease;'
+      })),
+      pickupDate: s.pickupDate, setPickupDate: e => this.setState({ pickupDate: e.target.value }),
+      name: s.name, setName: e => this.setState({ name: e.target.value }),
+      phone: s.phone, setPhone: e => this.setState({ phone: e.target.value }),
+      notes: s.notes, setNotes: e => this.setState({ notes: e.target.value }),
+      captchaA: s.captcha.a, captchaB: s.captcha.b,
+      captchaInput: s.captchaInput, setCaptchaInput: e => this.setState({ captchaInput: e.target.value }),
+      captchaError: s.captchaError,
+      submit: () => this.submit()
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    html, body, #map { margin: 0; padding: 0; width: 100%; height: 100%; background: #fbf7f0; }
+    .leaflet-popup-content-wrapper { border-radius: 12px; font-family: system-ui, -apple-system, sans-serif; font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    .leaflet-popup-content { margin: 10px 14px; color: #3f2a26; line-height: 1.4; }
+    .reseller-badge { background: #c1531c; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const map = L.map('map', { zoomControl: true, attributionControl: false }).setView([-8.0742, -39.1225], 14);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: ''
+      }).addTo(map);
+
+      setTimeout(function() {
+        map.invalidateSize();
+      }, 200);
+
+      const customIcon = L.divIcon({
+        className: '',
+        html: '<div style="width:30px;height:30px;border-radius:50% 50% 50% 0;background:#c1531c;border:2.5px solid #fff;transform:rotate(-45deg);box-shadow:0 4px 10px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);color:#fff;font-family:serif;font-weight:700;font-size:13px">M</span></div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 30]
+      });
+
+      const points = [
+        { name: 'Marta Confeitaria', desc: 'Cozinha Principal · Salgueiro PE', badge: 'Matriz', lat: -8.0742, lng: -39.1225 },
+        { name: 'Padaria Bela Vista', desc: 'Ponto de Revenda Parceiro', badge: 'Revenda', lat: -8.0698, lng: -39.1187 },
+        { name: 'Empório Vila Doce', desc: 'Ponto de Revenda Parceiro', badge: 'Revenda', lat: -8.0781, lng: -39.1274 }
+      ];
+
+      points.forEach(function(p, i) {
+        const marker = L.marker([p.lat, p.lng], { icon: customIcon }).addTo(map);
+        marker.bindPopup('<strong>' + p.name + '</strong><br/><span style="color:#666">' + p.desc + '</span><br/><span class="reseller-badge">' + p.badge + '</span>');
+        if (i === 0) {
+          marker.openPopup();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
