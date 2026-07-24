@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
+import grid from "@/styles/grid.module.css";
 
 const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 15, marginBottom: 18, background: "#fbf7f0", fontFamily: "Inter" };
 const labelStyle: React.CSSProperties = { display: "block", fontSize: 13, fontWeight: 600, color: "#c1531c", marginBottom: 6 };
@@ -57,7 +58,7 @@ export default function RevendaPage() {
         </p>
       </section>
 
-      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24 }}>
+      <section className={grid.threeCol} style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", gap: 24 }}>
         {PERKS.map((p) => (
           <div key={p.title} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: 28, textAlign: "center" }}>
             <div style={{ width: 50, height: 50, borderRadius: "50%", background: p.bg, margin: "0 auto 16px", display: "grid", placeItems: "center" }}>{p.icon}</div>
@@ -68,7 +69,7 @@ export default function RevendaPage() {
       </section>
 
       <section style={{ padding: "0 24px 80px", maxWidth: 760, margin: "0 auto" }}>
-        <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24, padding: 40 }}>
+        <div className={grid.formPanel} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24 }}>
           <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 22, margin: "0 0 6px", textAlign: "center" }}>Cadastre seu estabelecimento</h2>
           <p style={{ color: "#8b7d76", textAlign: "center", margin: "0 0 26px", fontSize: 14 }}>Enviamos direto pelo WhatsApp e retornamos em até 1 dia útil</p>
 

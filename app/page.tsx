@@ -6,6 +6,8 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useCart } from "@/components/cart/CartContext";
 import { useHoverStyle } from "@/lib/useHover";
+import grid from "@/styles/grid.module.css";
+import hero from "./HomeHero.module.css";
 
 type Flavor = { key: string; name: string; desc: string; price: string; img: string; bg: string; bgImg: string };
 
@@ -192,7 +194,8 @@ export default function HomePage() {
       <SiteHeader floating />
 
       <section
-        style={{ position: "relative", overflow: "hidden", color: "#fff", backgroundColor: active.bg, transition: "background-color .9s ease", minHeight: 640, display: "flex", alignItems: "center" }}
+        className={hero.heroSection}
+        style={{ position: "relative", overflow: "hidden", color: "#fff", backgroundColor: active.bg, transition: "background-color .9s ease", display: "flex", alignItems: "center" }}
         onMouseEnter={pauseAutoplay}
         onMouseLeave={resumeAutoplay}
       >
@@ -207,7 +210,7 @@ export default function HomePage() {
           </div>
         ))}
 
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 1160, margin: "0 auto", padding: "64px 24px 88px", display: "grid", gridTemplateColumns: "1.05fr .95fr", gap: 40, alignItems: "center", width: "100%" }}>
+        <div className={`${hero.heroWrap} ${grid.heroGrid}`} style={{ position: "relative", zIndex: 1, maxWidth: 1160, margin: "0 auto", gap: 40, alignItems: "center", width: "100%" }}>
           <div style={{ minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", marginBottom: 18 }}>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(255,255,255,.8)" }}>
@@ -241,7 +244,7 @@ export default function HomePage() {
           </div>
 
           <div>
-            <div style={{ position: "relative", height: 400, perspective: 1300 }}>
+            <div className={hero.coverflow} style={{ position: "relative", perspective: 1300 }}>
               {slides.map((s) => (
                 // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
                 <div key={s.i} onClick={() => goTo(s.i)} style={s.wrapStyle}>
@@ -266,7 +269,7 @@ export default function HomePage() {
             Fatias do dia
           </h2>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "40px 32px" }}>
+        <div className={grid.threeCol} style={{ gap: "40px 32px" }}>
           {dailySlices.map((d) => (
             <div key={d.name} style={{ textAlign: "center" }}>
               <div style={{ position: "relative", background: d.cardBg, borderRadius: 14, padding: "76px 20px 22px", marginTop: 64 }}>
@@ -297,7 +300,7 @@ export default function HomePage() {
               Mais vendidos da semana
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "24px 16px" }}>
+          <div className={grid.fiveCol} style={{ gap: "24px 16px" }}>
             {BESTSELLERS.map((sl) => (
               <div key={sl.name} style={{ textAlign: "center" }}>
                 <div style={{ position: "relative", background: "#fff", border: "1px solid #eaddd0", borderRadius: 14, padding: "52px 12px 16px", marginTop: 44 }}>
@@ -329,7 +332,7 @@ export default function HomePage() {
             Por que escolher a Marta
           </h2>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24 }}>
+        <div className={grid.threeCol} style={{ gap: 24 }}>
           <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: "30px 26px", textAlign: "center" }}>
             <div style={{ width: 50, height: 50, borderRadius: "50%", background: "#f6d9dd", margin: "0 auto 16px", display: "grid", placeItems: "center" }}>
               <div style={{ position: "relative", width: 20, height: 18 }}>
@@ -365,7 +368,7 @@ export default function HomePage() {
 
       {/* BOLOS CTA */}
       <section style={{ padding: "0 24px 80px", maxWidth: 1160, margin: "0 auto" }}>
-        <div style={{ background: "#3b2420", borderRadius: 24, padding: 24, display: "grid", gridTemplateColumns: "1fr 1fr", alignItems: "center", gap: 32 }}>
+        <div className={grid.twoCol} style={{ background: "#3b2420", borderRadius: 24, padding: 24, alignItems: "center", gap: 32 }}>
           <div style={{ padding: "24px 12px 24px 24px", color: "#fff" }}>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 13, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(255,255,255,.75)", marginBottom: 16 }}>
               Sob encomenda

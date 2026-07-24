@@ -1,0 +1,31 @@
+.heroWrap {
+  padding: 64px 24px 88px;
+}
+@media (max-width: 900px) {
+  .heroWrap {
+    padding: 40px 20px 64px;
+  }
+}
+
+.coverflow {
+  height: 400px;
+}
+@media (max-width: 900px) {
+  .coverflow {
+    height: 300px;
+  }
+}
+@media (max-width: 560px) {
+  .coverflow {
+    height: 260px;
+  }
+}
+
+.heroSection {
+  min-height: 640px;
+}
+@media (max-width: 900px) {
+  .heroSection {
+    min-height: 0;
+  }
+}

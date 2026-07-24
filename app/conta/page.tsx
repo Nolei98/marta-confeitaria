@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
+import grid from "@/styles/grid.module.css";
 
 type User = { name: string; email: string };
 
@@ -99,7 +100,7 @@ export default function ContaPage() {
 
       {user ? (
         <section style={{ maxWidth: 560, margin: "0 auto", padding: "64px 24px 80px" }}>
-          <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24, padding: 40, textAlign: "center" }}>
+          <div className={grid.formPanel} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24, textAlign: "center" }}>
             <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#f6d9dd", display: "grid", placeItems: "center", margin: "0 auto 18px", fontFamily: "'Playfair Display',serif", fontSize: 24, color: "#c1531c", fontWeight: 700 }}>
               {user.name.charAt(0).toUpperCase()}
             </div>
@@ -119,7 +120,7 @@ export default function ContaPage() {
         </section>
       ) : (
         <section style={{ maxWidth: 440, margin: "0 auto", padding: "64px 24px 80px" }}>
-          <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24, padding: 40 }}>
+          <div className={grid.formPanel} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24 }}>
             <div style={{ display: "flex", gap: 8, marginBottom: 26, background: "#f7f1e8", borderRadius: 30, padding: 4 }}>
               <button
                 onClick={() => {

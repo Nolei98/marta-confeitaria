@@ -3,6 +3,7 @@
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
+import grid from "@/styles/grid.module.css";
 
 const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 15, marginBottom: 18, background: "#fbf7f0", fontFamily: "Inter" };
 const labelStyle: React.CSSProperties = { display: "block", fontSize: 13, fontWeight: 600, color: "#c1531c", marginBottom: 6 };
@@ -40,7 +41,7 @@ export default function ContatoPage() {
         <p style={{ color: "#8b7d76", maxWidth: 520, margin: "0 auto 40px" }}>Dúvidas, encomendas ou só pra combinar a entrega — estamos por aqui.</p>
       </section>
 
-      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24 }}>
+      <section className={grid.threeCol} style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", gap: 24 }}>
         <InfoCard
           bg="#f6d9dd"
           title="WhatsApp"
@@ -70,8 +71,8 @@ export default function ContatoPage() {
         />
       </section>
 
-      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 80px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
-        <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 20, padding: 36 }}>
+      <section className={grid.twoCol} style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 80px", gap: 32, alignItems: "start" }}>
+        <div className={grid.formPanel} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 20 }}>
           <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 22, margin: "0 0 20px" }}>Envie uma mensagem</h2>
           <label style={labelStyle}>Nome</label>
           <input type="text" placeholder="Seu nome" style={inputStyle} />

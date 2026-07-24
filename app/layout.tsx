@@ -1,10 +1,15 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Marta Confeitaria — Bolos artesanais",
   description: "Bolos e fatias artesanais feitos à mão, direto da nossa cozinha para a sua mesa.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
