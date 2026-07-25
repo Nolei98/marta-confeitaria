@@ -207,6 +207,10 @@ export default function ContaPage() {
           setError("Preencha seu nome.");
           return;
         }
+        if (!signupPhone.trim()) {
+          setError("Preencha seu telefone.");
+          return;
+        }
         if (!acceptedTerms) {
           setError("Você precisa aceitar os Termos de Uso e a Política de Privacidade.");
           return;

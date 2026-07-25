@@ -2,9 +2,33 @@ import type { Metadata, Viewport } from "next";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import "./globals.css";
 
+const SITE_URL = "https://marta-confeitaria.vercel.app";
+const SITE_TITLE = "Marta Confeitaria — Bolos artesanais";
+const SITE_DESCRIPTION = "Bolos e fatias artesanais feitos à mão, direto da nossa cozinha para a sua mesa.";
+
 export const metadata: Metadata = {
-  title: "Marta Confeitaria — Bolos artesanais",
-  description: "Bolos e fatias artesanais feitos à mão, direto da nossa cozinha para a sua mesa.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: "%s — Marta Confeitaria",
+  },
+  description: SITE_DESCRIPTION,
+  keywords: ["bolos artesanais", "confeitaria", "fatias de bolo", "bolo sob encomenda", "Marta Confeitaria", "Salgueiro PE"],
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: SITE_URL,
+    siteName: "Marta Confeitaria",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [{ url: "/images/logo.png", width: 905, height: 905, alt: "Marta Confeitaria" }],
+  },
+  twitter: {
+    card: "summary",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/images/logo.png"],
+  },
 };
 
 export const viewport: Viewport = {

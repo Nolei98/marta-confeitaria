@@ -18,6 +18,9 @@ export async function POST(req: Request) {
   if (!name?.trim() || !email?.trim() || !password || password.length < 6) {
     return NextResponse.json({ error: "Dados inválidos. A senha precisa ter ao menos 6 caracteres." }, { status: 400 });
   }
+  if (!phone?.trim()) {
+    return NextResponse.json({ error: "Telefone é obrigatório." }, { status: 400 });
+  }
 
   const ipKey = `register-ip:${clientIp(req)}`;
   if (await isRateLimited(ipKey, REGISTER_MAX_ATTEMPTS, REGISTER_WINDOW_MS)) {
@@ -32,7 +35,7 @@ export async function POST(req: Request) {
 
   const passwordHash = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
-    data: { name, email, passwordHash, phone: phone?.trim() || null },
+    data: { name, email, passwordHash, phone: phone.trim() },
   });
   await logActivity(user.id, "REGISTER");
 
