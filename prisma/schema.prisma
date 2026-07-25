@@ -27,6 +27,7 @@ model User {
   email         String    @unique
   passwordHash  String
   phone         String?
+  avatarUrl     String?
   role          Role      @default(CUSTOMER)
   emailVerified DateTime?
   createdAt     DateTime  @default(now())

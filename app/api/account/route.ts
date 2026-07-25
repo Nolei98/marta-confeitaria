@@ -9,7 +9,7 @@ export async function GET() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { id: true, name: true, phone: true, email: true },
+    select: { id: true, name: true, phone: true, email: true, avatarUrl: true },
   });
   if (!user) return NextResponse.json({ error: "Usuário não encontrado." }, { status: 404 });
   return NextResponse.json(user);
@@ -25,7 +25,7 @@ export async function PATCH(req: Request) {
   const user = await prisma.user.update({
     where: { id: session.user.id },
     data: { name: name.trim(), phone: phone?.trim() || null },
-    select: { id: true, name: true, phone: true, email: true },
+    select: { id: true, name: true, phone: true, email: true, avatarUrl: true },
   });
   await logActivity(user.id, "PROFILE_UPDATE");
 

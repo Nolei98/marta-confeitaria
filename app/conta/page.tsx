@@ -7,15 +7,16 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { VerifyEmailBanner } from "@/components/account/VerifyEmailBanner";
+import { EncomendaForm } from "@/components/account/EncomendaForm";
 import { useCart } from "@/components/cart/CartContext";
 import { useHoverStyle } from "@/lib/useHover";
-import { UserIcon, EditIcon, LogOutIcon, BoxIcon, CakeSliceIcon } from "@/components/icons";
+import { UserIcon, EditIcon, LogOutIcon, BoxIcon, CakeSliceIcon, CupcakeIcon } from "@/components/icons";
 import grid from "@/styles/grid.module.css";
 
 type OrderItem = { id: string; nameSnapshot: string; priceSnapshot: string; qty: number };
 type Order = { id: string; code: string; status: string; total: string; createdAt: string; items: OrderItem[] };
 type Product = { id: string; name: string; category: string; price: number; imageUrl: string | null };
-type View = "catalogo" | "pedidos" | "editar";
+type View = "catalogo" | "encomenda" | "pedidos" | "editar";
 
 const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 15, marginBottom: 16, background: "#f5ead9", fontFamily: "Inter" };
 const labelStyle: React.CSSProperties = { display: "block", fontSize: 13, fontWeight: 600, color: "#3f2a26", marginBottom: 6 };
@@ -36,15 +37,15 @@ function SubmitButton({ onClick, children, disabled }: { onClick: () => void; ch
   );
 }
 
-function EncomendarBoloCta() {
+function EncomendarBoloCta({ onClick }: { onClick: () => void }) {
   const hover = useHoverStyle(
-    { background: "#c1531c", color: "#fff", borderRadius: 30, padding: "12px 22px", fontWeight: 600, fontSize: 14, whiteSpace: "nowrap", display: "inline-block", transition: "transform .2s ease, background-color .2s ease" },
+    { border: "none", background: "#c1531c", color: "#fff", borderRadius: 30, padding: "12px 22px", fontWeight: 600, fontSize: 14, whiteSpace: "nowrap", cursor: "pointer", transition: "transform .2s ease, background-color .2s ease" },
     { background: "#8a6470", transform: "scale(1.15)" }
   );
   return (
-    <Link href="/bolos" {...hover.handlers} style={hover.style}>
+    <button onClick={onClick} {...hover.handlers} style={hover.style}>
       Encomendar bolo
-    </Link>
+    </button>
   );
 }
 
@@ -106,6 +107,7 @@ export default function ContaPage() {
 
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
+  const [signupPhone, setSignupPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -122,6 +124,9 @@ export default function ContaPage() {
   const [profile, setProfile] = useState({ name: "", phone: "" });
   const [profileMsg, setProfileMsg] = useState("");
   const [profileBusy, setProfileBusy] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newEmail, setNewEmail] = useState("");
@@ -132,8 +137,10 @@ export default function ContaPage() {
 
   useEffect(() => {
     setCaptcha(newCaptcha());
-    const verify = new URLSearchParams(window.location.search).get("verify");
+    const params = new URLSearchParams(window.location.search);
+    const verify = params.get("verify");
     if (verify === "success" || verify === "error") setVerifyBanner(verify);
+    if (params.get("view") === "encomenda") setView("encomenda");
   }, []);
 
   useEffect(() => {
@@ -147,15 +154,37 @@ export default function ContaPage() {
   }, [status, session, router]);
 
   useEffect(() => {
-    if (view !== "editar" || status !== "authenticated") return;
+    if (status !== "authenticated") return;
     fetch("/api/account")
       .then((r) => r.json())
       .then((data) => {
         if (data?.name) setProfile({ name: data.name, phone: data.phone || "" });
         if (data?.email) setNewEmail(data.email);
+        setAvatarUrl(data?.avatarUrl || null);
       })
       .catch(() => {});
-  }, [view, status]);
+  }, [status]);
+
+  const uploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    setAvatarUploading(true);
+    setAvatarError("");
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const res = await fetch("/api/account/avatar", { method: "POST", body });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAvatarError(data.error || "Não foi possível enviar a foto.");
+        return;
+      }
+      setAvatarUrl(data.url);
+    } finally {
+      setAvatarUploading(false);
+      e.target.value = "";
+    }
+  };
 
   const isSignup = mode === "signup";
 
@@ -185,7 +214,7 @@ export default function ContaPage() {
         const res = await fetch("/api/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
+          body: JSON.stringify({ name, email, password, phone: signupPhone }),
         });
         const data = await res.json();
         if (!res.ok) {
@@ -293,8 +322,13 @@ export default function ContaPage() {
         <section style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px 80px" }}>
           <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24, padding: "20px 24px", marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <div style={{ width: 52, height: 52, borderRadius: "50%", background: "#f6d9dd", display: "grid", placeItems: "center", fontFamily: "'Playfair Display',serif", fontSize: 20, color: "#c1531c", fontWeight: 700, flexShrink: 0 }}>
-                {(session.user.name || session.user.email || "?").charAt(0).toUpperCase()}
+              <div style={{ width: 52, height: 52, borderRadius: "50%", background: "#f6d9dd", display: "grid", placeItems: "center", fontFamily: "'Playfair Display',serif", fontSize: 20, color: "#c1531c", fontWeight: 700, flexShrink: 0, overflow: "hidden" }}>
+                {avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  (session.user.name || session.user.email || "?").charAt(0).toUpperCase()
+                )}
               </div>
               <div>
                 <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: 20, margin: "0 0 2px" }}>Oi, {session.user.name}! Que bom te ver por aqui.</h1>
@@ -304,6 +338,9 @@ export default function ContaPage() {
             <div style={{ display: "flex", gap: 8 }}>
               <ProfileIconButton onClick={() => setView("catalogo")} active={view === "catalogo"} label="Catálogo">
                 <CakeSliceIcon size={17} />
+              </ProfileIconButton>
+              <ProfileIconButton onClick={() => setView("encomenda")} active={view === "encomenda"} label="Encomendar bolo">
+                <CupcakeIcon size={17} />
               </ProfileIconButton>
               <ProfileIconButton onClick={() => setView("pedidos")} active={view === "pedidos"} label="Meus pedidos">
                 <BoxIcon size={17} />
@@ -326,7 +363,7 @@ export default function ContaPage() {
                   <div style={{ color: "rgba(255,255,255,.7)", fontSize: 12, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 6 }}>Sob encomenda</div>
                   <h2 style={{ fontFamily: "'Playfair Display',serif", color: "#fff", fontSize: 19, margin: 0 }}>Quer um bolo inteiro pra uma festa?</h2>
                 </div>
-                <EncomendarBoloCta />
+                <EncomendarBoloCta onClick={() => setView("encomenda")} />
               </div>
 
               <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 14px", color: "#c1531c" }}>Fatias do catálogo</h2>
@@ -338,6 +375,8 @@ export default function ContaPage() {
               </div>
             </>
           )}
+
+          {view === "encomenda" && <EncomendaForm />}
 
           {view === "pedidos" && (
             <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24, padding: 24, textAlign: "left" }}>
@@ -360,6 +399,26 @@ export default function ContaPage() {
 
           {view === "editar" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+              <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24, padding: 24, textAlign: "left" }}>
+                <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 14px", color: "#c1531c" }}>Foto de perfil</h2>
+                <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 8 }}>
+                  <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#f6d9dd", display: "grid", placeItems: "center", fontFamily: "'Playfair Display',serif", fontSize: 22, color: "#c1531c", fontWeight: 700, flexShrink: 0, overflow: "hidden" }}>
+                    {avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      (profile.name || session.user.email || "?").charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <label style={{ border: "1px solid #eaddd0", background: "#fff", color: "#c1531c", borderRadius: 10, padding: "10px 16px", fontSize: 13, fontWeight: 600, cursor: avatarUploading ? "wait" : "pointer", opacity: avatarUploading ? 0.6 : 1 }}>
+                    {avatarUploading ? "Enviando..." : "Trocar foto"}
+                    <input type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadAvatar} disabled={avatarUploading} style={{ display: "none" }} />
+                  </label>
+                </div>
+                <p style={{ color: "#8b7d76", fontSize: 12, margin: "0 0 4px" }}>JPG, PNG ou WEBP, até 2MB.</p>
+                {avatarError && <p style={{ color: "#b3554d", fontSize: 13, margin: 0 }}>{avatarError}</p>}
+              </div>
+
               <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24, padding: 24, textAlign: "left" }}>
                 <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 14px", color: "#c1531c" }}>Dados da conta</h2>
                 <label style={labelStyle}>Nome completo</label>
@@ -414,6 +473,8 @@ export default function ContaPage() {
               <>
                 <label style={labelStyle}>Nome</label>
                 <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" style={inputStyle} />
+                <label style={labelStyle}>Telefone</label>
+                <input type="tel" value={signupPhone} onChange={(e) => setSignupPhone(e.target.value)} placeholder="(00) 00000-0000" style={inputStyle} />
               </>
             )}
 

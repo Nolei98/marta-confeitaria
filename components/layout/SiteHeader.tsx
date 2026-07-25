@@ -103,8 +103,8 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
           {!onAccountPage && (
             <Link
               href={session?.user?.role === "PARTNER" ? "/parceiro" : "/conta"}
-              title={session?.user ? "Minha conta" : "Entrar"}
-              aria-label={session?.user ? "Minha conta" : "Entrar"}
+              title={session?.user ? "Dashboard" : "Entrar"}
+              aria-label={session?.user ? "Dashboard" : "Entrar"}
               className={`${styles.loginLink} ${styles.desktopOnly}`}
               style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", color: "rgba(255,255,255,.9)", border: "1px solid rgba(255,255,255,.3)", backdropFilter: "blur(6px)" }}
             >
@@ -176,7 +176,7 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
         ))}
         <hr />
         <Link href={session?.user?.role === "PARTNER" ? "/parceiro" : "/conta"} style={{ color: "rgba(255,255,255,.85)", fontWeight: 600 }}>
-          {session?.user ? "Minha conta" : "Entrar"}
+          {session?.user ? "Dashboard" : "Entrar"}
         </Link>
         {!isCustomerLoggedIn && (
           <a href="https://wa.me/5587998765432" target="_blank" rel="noreferrer" style={{ color: "rgba(255,255,255,.85)" }}>

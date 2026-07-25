@@ -13,7 +13,7 @@ const REGISTER_WINDOW_MS = 60 * 60 * 1000;
 const REGISTER_MAX_ATTEMPTS = 8;
 
 export async function POST(req: Request) {
-  const { name, email, password } = await req.json();
+  const { name, email, password, phone } = await req.json();
 
   if (!name?.trim() || !email?.trim() || !password || password.length < 6) {
     return NextResponse.json({ error: "Dados inválidos. A senha precisa ter ao menos 6 caracteres." }, { status: 400 });
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
   const passwordHash = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
-    data: { name, email, passwordHash },
+    data: { name, email, passwordHash, phone: phone?.trim() || null },
   });
   await logActivity(user.id, "REGISTER");
 
