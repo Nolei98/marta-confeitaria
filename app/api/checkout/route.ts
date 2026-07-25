@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activityLog";
-import { getPreferenceClient, isMercadoPagoConfigured } from "@/lib/mercadopago";
+import { getPreferenceClient } from "@/lib/mercadopago";
 import { getBaseUrl } from "@/lib/baseUrl";
 import { isRateLimited, recordAttempt, clientIp } from "@/lib/rateLimit";
 
@@ -69,7 +69,8 @@ export async function POST(req: Request) {
 
   if (userId) await logActivity(userId, "CHECKOUT", { orderCode: order.code, total });
 
-  if (!isMercadoPagoConfigured()) {
+  const preferenceClient = await getPreferenceClient();
+  if (!preferenceClient) {
     const lines = [
       `Olá! Gostaria de confirmar meu pedido ${order.code}:`,
       ...items.map((i) => `${i.qty}x ${i.name}`),
@@ -79,7 +80,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ order, whatsappUrl });
   }
 
-  const preferenceClient = getPreferenceClient()!;
   const baseUrl = getBaseUrl(req);
   try {
     const preference = await preferenceClient.create({

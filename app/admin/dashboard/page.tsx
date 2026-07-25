@@ -78,7 +78,7 @@ const tableHeaderStyle: React.CSSProperties = { padding: "16px 22px", background
 const tableRowStyle: React.CSSProperties = { padding: "16px 22px", alignItems: "center", borderTop: "1px solid #eaddd0", fontSize: 14 };
 const linkButtonStyle = (color: string): React.CSSProperties => ({ border: "none", background: "none", color, fontSize: 13, fontWeight: 600, cursor: "pointer" });
 
-type Tab = "dashboard" | "produtos" | "secoes" | "pontos" | "pedidos" | "usuarios";
+type Tab = "dashboard" | "produtos" | "secoes" | "pontos" | "pedidos" | "usuarios" | "pagamentos";
 type AppUser = { id: string; name: string; email: string; role: "CUSTOMER" | "PARTNER" | "ADMIN"; createdAt: string; _count: { orders: number } };
 type Analytics = {
   totalRevenue: number;
@@ -106,6 +106,11 @@ export default function DashboardPage() {
   const [heroExpanded, setHeroExpanded] = useState(false);
   const [users, setUsers] = useState<AppUser[]>([]);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [paymentSettings, setPaymentSettings] = useState<{ accessTokenMasked: string | null; webhookSecretMasked: string | null; updatedAt: string | null }>({ accessTokenMasked: null, webhookSecretMasked: null, updatedAt: null });
+  const [mpAccessTokenInput, setMpAccessTokenInput] = useState("");
+  const [mpWebhookSecretInput, setMpWebhookSecretInput] = useState("");
+  const [mpMsg, setMpMsg] = useState("");
+  const [mpBusy, setMpBusy] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -115,7 +120,36 @@ export default function DashboardPage() {
     fetchHeroFlavors();
     fetchPontos();
     fetchSections();
+    fetchPaymentSettings();
   }, []);
+
+  const fetchPaymentSettings = () => {
+    fetch("/api/admin/payment-settings")
+      .then((r) => r.json())
+      .then((data) => data && !data.error && setPaymentSettings(data))
+      .catch(() => {});
+  };
+  const savePaymentSettings = async () => {
+    setMpBusy(true);
+    setMpMsg("");
+    try {
+      const body: { mpAccessToken?: string; mpWebhookSecret?: string } = {};
+      if (mpAccessTokenInput.trim()) body.mpAccessToken = mpAccessTokenInput.trim();
+      if (mpWebhookSecretInput.trim()) body.mpWebhookSecret = mpWebhookSecretInput.trim();
+      const res = await fetch("/api/admin/payment-settings", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setMpMsg(data.error || "Não foi possível salvar.");
+        return;
+      }
+      setPaymentSettings(data);
+      setMpAccessTokenInput("");
+      setMpWebhookSecretInput("");
+      setMpMsg("Salvo!");
+    } finally {
+      setMpBusy(false);
+    }
+  };
 
   const fetchHeroFlavors = () => {
     fetch("/api/admin/hero-flavors")
@@ -291,6 +325,7 @@ export default function DashboardPage() {
               { key: "pontos", label: "Pontos de venda" },
               { key: "pedidos", label: "Pedidos" },
               { key: "usuarios", label: "Usuários" },
+              { key: "pagamentos", label: "Pagamentos" },
             ] as { key: Tab; label: string }[]
           ).map((t) => (
             <button
@@ -634,6 +669,54 @@ export default function DashboardPage() {
                 </button>
               </div>
             ))}
+          </div>
+        )}
+
+        {tab === "pagamentos" && (
+          <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, padding: 28, maxWidth: 560 }}>
+            <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 19, margin: "0 0 6px", color: "#c1531c" }}>Mercado Pago</h2>
+            <p style={{ color: "#8b7d76", fontSize: 14, margin: "0 0 22px" }}>
+              Cole aqui o Access Token e a Chave secreta do webhook do{" "}
+              <a href="https://www.mercadopago.com.br/developers/panel" target="_blank" rel="noreferrer" style={{ color: "#c1531c" }}>
+                painel de desenvolvedores do Mercado Pago
+              </a>
+              . Cadastre o webhook (evento <code>payment</code>) apontando pra <code>/api/checkout/webhook</code> no seu domínio.
+              Sem essas chaves, o checkout continua funcionando pelo WhatsApp.
+            </p>
+
+            <label style={smallLabelStyle}>Access Token</label>
+            <input
+              type="password"
+              value={mpAccessTokenInput}
+              onChange={(e) => setMpAccessTokenInput(e.target.value)}
+              placeholder={paymentSettings.accessTokenMasked || "APP_USR-..."}
+              style={{ ...inputStyle, marginBottom: 6 }}
+            />
+            <p style={{ fontSize: 12, color: "#8b7d76", margin: "0 0 18px" }}>
+              {paymentSettings.accessTokenMasked ? `Atual: ${paymentSettings.accessTokenMasked}` : "Nenhum token configurado ainda."}
+            </p>
+
+            <label style={smallLabelStyle}>Chave secreta do webhook</label>
+            <input
+              type="password"
+              value={mpWebhookSecretInput}
+              onChange={(e) => setMpWebhookSecretInput(e.target.value)}
+              placeholder={paymentSettings.webhookSecretMasked || "Opcional, mas recomendada"}
+              style={{ ...inputStyle, marginBottom: 6 }}
+            />
+            <p style={{ fontSize: 12, color: "#8b7d76", margin: "0 0 22px" }}>
+              {paymentSettings.webhookSecretMasked ? `Atual: ${paymentSettings.webhookSecretMasked}` : "Sem chave, o webhook não valida a assinatura das notificações."}
+            </p>
+
+            {mpMsg && <p style={{ color: mpMsg === "Salvo!" ? "#3d7a4a" : "#b3554d", fontSize: 13, margin: "0 0 12px" }}>{mpMsg}</p>}
+
+            <button
+              onClick={savePaymentSettings}
+              disabled={mpBusy || (!mpAccessTokenInput.trim() && !mpWebhookSecretInput.trim())}
+              style={{ border: "none", background: "#c1531c", color: "#fff", borderRadius: 10, padding: "12px 22px", fontWeight: 600, fontSize: 14, cursor: "pointer", opacity: mpBusy || (!mpAccessTokenInput.trim() && !mpWebhookSecretInput.trim()) ? 0.6 : 1 }}
+            >
+              Salvar
+            </button>
           </div>
         )}
       </div>

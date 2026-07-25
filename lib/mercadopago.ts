@@ -1,24 +1,35 @@
 import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
+import { prisma } from "@/lib/prisma";
 
-let client: MercadoPagoConfig | null = null;
-
-export function getMercadoPagoClient() {
-  const accessToken = process.env.MP_ACCESS_TOKEN;
-  if (!accessToken) return null;
-  if (!client) client = new MercadoPagoConfig({ accessToken });
-  return client;
+async function getCredentials() {
+  const settings = await prisma.paymentSettings.findUnique({ where: { id: "singleton" } }).catch(() => null);
+  const accessToken = settings?.mpAccessToken || process.env.MP_ACCESS_TOKEN || null;
+  const webhookSecret = settings?.mpWebhookSecret || process.env.MP_WEBHOOK_SECRET || null;
+  return { accessToken, webhookSecret };
 }
 
-export function getPreferenceClient() {
-  const mp = getMercadoPagoClient();
+export async function isMercadoPagoConfigured() {
+  const { accessToken } = await getCredentials();
+  return !!accessToken;
+}
+
+export async function getWebhookSecret() {
+  const { webhookSecret } = await getCredentials();
+  return webhookSecret;
+}
+
+async function getMercadoPagoClient() {
+  const { accessToken } = await getCredentials();
+  if (!accessToken) return null;
+  return new MercadoPagoConfig({ accessToken });
+}
+
+export async function getPreferenceClient() {
+  const mp = await getMercadoPagoClient();
   return mp ? new Preference(mp) : null;
 }
 
-export function getPaymentClient() {
-  const mp = getMercadoPagoClient();
+export async function getPaymentClient() {
+  const mp = await getMercadoPagoClient();
   return mp ? new Payment(mp) : null;
-}
-
-export function isMercadoPagoConfigured() {
-  return !!process.env.MP_ACCESS_TOKEN;
 }

@@ -122,6 +122,13 @@ model OrderItem {
   product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 }
 
+model PaymentSettings {
+  id              String   @id @default("singleton")
+  mpAccessToken   String?
+  mpWebhookSecret String?
+  updatedAt       DateTime @updatedAt
+}
+
 model HeroFlavor {
   key   String @id
   name  String

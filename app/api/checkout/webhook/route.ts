@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { WebhookSignatureValidator } from "mercadopago";
-import { getPaymentClient } from "@/lib/mercadopago";
+import { getPaymentClient, getWebhookSecret } from "@/lib/mercadopago";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activityLog";
 
@@ -27,7 +27,7 @@ async function handle(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const secret = process.env.MP_WEBHOOK_SECRET;
+  const secret = await getWebhookSecret();
   if (secret) {
     try {
       WebhookSignatureValidator.validate({
@@ -42,7 +42,7 @@ async function handle(req: Request) {
     }
   }
 
-  const paymentClient = getPaymentClient();
+  const paymentClient = await getPaymentClient();
   if (!paymentClient) return NextResponse.json({ ok: true });
 
   const payment = await paymentClient.get({ id: dataId }).catch((err) => {
