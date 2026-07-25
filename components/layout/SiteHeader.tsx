@@ -33,8 +33,9 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { cartCount, toggleCart } = useCart();
-  const onAccountPage = pathname === "/conta" || pathname === "/parceiro";
+  const onAccountPage = pathname === "/conta" || pathname === "/parceiro" || pathname?.startsWith("/admin");
   const isCustomerLoggedIn = session?.user?.role === "CUSTOMER";
+  const accountHref = session?.user?.role === "PARTNER" ? "/parceiro" : session?.user?.role === "ADMIN" ? "/admin/dashboard" : "/conta";
 
   useEffect(() => {
     if (!floating) return;
@@ -102,7 +103,7 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {!onAccountPage && (
             <Link
-              href={session?.user?.role === "PARTNER" ? "/parceiro" : "/conta"}
+              href={accountHref}
               title={session?.user ? "Dashboard" : "Entrar"}
               aria-label={session?.user ? "Dashboard" : "Entrar"}
               className={`${styles.loginLink} ${styles.desktopOnly}`}
@@ -175,7 +176,7 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
           </Link>
         ))}
         <hr />
-        <Link href={session?.user?.role === "PARTNER" ? "/parceiro" : "/conta"} style={{ color: "rgba(255,255,255,.85)", fontWeight: 600 }}>
+        <Link href={accountHref} style={{ color: "rgba(255,255,255,.85)", fontWeight: 600 }}>
           {session?.user ? "Dashboard" : "Entrar"}
         </Link>
         {!isCustomerLoggedIn && (

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { signOut } from "next-auth/react";
 import { useHoverStyle } from "@/lib/useHover";
 import styles from "./SimpleHeader.module.css";
 import { LogOutIcon } from "@/components/icons";
@@ -44,9 +45,9 @@ function AdminHeader() {
           <Image src="/images/logo.png" alt="Marta Confeitaria" width={48} height={48} style={{ height: 48, width: "auto", objectFit: "contain" }} />
           <span className={styles.adminTitleText}>Painel administrativo</span>
         </div>
-        <Link href="/" title="Sair do painel" aria-label="Sair do painel" {...exitHover.handlers} style={exitHover.style}>
+        <button onClick={() => signOut({ callbackUrl: "/conta" })} title="Sair do painel" aria-label="Sair do painel" {...exitHover.handlers} style={{ ...exitHover.style, cursor: "pointer" }}>
           <LogOutIcon size={17} />
-        </Link>
+        </button>
       </div>
     </header>
   );

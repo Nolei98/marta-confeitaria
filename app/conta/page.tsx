@@ -165,6 +165,10 @@ export default function ContaPage() {
       router.replace("/parceiro");
       return;
     }
+    if (session?.user?.role === "ADMIN") {
+      router.replace("/admin/dashboard");
+      return;
+    }
     fetch("/api/orders").then((r) => r.json()).then((data) => Array.isArray(data) && setOrders(data)).catch(() => {});
     fetch("/api/public/products").then((r) => r.json()).then((data) => Array.isArray(data) && setProducts(data.filter((p: Product) => p.category === "Fatia"))).catch(() => {});
   }, [status, session, router]);
