@@ -120,6 +120,11 @@ export default function ContatoPage() {
         const marker = L.marker([p.lat, p.lng], { icon }).addTo(map).bindPopup(`<strong>${p.name}</strong><br/>${p.address}`);
         markersRef.current.push(marker);
       });
+
+      // The map's height now stretches to match the points column, which can
+      // change once real sales points load — Leaflet needs an explicit nudge
+      // to re-measure its container, or tiles render stale/cut off.
+      requestAnimationFrame(() => map.invalidateSize());
     });
     return () => {
       cancelled = true;
@@ -140,24 +145,22 @@ export default function ContatoPage() {
         <p style={{ color: "#8b7d76", maxWidth: 520, margin: "0 auto 40px" }}>Dúvidas, encomendas ou só pra combinar a entrega — estamos por aqui. Você também encontra as fatias da Marta em pontos parceiros pela cidade.</p>
       </section>
 
-      <section className={grid.threeCol} style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", gap: 24 }}>
-        <InfoCard bg="#f6d9dd" color="#c1531c" title="WhatsApp" text="(87) 99876-5432" icon={<WhatsAppIcon size={22} />} />
-        <InfoCard bg="#e6dcef" color="#7d52a8" title="E-mail" text="contato@martaconfeitaria.com.br" icon={<MailIcon size={22} />} />
-        <InfoCard bg="#f3e2cf" color="#d49a37" title="Endereço" text="Rua das Framboesas, 122 — Centro, Salgueiro - PE" icon={<MapPinIcon size={22} />} />
-      </section>
-
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 20px", textAlign: "center" }}>
         <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(22px,3vw,28px)", margin: "0 0 8px" }}>Onde nos encontrar</h2>
       </section>
 
-      <section className={grid.mapGrid} style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", gap: 24, alignItems: "start" }}>
-        <div ref={mapElRef} style={{ height: 460, borderRadius: 20, overflow: "hidden", border: "1px solid #eaddd0", background: "#eee", position: "relative", zIndex: 0, isolation: "isolate" }} />
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: 460, overflowY: "auto" }}>
+      <section className={grid.mapGrid} style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", gap: 24 }}>
+        <div ref={mapElRef} style={{ minHeight: 260, borderRadius: 20, overflow: "hidden", border: "1px solid #eaddd0", background: "#eee", position: "relative", zIndex: 0, isolation: "isolate" }} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, overflowY: "auto" }}>
           {points.map((p) => (
             <PointCard key={p.id} point={p} onFocus={() => focusPoint(p)} />
           ))}
         </div>
       </section>
+
+      <div style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px" }}>
+        <hr style={{ margin: "0 0 60px", border: "none", borderTop: "1px solid #eaddd0" }} />
+      </div>
 
       <section className={grid.twoCol} style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", gap: 32, alignItems: "start" }}>
         <div className={grid.formPanel} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 20 }}>
@@ -178,6 +181,12 @@ export default function ContatoPage() {
             Terça a sábado, das 9h às 18h · Domingo, das 9h às 13h · Fechado às segundas
           </div>
         </div>
+      </section>
+
+      <section className={grid.threeCol} style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", gap: 24 }}>
+        <InfoCard bg="#f6d9dd" color="#c1531c" title="WhatsApp" text="(87) 99876-5432" icon={<WhatsAppIcon size={22} />} />
+        <InfoCard bg="#e6dcef" color="#7d52a8" title="E-mail" text="contato@martaconfeitaria.com.br" icon={<MailIcon size={22} />} />
+        <InfoCard bg="#f3e2cf" color="#d49a37" title="Endereço" text="Rua das Framboesas, 122 — Centro, Salgueiro - PE" icon={<MapPinIcon size={22} />} />
       </section>
 
       <section style={{ padding: "0 24px 80px", maxWidth: 1160, margin: "0 auto" }}>
