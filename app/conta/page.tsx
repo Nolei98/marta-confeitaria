@@ -311,7 +311,9 @@ export default function ContaPage() {
     }
   };
 
-  if (status === "loading") {
+  const redirectingAway = status === "authenticated" && (session?.user?.role === "PARTNER" || session?.user?.role === "ADMIN");
+
+  if (status === "loading" || redirectingAway) {
     return (
       <>
         <SiteHeader />

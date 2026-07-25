@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
 import { useCustomerGate } from "@/lib/useCustomerGate";
+import { LoadingScreen } from "@/components/ui/Loading";
 import grid from "@/styles/grid.module.css";
 import { BoxIcon, TrendingUpIcon, MessageCircleIcon } from "@/components/icons";
 
@@ -30,7 +31,7 @@ function SubmitButton({ onClick }: { onClick: () => void }) {
 }
 
 export default function RevendaPage() {
-  useCustomerGate();
+  const blocking = useCustomerGate();
   const [business, setBusiness] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -48,6 +49,16 @@ export default function RevendaPage() {
     ].filter(Boolean);
     window.open("https://wa.me/5511967891234?text=" + encodeURIComponent(lines.join("\n")), "_blank");
   };
+
+  if (blocking) {
+    return (
+      <>
+        <SiteHeader />
+        <LoadingScreen />
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

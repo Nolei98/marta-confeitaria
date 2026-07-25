@@ -3,6 +3,7 @@
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useCustomerGate } from "@/lib/useCustomerGate";
+import { LoadingScreen } from "@/components/ui/Loading";
 import grid from "@/styles/grid.module.css";
 import { HeartIcon, LeafIcon, MapPinIcon } from "@/components/icons";
 
@@ -19,7 +20,18 @@ const STATS = [
 ];
 
 export default function SobrePage() {
-  useCustomerGate();
+  const blocking = useCustomerGate();
+
+  if (blocking) {
+    return (
+      <>
+        <SiteHeader />
+        <LoadingScreen />
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <SiteHeader />
