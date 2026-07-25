@@ -21,6 +21,15 @@ enum OrderStatus {
   ENTREGUE
 }
 
+enum PaymentStatus {
+  PENDING
+  IN_PROCESS
+  APPROVED
+  REJECTED
+  CANCELLED
+  REFUNDED
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String
@@ -79,12 +88,22 @@ model CartItem {
 model Order {
   id        String      @id @default(cuid())
   code      String      @unique
-  userId    String
-  status    OrderStatus @default(PENDENTE)
-  total     Decimal     @db.Decimal(10, 2)
-  createdAt DateTime    @default(now())
+  userId    String?
+  // Contact info for checkout without an account — Mercado Pago's own
+  // checkout still collects payer details, but we keep a copy for reference.
+  guestName  String?
+  guestEmail String?
+  guestPhone String?
+  status     OrderStatus @default(PENDENTE)
+  total      Decimal     @db.Decimal(10, 2)
+  createdAt  DateTime    @default(now())
 
-  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Payment tracking (Mercado Pago Checkout Pro).
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentId     String?
+  preferenceId  String?
+
+  user  User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   items OrderItem[]
 }
 

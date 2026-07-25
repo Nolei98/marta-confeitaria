@@ -41,7 +41,7 @@ O banco local e o de produção são **o mesmo banco** (não há branch separada
 - **User** — nome, e-mail, senha (hash), `role` (`CUSTOMER` | `PARTNER` | `ADMIN`)
 - **Product** — nome, categoria, preço, imagem, `active`
 - **CartItem** — carrinho por usuário logado; ao excluir um produto, o item some do carrinho automaticamente (cascade), sem erro pro cliente
-- **Order** / **OrderItem** — pedidos finalizados. Cada item guarda uma **cópia** (snapshot) do nome e preço do produto no momento da compra, então o histórico continua correto mesmo que o produto seja excluído depois (`productId` fica `null`, mas `nameSnapshot`/`priceSnapshot` preservam o registro)
+- **Order** / **OrderItem** — pedidos finalizados, com ou sem conta (`userId` opcional; pedidos de visitante guardam `guestName`/`guestEmail`/`guestPhone`). Cada item guarda uma **cópia** (snapshot) do nome e preço do produto no momento da compra, então o histórico continua correto mesmo que o produto seja excluído depois (`productId` fica `null`, mas `nameSnapshot`/`priceSnapshot` preservam o registro). `status` é o preparo (pendente/em preparo/pronto/entregue, controlado pelo admin); `paymentStatus` é o pagamento (controlado pelo webhook do Mercado Pago).
 - **ActivityLog** — log de ações da conta (cadastro, login, adicionou ao carrinho, removeu, finalizou pedido), exibido no painel do cliente
 
 ## Autenticação e papéis
@@ -64,15 +64,27 @@ Home, `/cardapio` e `/bolos` buscam o catálogo real em `/api/public/products` (
 
 ## Carrinho e checkout
 
-- **Visitante não logado:** carrinho fica só no `localStorage`, igual antes — comprar sem conta continua funcionando
+- **Visitante não logado:** carrinho fica só no `localStorage` — comprar sem conta continua funcionando. No checkout, os itens do `localStorage` são enviados no corpo da requisição.
 - **Logado:** carrinho é lido/gravado no banco (`/api/cart`), sincroniza entre dispositivos e some da tela ao fazer login
-- **Checkout:** `POST /api/orders` transforma o carrinho num `Order` no banco (com snapshot dos itens), limpa o carrinho, e abre o WhatsApp com a mensagem do pedido — não há gateway de pagamento, o fechamento continua manual via WhatsApp
+- **Checkout:** `POST /api/checkout` sempre cria um `Order` no banco (com snapshot dos itens), logado ou não — e limpa o carrinho. Com `MP_ACCESS_TOKEN` configurada, cria uma preferência de pagamento no **Mercado Pago (Checkout Pro)** e redireciona o cliente pra lá; sem a chave, degrada pro fluxo antigo (abre o WhatsApp com o resumo do pedido).
+
+## Pagamentos (Mercado Pago)
+
+- Provedor: [Mercado Pago](https://www.mercadopago.com.br/developers) — Checkout Pro (página de pagamento hospedada, aceita cartão, Pix e boleto).
+- Sem `MP_ACCESS_TOKEN` configurada, o checkout degrada com graceful fallback pro fluxo manual via WhatsApp (igual antes), sem quebrar nada.
+- **Como configurar:**
+  1. Crie uma conta em [mercadopago.com.br](https://www.mercadopago.com.br) e acesse o [painel de desenvolvedores](https://www.mercadopago.com.br/developers/panel).
+  2. Crie uma aplicação e pegue o **Access Token** — comece com o de **teste** (sandbox) pra validar o fluxo sem mexer com dinheiro de verdade.
+  3. Em **Webhooks** da aplicação, cadastre a URL `https://<seu-domínio>/api/checkout/webhook` (evento `payment`) e copie a **Chave secreta** gerada.
+  4. Adicione as variáveis: `MP_ACCESS_TOKEN` (obrigatória pra ativar o gateway) e `MP_WEBHOOK_SECRET` (opcional, mas recomendada — sem ela o webhook não valida a assinatura das notificações).
+- **Fluxo:** `POST /api/checkout` cria o `Order` (`paymentStatus: PENDING`) e uma preferência no Mercado Pago; o cliente é redirecionado pro `init_point`. O Mercado Pago notifica `POST /api/checkout/webhook` a cada mudança de status — o handler busca o pagamento pela API, valida a assinatura (`x-signature`, via `WebhookSignatureValidator` do SDK) e atualiza `Order.paymentStatus`/`paymentId`. Depois do pagamento, o cliente volta pra `/checkout/retorno` (sucesso/pendente/falha).
+- `Order.status` (preparo: pendente/em preparo/pronto/entregue) continua sendo controlado manualmente pelo admin — é independente de `Order.paymentStatus` (controlado pelo webhook).
 
 ## Painel administrativo (`/admin/dashboard`)
 
 - **Dashboard** — receita por dia (30 dias), pedidos por status, produtos mais vendidos e tiles de receita/pedidos/ticket médio/clientes/produtos ativos. Gráficos em SVG próprio, sem lib externa.
 - **Produtos** — CRUD completo, ligado ao banco (grade de cards)
-- **Pedidos** — lista todos os pedidos com cliente, itens e status editável
+- **Pedidos** — lista todos os pedidos (com conta ou visitante) com cliente, itens, status de pagamento (Mercado Pago) e status de preparo editável
 - **Usuários** — lista todas as contas, permite trocar o papel (cliente/parceiro/admin) e excluir. Um admin não consegue rebaixar/excluir a própria conta por essa tela.
 - **Seções da landing** / **Pontos de venda** — ligam/desligam blocos da home e cadastram pontos de revenda direto no banco (`HeroFlavor`, `SalesPoint`, `SiteSection`); a home e `/onde-encontrar` leem essas tabelas via `/api/public/landing` e `/api/public/sales-points`.
 

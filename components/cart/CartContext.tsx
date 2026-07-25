@@ -131,20 +131,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const toggleCart = useCallback(() => setCartOpen((v) => !v), []);
   const closeCart = useCallback(() => setCartOpen(false), []);
 
-  const checkout = useCallback(() => {
-    if (loggedIn) {
-      fetch("/api/orders", { method: "POST" })
-        .then((r) => r.json())
-        .then((data: { whatsappUrl?: string; error?: string }) => {
-          if (data.whatsappUrl) window.open(data.whatsappUrl, "_blank");
-          setCart([]);
-        })
-        .catch(() => {});
-      return;
+  const checkout = useCallback(async () => {
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: loggedIn ? undefined : JSON.stringify({ items: cart }),
+      });
+      const data: { initPoint?: string; whatsappUrl?: string; error?: string } = await res.json();
+      if (data.initPoint) {
+        window.location.href = data.initPoint;
+        return;
+      }
+      if (data.whatsappUrl) {
+        window.open(data.whatsappUrl, "_blank");
+      }
+      setCart([]);
+      if (!loggedIn) {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {}
+      }
+    } catch {
+      // Network hiccup — fall back to the always-available WhatsApp flow so checkout never silently dies.
+      const lines = cart.map((c) => `${c.qty}x ${c.name} — R$ ${c.price * c.qty}`);
+      const msg = encodeURIComponent(`Olá! Quero fazer este pedido:\n${lines.join("\n")}`);
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
     }
-    const lines = cart.map((c) => `${c.qty}x ${c.name} — R$ ${c.price * c.qty}`);
-    const msg = encodeURIComponent(`Olá! Quero fazer este pedido:\n${lines.join("\n")}`);
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
   }, [cart, loggedIn]);
 
   const cartCount = cart.reduce((n, c) => n + c.qty, 0);

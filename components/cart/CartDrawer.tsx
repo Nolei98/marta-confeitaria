@@ -122,7 +122,7 @@ export function CartDrawer() {
             <span style={{ fontFamily: "'Playfair Display',serif", fontSize: 19, fontWeight: 700, color: "#c1531c" }}>{cartTotal}</span>
           </div>
           <button onClick={checkout} {...checkoutHover.handlers} style={checkoutHover.style}>
-            Finalizar pelo WhatsApp
+            Finalizar pedido
           </button>
         </div>
       </div>

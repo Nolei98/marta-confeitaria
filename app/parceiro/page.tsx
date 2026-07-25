@@ -19,6 +19,7 @@ const ACTION_LABELS: Record<string, string> = {
   REMOVE_FROM_CART: "Item removido do carrinho",
   CHECKOUT: "Pedido finalizado",
   PASSWORD_RESET: "Senha redefinida",
+  PAYMENT_APPROVED: "Pagamento aprovado",
 };
 
 function LogoutButton({ onClick }: { onClick: () => void }) {

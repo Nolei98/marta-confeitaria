@@ -11,7 +11,18 @@ const cssVars = (vars: Record<string, string>) => vars as React.CSSProperties;
 
 type Product = { id: string; name: string; category: string; price: number; imageUrl?: string | null; active: boolean };
 type OrderItem = { id: string; nameSnapshot: string; priceSnapshot: number; qty: number };
-type Order = { id: string; code: string; status: string; total: number; createdAt: string; items: OrderItem[]; user: { name: string; email: string } };
+type Order = {
+  id: string;
+  code: string;
+  status: string;
+  paymentStatus: string;
+  total: number;
+  createdAt: string;
+  items: OrderItem[];
+  user: { name: string; email: string } | null;
+  guestName: string | null;
+  guestEmail: string | null;
+};
 type Ponto = { id: string; name: string; address: string; lat: number; lng: number };
 type HeroFlavor = { key: string; name: string; desc: string; price: string; img: string; bg: string };
 
@@ -20,6 +31,23 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
   EM_PREPARO: "Em preparo",
   PRONTO: "Pronto",
   ENTREGUE: "Entregue",
+};
+
+const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pendente",
+  IN_PROCESS: "Em análise",
+  APPROVED: "Aprovado",
+  REJECTED: "Recusado",
+  CANCELLED: "Cancelado",
+  REFUNDED: "Reembolsado",
+};
+const PAYMENT_STATUS_COLORS: Record<string, { bg: string; color: string }> = {
+  PENDING: { bg: "#fdf3e2", color: "#a07a2a" },
+  IN_PROCESS: { bg: "#fdf3e2", color: "#a07a2a" },
+  APPROVED: { bg: "#e3f0e6", color: "#3d7a4a" },
+  REJECTED: { bg: "#f2e4e4", color: "#a05353" },
+  CANCELLED: { bg: "#f2e4e4", color: "#a05353" },
+  REFUNDED: { bg: "#eee", color: "#8b7d76" },
 };
 
 const EMPTY_FORM = { id: null as string | null, name: "", price: "", category: "Fatia", image: "" };
@@ -534,31 +562,40 @@ export default function DashboardPage() {
 
         {tab === "pedidos" && (
           <div className={grid.tableScroll} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 18, overflow: "hidden" }}>
-            <div className={`${styles.tableGrid} ${styles.tableHeaderRow}`} style={{ ...cssVars({ "--cols": "1fr 1.4fr 1fr 1fr 1fr" }), ...tableHeaderStyle }}>
+            <div className={`${styles.tableGrid} ${styles.tableHeaderRow}`} style={{ ...cssVars({ "--cols": "1fr 1.3fr 1fr 0.9fr 1fr 1fr" }), ...tableHeaderStyle }}>
               <div>Pedido</div>
               <div>Cliente</div>
               <div>Item</div>
               <div>Data</div>
+              <div>Pagamento</div>
               <div>Status</div>
             </div>
             {orders.length === 0 && (
               <div style={{ padding: "22px", color: "#8b7d76", fontSize: 14 }}>Nenhum pedido ainda.</div>
             )}
-            {orders.map((o) => (
-              <div key={o.id} className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1fr 1.4fr 1fr 1fr 1fr" }), ...tableRowStyle }}>
-                <div style={{ fontWeight: 600, color: "#c1531c" }}>{o.code}</div>
-                <div style={{ color: "#8b7d76" }}>{o.user?.name || "-"}</div>
-                <div style={{ color: "#8b7d76" }}>{o.items.map((i) => `${i.qty}x ${i.nameSnapshot}`).join(", ")}</div>
-                <div style={{ color: "#8b7d76" }}>{new Date(o.createdAt).toLocaleDateString("pt-BR")}</div>
-                <select value={o.status} onChange={(e) => setOrderStatus(o.id, e.target.value)} style={{ padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 13, fontFamily: "Inter", background: "#f5ead9" }}>
-                  {Object.entries(ORDER_STATUS_LABELS).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ))}
+            {orders.map((o) => {
+              const payColor = PAYMENT_STATUS_COLORS[o.paymentStatus] ?? PAYMENT_STATUS_COLORS.PENDING;
+              return (
+                <div key={o.id} className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1fr 1.3fr 1fr 0.9fr 1fr 1fr" }), ...tableRowStyle }}>
+                  <div style={{ fontWeight: 600, color: "#c1531c" }}>{o.code}</div>
+                  <div style={{ color: "#8b7d76" }}>{o.user?.name || o.guestName || (o.guestEmail ? o.guestEmail : "Visitante")}</div>
+                  <div style={{ color: "#8b7d76" }}>{o.items.map((i) => `${i.qty}x ${i.nameSnapshot}`).join(", ")}</div>
+                  <div style={{ color: "#8b7d76" }}>{new Date(o.createdAt).toLocaleDateString("pt-BR")}</div>
+                  <div>
+                    <span style={{ background: payColor.bg, color: payColor.color, borderRadius: 20, padding: "4px 11px", fontSize: 11, fontWeight: 700 }}>
+                      {PAYMENT_STATUS_LABELS[o.paymentStatus] ?? o.paymentStatus}
+                    </span>
+                  </div>
+                  <select value={o.status} onChange={(e) => setOrderStatus(o.id, e.target.value)} style={{ padding: "8px 10px", border: "1px solid #eaddd0", borderRadius: 8, fontSize: 13, fontFamily: "Inter", background: "#f5ead9" }}>
+                    {Object.entries(ORDER_STATUS_LABELS).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            })}
           </div>
         )}
 

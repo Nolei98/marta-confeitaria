@@ -15,7 +15,22 @@ import { UserIcon, EditIcon, LogOutIcon, BoxIcon, CakeSliceIcon, CupcakeIcon } f
 import grid from "@/styles/grid.module.css";
 
 type OrderItem = { id: string; nameSnapshot: string; priceSnapshot: string; qty: number };
-type Order = { id: string; code: string; status: string; total: string; createdAt: string; items: OrderItem[] };
+type Order = { id: string; code: string; status: string; paymentStatus: string; total: string; createdAt: string; items: OrderItem[] };
+
+const ORDER_STATUS_LABELS: Record<string, string> = {
+  PENDENTE: "Pendente",
+  EM_PREPARO: "Em preparo",
+  PRONTO: "Pronto",
+  ENTREGUE: "Entregue",
+};
+const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pagamento pendente",
+  IN_PROCESS: "Pagamento em análise",
+  APPROVED: "Pagamento aprovado",
+  REJECTED: "Pagamento recusado",
+  CANCELLED: "Pagamento cancelado",
+  REFUNDED: "Pagamento reembolsado",
+};
 type Product = { id: string; name: string; category: string; price: number; imageUrl: string | null };
 type View = "catalogo" | "encomenda" | "pedidos" | "editar";
 
@@ -396,7 +411,9 @@ export default function ContaPage() {
                   <div style={{ fontSize: 13, color: "#8b7d76", margin: "4px 0" }}>
                     {o.items.map((i) => `${i.qty}x ${i.nameSnapshot}`).join(" · ")}
                   </div>
-                  <div style={{ fontSize: 12, color: "#a07882" }}>{o.status} · {new Date(o.createdAt).toLocaleDateString("pt-BR")}</div>
+                  <div style={{ fontSize: 12, color: "#a07882" }}>
+                    {ORDER_STATUS_LABELS[o.status] ?? o.status} · {PAYMENT_STATUS_LABELS[o.paymentStatus] ?? o.paymentStatus} · {new Date(o.createdAt).toLocaleDateString("pt-BR")}
+                  </div>
                 </div>
               ))}
             </div>
