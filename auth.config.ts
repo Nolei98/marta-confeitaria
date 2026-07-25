@@ -11,6 +11,7 @@ export const authConfig = {
     jwt({ token, user }) {
       if (user) {
         token.role = (user as { role: "CUSTOMER" | "PARTNER" | "ADMIN" }).role;
+        token.emailConfirmed = (user as { emailVerified: boolean }).emailVerified;
       }
       return token;
     },
@@ -18,6 +19,7 @@ export const authConfig = {
       if (session.user) {
         session.user.role = (token.role as "CUSTOMER" | "PARTNER" | "ADMIN") ?? "CUSTOMER";
         session.user.id = token.sub as string;
+        session.user.emailConfirmed = (token.emailConfirmed as boolean) ?? false;
       }
       return session;
     },

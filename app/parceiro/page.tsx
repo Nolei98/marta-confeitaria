@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
+import { VerifyEmailBanner } from "@/components/account/VerifyEmailBanner";
 import { useHoverStyle } from "@/lib/useHover";
 import grid from "@/styles/grid.module.css";
 
@@ -66,6 +67,8 @@ export default function ParceiroPage() {
           </div>
           <LogoutButton onClick={() => signOut({ callbackUrl: "/" })} />
         </div>
+
+        {!session?.user?.emailConfirmed && <VerifyEmailBanner />}
 
         <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24, padding: 24, marginBottom: 24 }}>
           <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 8px", color: "#c1531c" }}>Sobre a parceria</h2>

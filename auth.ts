@@ -44,7 +44,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         await clearAttempts(key);
         await logActivity(user.id, "LOGIN");
-        return { id: user.id, name: user.name, email: user.email, role: user.role };
+        return { id: user.id, name: user.name, email: user.email, role: user.role, emailVerified: !!user.emailVerified };
       },
     }),
   ],

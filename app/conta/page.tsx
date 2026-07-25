@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
+import { VerifyEmailBanner } from "@/components/account/VerifyEmailBanner";
 import { useHoverStyle } from "@/lib/useHover";
 import grid from "@/styles/grid.module.css";
 
@@ -161,6 +162,8 @@ export default function ContaPage() {
             <p style={{ color: "#8b7d76", fontSize: 14, margin: "0 0 28px" }}>{session.user.email}</p>
             <LogoutButton onClick={() => signOut({ callbackUrl: "/" })} />
           </div>
+
+          {!session.user.emailConfirmed && verifyBanner !== "success" && <VerifyEmailBanner />}
 
           <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 24, padding: 24, marginBottom: 24, textAlign: "left" }}>
             <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 14px", color: "#c1531c" }}>Histórico de pedidos</h2>
