@@ -4,6 +4,7 @@
   z-index: -1;
   pointer-events: none;
   display: none;
+  overflow: hidden;
 }
 
 @media (min-width: 1300px) {

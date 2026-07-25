@@ -567,7 +567,7 @@ export default function DashboardPage() {
               <div>Nome</div>
               <div>E-mail</div>
               <div>Papel</div>
-              <div>Pedidos</div>
+              <div style={{ textAlign: "center" }}>Pedidos</div>
               <div>Desde</div>
               <div>Ações</div>
             </div>
@@ -589,7 +589,7 @@ export default function DashboardPage() {
                     </option>
                   ))}
                 </select>
-                <div style={{ color: "#8b7d76" }}>{u._count.orders}</div>
+                <div style={{ color: "#8b7d76", textAlign: "center" }}>{u._count.orders}</div>
                 <div style={{ color: "#8b7d76" }}>{new Date(u.createdAt).toLocaleDateString("pt-BR")}</div>
                 <button onClick={() => removeUser(u.id)} style={linkButtonStyle("#b3554d")}>
                   Excluir

@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useCart } from "@/components/cart/CartContext";
 import { useHoverStyle } from "@/lib/useHover";
+import { useCustomerGate } from "@/lib/useCustomerGate";
 import grid from "@/styles/grid.module.css";
 
 type DbProduct = { id: string; name: string; category: string; price: number; imageUrl: string | null };
@@ -88,6 +89,7 @@ function EncomendarLink() {
 }
 
 export default function CardapioPage() {
+  useCustomerGate();
   const [filter, setFilter] = useState<"fatias" | "bolos">("fatias");
   const [products, setProducts] = useState<DbProduct[] | null>(null);
   const { addToCart } = useCart();

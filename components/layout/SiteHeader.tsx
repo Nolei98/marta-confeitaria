@@ -4,19 +4,23 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import styles from "./SiteHeader.module.css";
 import { useCart } from "@/components/cart/CartContext";
+import { UserIcon } from "@/components/icons";
 
 const ALL_NAV = [
   { href: "/", label: "Início" },
   { href: "/cardapio", label: "Cardápio" },
   { href: "/bolos", label: "Bolos" },
   { href: "/sobre", label: "Sobre" },
-  { href: "/onde-encontrar", label: "Onde encontrar" },
   { href: "/contato", label: "Contato" },
 ];
 const LEFT_NAV = ALL_NAV.slice(1, 3);
 const RIGHT_NAV = ALL_NAV.slice(3);
+// Once logged in as a customer, the catalog and cake-ordering flows move into
+// the /conta dashboard, so the header nav only needs to keep Contato (which also covers "onde encontrar").
+const CUSTOMER_NAV = ALL_NAV.filter((item) => item.href === "/contato");
 
 /**
  * `floating`: true only on the Home page, where the header starts transparent
@@ -25,9 +29,12 @@ const RIGHT_NAV = ALL_NAV.slice(3);
  */
 export function SiteHeader({ floating = false }: { floating?: boolean }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { cartCount, toggleCart } = useCart();
+  const onAccountPage = pathname === "/conta" || pathname === "/parceiro";
+  const isCustomerLoggedIn = session?.user?.role === "CUSTOMER";
 
   useEffect(() => {
     if (!floating) return;
@@ -72,7 +79,7 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
             <Link href="/" className={navLinkClass("/")} style={{ padding: "6px 12px", borderRadius: 20 }}>
               Início
             </Link>
-            {LEFT_NAV.map((item) => (
+            {!isCustomerLoggedIn && LEFT_NAV.map((item) => (
               <Link key={item.href} href={item.href} className={navLinkClass(item.href)} style={{ padding: "6px 12px", borderRadius: 20 }}>
                 {item.label}
               </Link>
@@ -84,8 +91,8 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
           </Link>
 
           <nav style={{ display: "flex", gap: 16, fontSize: 14, fontWeight: 500, alignItems: "center" }}>
-            {RIGHT_NAV.map((item) => (
-              <Link key={item.href} href={item.href} className={navLinkClass(item.href)} style={{ padding: "6px 12px", borderRadius: 20, whiteSpace: item.href === "/onde-encontrar" ? "nowrap" : undefined }}>
+            {(isCustomerLoggedIn ? CUSTOMER_NAV : RIGHT_NAV).map((item) => (
+              <Link key={item.href} href={item.href} className={navLinkClass(item.href)} style={{ padding: "6px 12px", borderRadius: 20 }}>
                 {item.label}
               </Link>
             ))}
@@ -93,53 +100,53 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Link
-            href="/conta"
-            title="Entrar"
-            aria-label="Entrar"
-            className={`${styles.loginLink} ${styles.desktopOnly}`}
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", color: "rgba(255,255,255,.9)", border: "1px solid rgba(255,255,255,.3)", backdropFilter: "blur(6px)" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-              <path d="M10 17l5-5-5-5" />
-              <path d="M15 12H3" />
-            </svg>
-          </Link>
-          <div className={styles.mobileOnly} style={{ position: "relative", alignItems: "center" }}>
+          {!onAccountPage && (
             <Link
-              href="/cardapio"
-              title="Ver Cardápio"
-              aria-label="Ver Cardápio"
-              style={{ display: "flex", width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,.15)", border: "1.5px solid #c1531c", color: "#fff", alignItems: "center", justifyContent: "center" }}
+              href={session?.user?.role === "PARTNER" ? "/parceiro" : "/conta"}
+              title={session?.user ? "Minha conta" : "Entrar"}
+              aria-label={session?.user ? "Minha conta" : "Entrar"}
+              className={`${styles.loginLink} ${styles.desktopOnly}`}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", color: "rgba(255,255,255,.9)", border: "1px solid rgba(255,255,255,.3)", backdropFilter: "blur(6px)" }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                <path d="M8 7h8M8 11h6"></path>
-              </svg>
+              <UserIcon size={16} />
             </Link>
-            <div
-              style={{
-                position: "absolute",
-                top: "calc(100% + 10px)",
-                right: -4,
-                background: "#fff",
-                color: "#3f2a26",
-                padding: "8px 12px",
-                borderRadius: 10,
-                fontSize: 12,
-                fontWeight: 600,
-                boxShadow: "0 8px 24px rgba(58,33,28,.2)",
-                whiteSpace: "nowrap",
-                border: "1px solid #eaddd0",
-                animation: "speechBubbleFade 6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards",
-              }}
-            >
-              <div style={{ position: "absolute", right: 14, top: -5, transform: "rotate(45deg)", width: 9, height: 9, background: "#fff", borderLeft: "1px solid #eaddd0", borderTop: "1px solid #eaddd0" }} />
-              Confira nosso Cardápio
+          )}
+          {!isCustomerLoggedIn && (
+            <div className={styles.mobileOnly} style={{ position: "relative", alignItems: "center" }}>
+              <Link
+                href="/cardapio"
+                title="Ver Cardápio"
+                aria-label="Ver Cardápio"
+                style={{ display: "flex", width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,.15)", border: "1.5px solid #c1531c", color: "#fff", alignItems: "center", justifyContent: "center" }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                  <path d="M8 7h8M8 11h6"></path>
+                </svg>
+              </Link>
+              <div
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 10px)",
+                  right: -4,
+                  background: "#fff",
+                  color: "#3f2a26",
+                  padding: "8px 12px",
+                  borderRadius: 10,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  boxShadow: "0 8px 24px rgba(58,33,28,.2)",
+                  whiteSpace: "nowrap",
+                  border: "1px solid #eaddd0",
+                  animation: "speechBubbleFade 6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards",
+                }}
+              >
+                <div style={{ position: "absolute", right: 14, top: -5, transform: "rotate(45deg)", width: 9, height: 9, background: "#fff", borderLeft: "1px solid #eaddd0", borderTop: "1px solid #eaddd0" }} />
+                Confira nosso Cardápio
+              </div>
             </div>
-          </div>
+          )}
           <button
             onClick={toggleCart}
             aria-label="Carrinho"
@@ -162,18 +169,20 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
       </div>
 
       <nav className={`${styles.mobileMenu} ${mobileOpen ? styles.open : ""}`}>
-        {ALL_NAV.map((item) => (
+        {(isCustomerLoggedIn ? [ALL_NAV[0], ...CUSTOMER_NAV] : ALL_NAV).map((item) => (
           <Link key={item.href} href={item.href} style={{ color: pathname === item.href ? "#fff" : "rgba(255,255,255,.85)", fontWeight: pathname === item.href ? 700 : 500 }}>
             {item.label}
           </Link>
         ))}
         <hr />
-        <Link href="/conta" style={{ color: "rgba(255,255,255,.85)", fontWeight: 600 }}>
-          Login
+        <Link href={session?.user?.role === "PARTNER" ? "/parceiro" : "/conta"} style={{ color: "rgba(255,255,255,.85)", fontWeight: 600 }}>
+          {session?.user ? "Minha conta" : "Entrar"}
         </Link>
-        <a href="https://wa.me/5587998765432" target="_blank" rel="noreferrer" style={{ color: "rgba(255,255,255,.85)" }}>
-          Falar no WhatsApp
-        </a>
+        {!isCustomerLoggedIn && (
+          <a href="https://wa.me/5587998765432" target="_blank" rel="noreferrer" style={{ color: "rgba(255,255,255,.85)" }}>
+            Falar no WhatsApp
+          </a>
+        )}
       </nav>
     </header>
   );

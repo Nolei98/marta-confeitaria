@@ -1,5 +1,8 @@
+"use client";
+
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
+import { useCustomerGate } from "@/lib/useCustomerGate";
 import grid from "@/styles/grid.module.css";
 import { HeartIcon, LeafIcon, MapPinIcon } from "@/components/icons";
 
@@ -16,6 +19,7 @@ const STATS = [
 ];
 
 export default function SobrePage() {
+  useCustomerGate();
   return (
     <>
       <SiteHeader />

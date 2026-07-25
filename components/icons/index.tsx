@@ -160,6 +160,42 @@ export function LogOutIcon({ size = 22 }: IconProps) {
   );
 }
 
+export function FacebookIcon({ size = 22 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M13.5 21v-7.6h2.6l.4-3H13.5V8.3c0-.9.25-1.5 1.55-1.5H16.6V4.14C16.3 4.1 15.28 4 14.1 4c-2.44 0-4.1 1.49-4.1 4.22v2.18H7.4v3h2.6V21z" />
+    </svg>
+  );
+}
+
+export function InstagramIcon({ size = 22 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function UserIcon({ size = 22 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7" />
+    </svg>
+  );
+}
+
+export function EditIcon({ size = 16 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+    </svg>
+  );
+}
+
 export function CakeSliceIcon({ size = 16 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base}>

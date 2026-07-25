@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
+import { useCustomerGate } from "@/lib/useCustomerGate";
 import grid from "@/styles/grid.module.css";
 import { BoxIcon, TrendingUpIcon, MessageCircleIcon } from "@/components/icons";
 
@@ -29,6 +30,7 @@ function SubmitButton({ onClick }: { onClick: () => void }) {
 }
 
 export default function RevendaPage() {
+  useCustomerGate();
   const [business, setBusiness] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");

@@ -16,12 +16,15 @@ function BackLink({ style }: { style: React.CSSProperties }) {
 }
 
 function LegalHeader() {
-  const logoHover = useHoverStyle({ display: "flex", alignItems: "center" }, { transform: "scale(1.04)" });
+  const logoHover = useHoverStyle(
+    { width: 54, height: 54, objectFit: "contain", filter: "drop-shadow(0 3px 10px rgba(0,0,0,0.3))", transition: "transform .15s ease" },
+    { transform: "scale(1.04)" }
+  );
   return (
     <header style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(193,83,28,.95)", backdropFilter: "blur(12px)", boxShadow: "0 4px 20px rgba(58,33,28,.12)" }}>
-      <div style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px", minHeight: 74, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, color: "#fff" }}>
-        <Link href="/" aria-label="Marta Confeitaria" {...logoHover.handlers} style={logoHover.style}>
-          <Image src="/images/logo.png" alt="Marta Confeitaria" width={54} height={54} style={{ width: 54, height: 54, objectFit: "contain", boxShadow: "0 3px 12px rgba(0,0,0,0.25)" }} />
+      <div style={{ position: "relative", maxWidth: 1160, margin: "0 auto", padding: "0 24px", minHeight: 74, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 12, color: "#fff" }}>
+        <Link href="/" aria-label="Marta Confeitaria" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", display: "flex", alignItems: "center" }}>
+          <Image src="/images/logo.png" alt="Marta Confeitaria" width={54} height={54} {...logoHover.handlers} style={logoHover.style} />
         </Link>
         <BackLink style={{ fontSize: 14, color: "rgba(255,255,255,.9)", fontWeight: 500 }} />
       </div>
