@@ -5,6 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { VerifyEmailBanner } from "@/components/account/VerifyEmailBanner";
+import { LoadingScreen } from "@/components/ui/Loading";
 import { useHoverStyle } from "@/lib/useHover";
 import grid from "@/styles/grid.module.css";
 
@@ -47,7 +48,7 @@ export default function ParceiroPage() {
     return (
       <>
         <SiteHeader />
-        <section style={{ padding: "120px 24px", textAlign: "center", color: "#8b7d76" }}>Carregando...</section>
+        <LoadingScreen />
       </>
     );
   }

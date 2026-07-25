@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
+import { LoadingScreen } from "@/components/ui/Loading";
 import { useHoverStyle } from "@/lib/useHover";
 import grid from "@/styles/grid.module.css";
 
@@ -81,7 +82,7 @@ export default function RedefinirSenhaPage() {
               <SubmitButton onClick={() => (window.location.href = "/conta")}>Ir para o login</SubmitButton>
             </>
           ) : token === null ? (
-            <p style={{ color: "#8b7d76", fontSize: 14, textAlign: "center" }}>Carregando...</p>
+            <LoadingScreen compact />
           ) : !token ? (
             <p style={{ color: "#b3554d", fontSize: 14, textAlign: "center" }}>
               Link inválido. <Link href="/esqueci-senha" style={{ color: "#c1531c", textDecoration: "underline" }}>Solicite um novo</Link>.

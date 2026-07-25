@@ -5,6 +5,7 @@ import { SimpleHeader } from "@/components/layout/SimpleHeader";
 import grid from "@/styles/grid.module.css";
 import styles from "./Dashboard.module.css";
 import { StatTile, RevenueChart, StatusBreakdown, TopProductsChart } from "@/components/admin/Charts";
+import { LoadingScreen } from "@/components/ui/Loading";
 
 const cssVars = (vars: Record<string, string>) => vars as React.CSSProperties;
 
@@ -286,7 +287,7 @@ export default function DashboardPage() {
         {tab === "dashboard" && (
           <>
             {!analytics ? (
-              <p style={{ color: "#8b7d76" }}>Carregando...</p>
+              <LoadingScreen compact />
             ) : (
               <>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 24 }}>

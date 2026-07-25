@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { VerifyEmailBanner } from "@/components/account/VerifyEmailBanner";
 import { EncomendaForm } from "@/components/account/EncomendaForm";
+import { LoadingScreen } from "@/components/ui/Loading";
 import { useCart } from "@/components/cart/CartContext";
 import { useHoverStyle } from "@/lib/useHover";
 import { UserIcon, EditIcon, LogOutIcon, BoxIcon, CakeSliceIcon, CupcakeIcon } from "@/components/icons";
@@ -90,7 +91,7 @@ function ProductCard({ p, index, onAdd }: { p: Product; index: number; onAdd: ()
     <div style={{ textAlign: "center" }}>
       <div style={{ position: "relative", background: bg, borderRadius: 14, padding: "58px 10px 14px", marginTop: 34 }}>
         {p.imageUrl && <ProductImg src={p.imageUrl} alt={p.name} />}
-        <div style={{ fontWeight: 600, color: "#3f2a26", fontSize: 14, lineHeight: 1.3 }}>{p.name}</div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: "#3f2a26", fontSize: 16, lineHeight: 1.25, letterSpacing: ".01em" }}>{p.name}</div>
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 10 }}>
         <span style={{ fontWeight: 700, color: "#c1531c", fontSize: 13 }}>R$ {p.price.toFixed(2).replace(".", ",")}</span>
@@ -295,7 +296,7 @@ export default function ContaPage() {
     return (
       <>
         <SiteHeader />
-        <section style={{ padding: "120px 24px", textAlign: "center", color: "#8b7d76" }}>Carregando...</section>
+        <LoadingScreen />
         <Footer />
       </>
     );

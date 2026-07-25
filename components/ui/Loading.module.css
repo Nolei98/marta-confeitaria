@@ -1,0 +1,35 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.logo {
+  animation: logoPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { opacity: .55; transform: scale(.94); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.label {
+  font-family: 'Playfair Display', serif;
+  color: #8b7d76;
+  display: flex;
+  align-items: center;
+}
+
+.dot {
+  animation: dotFade 1.4s infinite ease-in-out;
+  opacity: .2;
+}
+.dot:nth-child(2) { animation-delay: .2s; }
+.dot:nth-child(3) { animation-delay: .4s; }
+
+@keyframes dotFade {
+  0%, 80%, 100% { opacity: .2; }
+  40% { opacity: 1; }
+}
