@@ -273,7 +273,6 @@ export default function HomePage() {
       <>
         <SiteHeader floating />
         <LoadingScreen />
-        <Footer />
       </>
     );
   }

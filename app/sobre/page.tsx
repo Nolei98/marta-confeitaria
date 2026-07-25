@@ -27,7 +27,6 @@ export default function SobrePage() {
       <>
         <SiteHeader />
         <LoadingScreen />
-        <Footer />
       </>
     );
   }

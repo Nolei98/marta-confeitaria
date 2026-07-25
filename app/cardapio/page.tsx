@@ -132,7 +132,6 @@ export default function CardapioPage() {
       <>
         <SiteHeader />
         <LoadingScreen />
-        <Footer />
       </>
     );
   }
