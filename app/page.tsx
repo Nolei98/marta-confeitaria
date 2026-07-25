@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
+import { LoadingScreen } from "@/components/ui/Loading";
 import { useCart } from "@/components/cart/CartContext";
 import { useHoverStyle } from "@/lib/useHover";
 import grid from "@/styles/grid.module.css";
@@ -176,8 +177,11 @@ export default function HomePage() {
   const [flavors, setFlavors] = useState<Flavor[]>(FLAVORS);
   const [sections, setSections] = useState<Record<SectionKey, boolean>>({ hero: true, fatias: true, vendidos: true, bolosCta: true });
   const [fatiaProducts, setFatiaProducts] = useState<DbProduct[] | null>(null);
+  const [landingLoaded, setLandingLoaded] = useState(false);
+  const [productsLoaded, setProductsLoaded] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { addToCart } = useCart();
+  const ready = landingLoaded && productsLoaded;
 
   const startAutoplay = () => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -200,11 +204,13 @@ export default function HomePage() {
         }
         if (data?.sections) setSections((s) => ({ ...s, ...data.sections }));
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLandingLoaded(true));
     fetch("/api/public/products")
       .then((r) => r.json())
       .then((data) => Array.isArray(data) && setFatiaProducts(data.filter((p: DbProduct) => p.category === "Fatia")))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setProductsLoaded(true));
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!reduce) startAutoplay();
     return () => {
@@ -261,6 +267,16 @@ export default function HomePage() {
     img: p.imageUrl || BESTSELLER_FALLBACK_IMG,
     rank: `${i + 1}º`,
   })) ?? BESTSELLERS;
+
+  if (!ready) {
+    return (
+      <>
+        <SiteHeader floating />
+        <LoadingScreen />
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -459,7 +475,7 @@ export default function HomePage() {
           </div>
           <div style={{ height: "100%", minHeight: 330, borderRadius: 18, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,.25)" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/cake-12.jpg" alt="Bolo temático sob encomenda" style={{ width: "100%", height: "100%", minHeight: 330, objectFit: "cover", display: "block", borderRadius: 18 }} />
+            <img src="/images/cake_clean.png" alt="Bolo temático sob encomenda" style={{ width: "100%", height: "100%", minHeight: 330, objectFit: "cover", display: "block", borderRadius: 18 }} />
           </div>
         </div>
       </section>
