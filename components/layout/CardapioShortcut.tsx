@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useHoverStyle } from "@/lib/useHover";
 import styles from "./FloatingActions.module.css";
@@ -8,6 +9,7 @@ import { BookOpenIcon, CakeSliceIcon } from "@/components/icons";
 
 export function CardapioShortcut() {
   const { data: session } = useSession();
+  const [loaded, setLoaded] = useState(false);
   const fabHover = useHoverStyle(
     {
       width: 54,
@@ -27,7 +29,17 @@ export function CardapioShortcut() {
     { transform: "translateY(-4px) scale(1.08)", background: "rgba(193,83,28,.22)", borderColor: "rgba(193,83,28,.6)" }
   );
 
-  if (session?.user) return null;
+  useEffect(() => {
+    if (document.readyState === "complete") {
+      setLoaded(true);
+      return;
+    }
+    const onLoad = () => setLoaded(true);
+    window.addEventListener("load", onLoad);
+    return () => window.removeEventListener("load", onLoad);
+  }, []);
+
+  if (session?.user || !loaded) return null;
 
   return (
     <div className={styles.cardapioWrap} style={{ position: "fixed", right: 24, bottom: 24, zIndex: 60, display: "flex", flexDirection: "row-reverse", alignItems: "center", gap: 12, pointerEvents: "none" }}>

@@ -28,18 +28,20 @@ async function handle(req: Request) {
   }
 
   const secret = await getWebhookSecret();
-  if (secret) {
-    try {
-      WebhookSignatureValidator.validate({
-        xSignature: req.headers.get("x-signature"),
-        xRequestId: req.headers.get("x-request-id"),
-        dataId: url.searchParams.get("data.id"),
-        secret,
-      });
-    } catch (err) {
-      console.error("[mercadopago webhook] assinatura inválida:", err);
-      return NextResponse.json({ error: "Assinatura inválida." }, { status: 401 });
-    }
+  if (!secret) {
+    console.error("[mercadopago webhook] chave do webhook não configurada — notificação rejeitada.");
+    return NextResponse.json({ error: "Webhook não configurado." }, { status: 401 });
+  }
+  try {
+    WebhookSignatureValidator.validate({
+      xSignature: req.headers.get("x-signature"),
+      xRequestId: req.headers.get("x-request-id"),
+      dataId: url.searchParams.get("data.id"),
+      secret,
+    });
+  } catch (err) {
+    console.error("[mercadopago webhook] assinatura inválida:", err);
+    return NextResponse.json({ error: "Assinatura inválida." }, { status: 401 });
   }
 
   const paymentClient = await getPaymentClient();
