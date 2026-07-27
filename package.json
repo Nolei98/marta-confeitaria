@@ -5,7 +5,7 @@
   "description": "Website Marta Confeitaria",
   "scripts": {
     "dev": "next dev -p 2888",
-    "build": "next build",
+    "build": "prisma migrate deploy && next build",
     "start": "next start -p 2888",
     "lint": "next lint",
     "test": "vitest run",
