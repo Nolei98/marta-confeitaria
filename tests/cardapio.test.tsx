@@ -135,3 +135,77 @@ describe("estoque no catálogo", () => {
     expect(await screen.findByRole("button", { name: "Adicionar ao carrinho" })).toBeEnabled();
   });
 });
+
+// Antes, `stock = 1` era indistinguível de estoque ilimitado para o cliente.
+describe("aviso de estoque baixo", () => {
+  it("avisa que é a última unidade", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => json(200, [product({ stock: 1 })])));
+    renderPage();
+    expect(await screen.findByText("Última!")).toBeInTheDocument();
+  });
+
+  it("mostra quantas restam quando são poucas", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => json(200, [product({ stock: 3 })])));
+    renderPage();
+    expect(await screen.findByText("Só 3")).toBeInTheDocument();
+  });
+
+  it("fica calado quando ainda há bastante", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => json(200, [product({ stock: 20 })])));
+    renderPage();
+    await screen.findByRole("button", { name: "Adicionar ao carrinho" });
+    expect(screen.queryByText(/^Só /)).toBeNull();
+    expect(screen.queryByText("Última!")).toBeNull();
+  });
+
+  it("não avisa nada quando o estoque não é controlado", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => json(200, [product({ stock: null })])));
+    renderPage();
+    await screen.findByRole("button", { name: "Adicionar ao carrinho" });
+    expect(screen.queryByText(/^Só /)).toBeNull();
+    expect(screen.queryByText("Última!")).toBeNull();
+  });
+});
+
+describe("busca no catálogo", () => {
+  const catalogo = [
+    product({ id: "1", name: "Limão siciliano" }),
+    product({ id: "2", name: "Chocolate intenso" }),
+    product({ id: "3", name: "Red velvet" }),
+  ];
+
+  it("filtra pelo nome digitado", async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal("fetch", vi.fn(async () => json(200, catalogo)));
+    renderPage();
+    await screen.findByText("Red velvet");
+
+    await user.type(screen.getByLabelText("Buscar sabor"), "choco");
+
+    expect(screen.getByText("Chocolate intenso")).toBeInTheDocument();
+    expect(screen.queryByText("Red velvet")).toBeNull();
+  });
+
+  it("ignora acento e maiúscula", async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal("fetch", vi.fn(async () => json(200, catalogo)));
+    renderPage();
+    await screen.findByText("Limão siciliano");
+
+    await user.type(screen.getByLabelText("Buscar sabor"), "LIMAO");
+
+    expect(screen.getByText("Limão siciliano")).toBeInTheDocument();
+    expect(screen.queryByText("Red velvet")).toBeNull();
+  });
+
+  it("explica quando a busca não acha nada", async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal("fetch", vi.fn(async () => json(200, catalogo)));
+    renderPage();
+    await screen.findByText("Red velvet");
+
+    await user.type(screen.getByLabelText("Buscar sabor"), "pudim");
+
+    expect(await screen.findByText(/Nenhuma fatia encontrada para/)).toBeInTheDocument();
+  });
+});

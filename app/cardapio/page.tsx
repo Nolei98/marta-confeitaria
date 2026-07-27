@@ -20,6 +20,8 @@ const LINE_COLORS = ["#c1531c", "#7d52a8", "#d49a37"];
 const FALLBACK_SLICE_IMG = "/images/slice-chocolate.webp";
 const FALLBACK_CAKE_IMG = "/images/cake-10.jpg";
 const FALLBACK_TAG = "Feito na hora";
+/** A partir daqui o card avisa que está acabando. */
+const LOW_STOCK = 3;
 
 // There is deliberately no hardcoded fallback catalogue here. A made-up
 // catalogue is worse than no catalogue: it is indistinguishable from the real
@@ -80,6 +82,7 @@ function EncomendarLink() {
 export default function CardapioPage() {
   const blocking = useCustomerGate();
   const [filter, setFilter] = useState<"fatias" | "bolos">("fatias");
+  const [query, setQuery] = useState("");
   const [products, setProducts] = useState<DbProduct[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "error" | "ready">("loading");
   const { addToCart } = useCart();
@@ -101,8 +104,13 @@ export default function CardapioPage() {
 
   useEffect(loadProducts, [loadProducts]);
 
+  // Busca sem acento e sem caixa: "limao" acha "Limão siciliano".
+  const normalize = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const term = normalize(query.trim());
+  const matches = (name: string) => !term || normalize(name).includes(term);
+
   const SLICES = products
-    .filter((p) => p.category === "Fatia")
+    .filter((p) => p.category === "Fatia" && matches(p.name))
     .map((p, i) => ({
       name: p.name,
       price: formatBRL(p.price),
@@ -112,10 +120,15 @@ export default function CardapioPage() {
       cardBg: PEDESTAL_COLORS[i % PEDESTAL_COLORS.length],
       lineColor: LINE_COLORS[i % LINE_COLORS.length],
       soldOut: p.stock === 0,
+      // Estoque baixo é informação de venda: avisa que está acabando sem
+      // expor o número exato quando ainda há bastante. `null` é estoque não
+      // controlado e nunca vira aviso.
+      lastUnits: p.stock !== null && p.stock > 0 && p.stock <= LOW_STOCK,
+      left: p.stock,
     }));
 
   const CAKE_MODELS = products
-    .filter((p) => p.category === "Bolo inteiro")
+    .filter((p) => p.category === "Bolo inteiro" && matches(p.name))
     .map((p) => ({ name: p.name, desc: "Sob encomenda, personalizável.", img: p.imageUrl || FALLBACK_CAKE_IMG, price: "A partir de " + formatBRL(p.price) }));
 
   if (blocking) {
@@ -141,10 +154,23 @@ export default function CardapioPage() {
         <p style={{ color: "#8b7d76", maxWidth: 520, margin: "0 auto 28px", fontFamily: "var(--font-body)" }}>
           Escolha entre nossas fatias individuais ou um bolo inteiro sob encomenda.
         </p>
-        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 8 }}>
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 16 }}>
           <FilterButton active={filter === "fatias"} onClick={() => setFilter("fatias")}>Fatias</FilterButton>
           <FilterButton active={filter === "bolos"} onClick={() => setFilter("bolos")}>Bolos inteiros</FilterButton>
         </div>
+        <label htmlFor="busca-sabor" className={grid.srOnly}>Buscar sabor</label>
+        <input
+          id="busca-sabor"
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar sabor…"
+          style={{
+            width: "100%", maxWidth: 320, padding: "11px 16px", fontSize: 16,
+            border: "1px solid #eaddd0", borderRadius: 30, background: "#fff",
+            fontFamily: "var(--font-body)", color: "#3f2a26", marginBottom: 8,
+          }}
+        />
       </section>
 
       {loadState === "loading" && <LoadingScreen />}
@@ -161,13 +187,26 @@ export default function CardapioPage() {
       {loadState === "ready" && filter === "fatias" && (
         <section style={{ padding: "24px 24px 80px", maxWidth: 1160, margin: "0 auto" }}>
           <div className={grid.threeCol} style={{ gap: "40px 32px" }}>
-            {SLICES.length === 0 && <EmptyNotice>Nenhuma fatia disponível no momento. Volte logo mais!</EmptyNotice>}
+            {SLICES.length === 0 && (
+              <EmptyNotice>
+                {term
+                  ? `Nenhuma fatia encontrada para “${query.trim()}”.`
+                  : "Nenhuma fatia disponível no momento. Volte logo mais!"}
+              </EmptyNotice>
+            )}
             {SLICES.map((s) => (
               <div key={s.name} style={{ textAlign: "center" }}>
                 <div style={{ position: "relative", background: s.cardBg, borderRadius: 14, padding: "76px 20px 22px", marginTop: 64 }}>
                   {s.soldOut && (
                     <div style={{ position: "absolute", top: 14, left: 14, lineHeight: 1, color: "#8b7d76", zIndex: 3, padding: "5px 7px", border: "1.5px solid #8b7d76", borderRadius: 6, background: "#fff" }}>
                       <span style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".02em" }}>Esgotado</span>
+                    </div>
+                  )}
+                  {s.lastUnits && (
+                    <div style={{ position: "absolute", top: 14, left: 14, lineHeight: 1, color: "#c1531c", zIndex: 3, padding: "5px 7px", border: "1.5px solid #c1531c", borderRadius: 6, background: "#fff" }}>
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".02em" }}>
+                        {s.left === 1 ? "Última!" : `Só ${s.left}`}
+                      </span>
                     </div>
                   )}
                   <ProductImage src={s.img} alt={s.name} />
@@ -190,7 +229,13 @@ export default function CardapioPage() {
       {loadState === "ready" && filter === "bolos" && (
         <section style={{ padding: "24px 24px 80px", maxWidth: 1160, margin: "0 auto" }}>
           <div className={grid.threeCol} style={{ gap: 32 }}>
-            {CAKE_MODELS.length === 0 && <EmptyNotice>Nenhum modelo de bolo cadastrado no momento. Fale com a gente pelo WhatsApp!</EmptyNotice>}
+            {CAKE_MODELS.length === 0 && (
+              <EmptyNotice>
+                {term
+                  ? `Nenhum bolo encontrado para “${query.trim()}”.`
+                  : "Nenhum modelo de bolo cadastrado no momento. Fale com a gente pelo WhatsApp!"}
+              </EmptyNotice>
+            )}
             {CAKE_MODELS.map((m) => (
               <div key={m.name} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 16, overflow: "hidden" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
