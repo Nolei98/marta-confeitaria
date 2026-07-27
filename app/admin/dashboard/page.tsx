@@ -113,8 +113,13 @@ export default function DashboardPage() {
   const [mpWebhookSecretInput, setMpWebhookSecretInput] = useState("");
   const [mpMsg, setMpMsg] = useState("");
   const [mpBusy, setMpBusy] = useState(false);
+  const [healthWarnings, setHealthWarnings] = useState<{ key: string; title: string; detail: string }[]>([]);
 
   useEffect(() => {
+    fetch("/api/admin/health")
+      .then((r) => r.json())
+      .then((d) => Array.isArray(d?.warnings) && setHealthWarnings(d.warnings))
+      .catch(() => {});
     fetchProducts();
     fetchOrders();
     fetchUsers();
@@ -350,6 +355,23 @@ export default function DashboardPage() {
             </button>
           ))}
         </div>
+
+        {/* Configurações pela metade não geram erro em lugar nenhum: a loja
+            segue no ar e o problema só aparece quando um cliente reclama. */}
+        {healthWarnings.length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            {healthWarnings.map((w) => (
+              <div
+                key={w.key}
+                role="alert"
+                style={{ background: "#fdf3e2", border: "1px solid #e8d5ae", borderLeft: "4px solid #a07a2a", borderRadius: 10, padding: "13px 16px", marginBottom: 10 }}
+              >
+                <strong style={{ display: "block", color: "#8a6420", fontSize: 14, marginBottom: 3 }}>{w.title}</strong>
+                <span style={{ color: "#7a6a52", fontSize: 13, lineHeight: 1.5 }}>{w.detail}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {tab === "dashboard" && (
           <>

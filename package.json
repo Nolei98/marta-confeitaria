@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed-demo": "tsx prisma/seed-demo.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:limpar-demo": "tsx prisma/limpar-demo.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
