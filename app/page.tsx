@@ -23,14 +23,6 @@ const FLAVORS: Flavor[] = [
   { key: "carrot", name: "Cenoura com chocolate", desc: "Bolo de cenoura fofinho coberto com brigadeiro de chocolate na medida certa.", price: "R$ 10,00", img: "/images/slice-cenoura.webp", bg: "#5a3410", bgImg: "/images/hero-bg-cenoura.jpg" },
 ];
 
-const BESTSELLERS = [
-  { name: "Chocolate intenso", price: "R$ 12,00", priceNum: 12, img: "/images/slice-chocolate.webp", rank: "1º" },
-  { name: "Red velvet", price: "R$ 14,00", priceNum: 14, img: "/images/slice-red-velvet.webp", rank: "2º" },
-  { name: "Prestígio", price: "R$ 13,00", priceNum: 13, img: "/images/slice-prestigio.webp", rank: "3º" },
-  { name: "Ninho com Nutella", price: "R$ 15,00", priceNum: 15, img: "/images/slice-ninho.webp", rank: "4º" },
-  { name: "Floresta negra", price: "R$ 16,00", priceNum: 16, img: "/images/slice-floresta-negra.webp", rank: "5º" },
-];
-
 const SHAPE_SETS: Record<string, { top: string; left: string; size: number; color: string; anim: string; dur: string; delay: string }[]> = {
   choc: [
     { top: "14%", left: "8%", size: 44, color: "rgba(120,80,50,.5)", anim: "floatA", dur: "7s", delay: "0s" },
@@ -217,7 +209,12 @@ export default function HomePage() {
     shapes: SHAPE_SETS[key],
   }));
 
-  const dailySlices = (fatiaProducts && fatiaProducts.length ? fatiaProducts.slice(0, 3) : null)?.map((p, i) => ({
+  // Sem catálogo de emergência: se o banco não devolveu produto, a seção
+  // simplesmente não aparece. Mostrar sabor inventado leva o cliente a pedir
+  // algo que a cozinha não tem — mesma decisão já tomada em /cardapio.
+  const slices = fatiaProducts ?? [];
+
+  const dailySlices = slices.slice(0, 3).map((p, i) => ({
     name: p.name,
     tag: DAILY_STYLES[i % DAILY_STYLES.length].tag,
     price: formatBRL(p.price),
@@ -226,20 +223,16 @@ export default function HomePage() {
     lineColor: DAILY_STYLES[i % DAILY_STYLES.length].lineColor,
     add: () => addToCart(p.name, p.price),
     soldOut: p.stock === 0,
-  })) ?? [
-    { name: "Chocolate intenso", tag: "Mais pedida", price: "R$ 12,00", img: "/images/slice-chocolate.webp", cardBg: "#f6d9dd", lineColor: "#d9a3ac", add: () => addToCart("Chocolate intenso", 12), soldOut: false },
-    { name: "Red velvet", tag: "Clássica", price: "R$ 14,00", img: "/images/slice-red-velvet.webp", cardBg: "#e6dcef", lineColor: "#b9a3d1", add: () => addToCart("Red velvet", 14), soldOut: false },
-    { name: "Cenoura com chocolate", tag: "Queridinha", price: "R$ 10,00", img: "/images/slice-cenoura.webp", cardBg: "#f3e2cf", lineColor: "#d9b57e", add: () => addToCart("Cenoura com chocolate", 10), soldOut: false },
-  ];
+  }));
 
-  const bestsellers = (fatiaProducts && fatiaProducts.length ? fatiaProducts.slice(0, 5) : null)?.map((p, i) => ({
+  const bestsellers = slices.slice(0, 5).map((p, i) => ({
     name: p.name,
     price: formatBRL(p.price),
     priceNum: p.price,
     img: p.imageUrl || BESTSELLER_FALLBACK_IMG,
     rank: `${i + 1}º`,
     soldOut: p.stock === 0,
-  })) ?? BESTSELLERS.map((b) => ({ ...b, soldOut: false }));
+  }));
 
   if (!ready) {
     return (
@@ -328,7 +321,7 @@ export default function HomePage() {
       )}
 
       {/* FATIAS DO DIA */}
-      {sections.fatias && (
+      {sections.fatias && dailySlices.length > 0 && (
       <section style={{ padding: "88px 24px 72px", maxWidth: 1160, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 52 }}>
           <div className={grid.eyebrow} style={{ fontFamily: "var(--font-display)", fontSize: 15, letterSpacing: ".24em", textTransform: "uppercase", color: "#c1531c", marginBottom: 10 }}>
@@ -360,7 +353,7 @@ export default function HomePage() {
       )}
 
       {/* MAIS VENDIDOS */}
-      {sections.vendidos && (
+      {sections.vendidos && bestsellers.length > 0 && (
       <section style={{ padding: "72px 24px", background: "#f7f1e8" }}>
         <div style={{ maxWidth: 1160, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 44 }}>
