@@ -187,7 +187,7 @@ Detalhe importante: quando um produto é excluído, ele some de qualquer carrinh
 - **Resend** — envio de e-mail transacional
 - **Mercado Pago** — gateway de pagamento (Checkout Pro)
 - Estilização em CSS Modules + inline styles (sem framework de UI)
-- **Vitest** — testes unitários da lógica pura (`npm test`)
+- **Vitest** + **Testing Library** — testes de lógica pura e de componente (`npm test`)
 - Deploy automático na Vercel a cada push em `main`
 
 ### Contato
@@ -206,4 +206,11 @@ Pontos que ficaram de fora de propósito:
 
 - **Formulários de contato/revenda/encomenda** entregam a mensagem via WhatsApp (deeplink `wa.me`), não por e-mail nem gravando no banco. Foi decisão de produto: a dona responde tudo pelo WhatsApp mesmo.
 - **Redes sociais** — `FACEBOOK_URL` e `INSTAGRAM_URL` em `components/layout/Footer.tsx` estão vazios até a cliente passar os perfis reais.
-- **Testes** cobrem a lógica pura (contato, base URL, IP do rate limit). Fluxos que dependem de banco (checkout, webhook, auth) foram validados manualmente, sem teste automatizado.
+- **Testes** cobrem a lógica pura (contato, base URL, IP do rate limit) e o fluxo de compra no cliente (carrinho, erros de checkout, estados do catálogo). O que roda contra o banco de verdade — webhook do Mercado Pago, auth, decremento de estoque no servidor — foi validado manualmente, sem teste automatizado.
+
+### Regras que os testes protegem
+
+Duas decisões do fluxo de compra são fáceis de desfazer sem perceber, e existem testes para segurá-las:
+
+1. **Erro de checkout nunca esvazia o carrinho.** Só o caminho de sucesso limpa. Um 409 de estoque, um 429 de rate limit ou um 500 deixam o carrinho como está e mostram a mensagem no drawer.
+2. **Não existe catálogo de emergência hardcoded.** Se `/api/public/products` falhar, a página mostra erro com "tentar de novo" — nunca produtos inventados. Catálogo falso é indistinguível do real e leva o cliente a um pedido que o servidor não pode honrar.
