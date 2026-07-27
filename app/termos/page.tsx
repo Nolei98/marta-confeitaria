@@ -1,5 +1,6 @@
 import { SimpleHeader } from "@/components/layout/SimpleHeader";
 import { Footer } from "@/components/layout/Footer";
+import { WHATSAPP_DISPLAY } from "@/lib/contact";
 
 export default function TermosPage() {
   return (
@@ -28,7 +29,7 @@ export default function TermosPage() {
           <p>Podemos atualizar estes termos a qualquer momento. Recomendamos revisar esta página periodicamente.</p>
 
           <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 19, color: "#3f2a26", margin: "28px 0 10px" }}>6. Contato</h2>
-          <p>Dúvidas sobre estes termos podem ser enviadas para contato@martaconfeitaria.com.br ou pelo WhatsApp (11) 96789-1234.</p>
+          <p>Dúvidas sobre estes termos podem ser enviadas para contato@martaconfeitaria.com.br ou pelo WhatsApp {WHATSAPP_DISPLAY}.</p>
         </div>
       </section>
 

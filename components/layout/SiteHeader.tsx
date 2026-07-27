@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import styles from "./SiteHeader.module.css";
 import { useCart } from "@/components/cart/CartContext";
 import { UserIcon } from "@/components/icons";
+import { WHATSAPP_URL } from "@/lib/contact";
 
 const ALL_NAV = [
   { href: "/", label: "Início" },
@@ -180,7 +181,7 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
           {session?.user ? "Dashboard" : "Entrar"}
         </Link>
         {!isCustomerLoggedIn && (
-          <a href="https://wa.me/5587998765432" target="_blank" rel="noreferrer" style={{ color: "rgba(255,255,255,.85)" }}>
+          <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" style={{ color: "rgba(255,255,255,.85)" }}>
             Falar no WhatsApp
           </a>
         )}

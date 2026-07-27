@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useHoverStyle } from "@/lib/useHover";
+import { whatsappLink } from "@/lib/contact";
 import grid from "@/styles/grid.module.css";
 
 const MODELS_FALLBACK = [
@@ -88,7 +89,7 @@ export function EncomendaForm() {
       "Nome: " + (name || "-"),
       notes ? "Observações: " + notes : "",
     ].filter(Boolean);
-    window.open("https://wa.me/5511967891234?text=" + encodeURIComponent(lines.join("\n")), "_blank");
+    window.open(whatsappLink(lines.join("\n")), "_blank");
   };
 
   return (

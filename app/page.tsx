@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { LoadingScreen } from "@/components/ui/Loading";
 import { useCart } from "@/components/cart/CartContext";
 import { useHoverStyle } from "@/lib/useHover";
+import { WHATSAPP_URL } from "@/lib/contact";
 import grid from "@/styles/grid.module.css";
 import hero from "./HomeHero.module.css";
 import { HeartIcon, ClockIcon, TagIcon } from "@/components/icons";
@@ -102,7 +103,7 @@ function WhatsAppHeroButton() {
   );
   return (
     <a
-      href="https://wa.me/5587998765432"
+      href={WHATSAPP_URL}
       target="_blank"
       rel="noreferrer"
       title="Falar no WhatsApp"
@@ -126,11 +127,18 @@ function DailySliceImg({ src, alt }: { src: string; alt: string }) {
   return <img src={src} alt={alt} {...hover.handlers} style={hover.style} />;
 }
 
-function AddButton({ onClick }: { onClick: () => void }) {
+function AddButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
   const hover = useHoverStyle(
     { border: "none", background: "#c1531c", color: "#fff", fontSize: 16, cursor: "pointer", width: 32, height: 32, borderRadius: "50%" },
     { background: "#8a6470" }
   );
+  if (disabled) {
+    return (
+      <button disabled aria-label="Esgotado" style={{ ...hover.style, background: "#c9beb5", cursor: "not-allowed" }}>
+        +
+      </button>
+    );
+  }
   return (
     <button onClick={onClick} aria-label="Adicionar" {...hover.handlers} style={hover.style}>
       +
@@ -138,11 +146,18 @@ function AddButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-function BestsellerAddButton({ onClick }: { onClick: () => void }) {
+function BestsellerAddButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
   const hover = useHoverStyle(
     { position: "absolute", top: 8, right: 8, width: 26, height: 26, borderRadius: "50%", border: "none", background: "#f6d9dd", color: "#c1531c", fontSize: 14, cursor: "pointer", zIndex: 1, transition: "transform .2s ease,background .2s ease", fontWeight: 700, display: "grid", placeItems: "center" },
     { color: "#fff", background: "#c1531c", transform: "scale(1.15)" }
   );
+  if (disabled) {
+    return (
+      <button disabled aria-label="Esgotado" className={hero.bestsellerAdd} style={{ ...hover.style, background: "#e7dcd6", color: "#a08c85", cursor: "not-allowed" }}>
+        +
+      </button>
+    );
+  }
   return (
     <button onClick={onClick} aria-label="Adicionar ao carrinho" className={hero.bestsellerAdd} {...hover.handlers} style={hover.style}>
       +
@@ -163,7 +178,7 @@ function BolosCta() {
 }
 
 type SectionKey = "hero" | "fatias" | "vendidos" | "bolosCta";
-type DbProduct = { id: string; name: string; category: string; price: number; imageUrl: string | null };
+type DbProduct = { id: string; name: string; category: string; price: number; imageUrl: string | null; stock: number | null };
 
 const DAILY_STYLES = [
   { tag: "Mais pedida", cardBg: "#f6d9dd", lineColor: "#d9a3ac" },
@@ -254,10 +269,11 @@ export default function HomePage() {
     cardBg: DAILY_STYLES[i % DAILY_STYLES.length].cardBg,
     lineColor: DAILY_STYLES[i % DAILY_STYLES.length].lineColor,
     add: () => addToCart(p.name, p.price),
+    soldOut: p.stock === 0,
   })) ?? [
-    { name: "Chocolate intenso", tag: "Mais pedida", price: "R$ 12,00", img: "/images/slice-chocolate.webp", cardBg: "#f6d9dd", lineColor: "#d9a3ac", add: () => addToCart("Chocolate intenso", 12) },
-    { name: "Red velvet", tag: "Clássica", price: "R$ 14,00", img: "/images/slice-red-velvet.webp", cardBg: "#e6dcef", lineColor: "#b9a3d1", add: () => addToCart("Red velvet", 14) },
-    { name: "Cenoura com chocolate", tag: "Queridinha", price: "R$ 10,00", img: "/images/slice-cenoura.webp", cardBg: "#f3e2cf", lineColor: "#d9b57e", add: () => addToCart("Cenoura com chocolate", 10) },
+    { name: "Chocolate intenso", tag: "Mais pedida", price: "R$ 12,00", img: "/images/slice-chocolate.webp", cardBg: "#f6d9dd", lineColor: "#d9a3ac", add: () => addToCart("Chocolate intenso", 12), soldOut: false },
+    { name: "Red velvet", tag: "Clássica", price: "R$ 14,00", img: "/images/slice-red-velvet.webp", cardBg: "#e6dcef", lineColor: "#b9a3d1", add: () => addToCart("Red velvet", 14), soldOut: false },
+    { name: "Cenoura com chocolate", tag: "Queridinha", price: "R$ 10,00", img: "/images/slice-cenoura.webp", cardBg: "#f3e2cf", lineColor: "#d9b57e", add: () => addToCart("Cenoura com chocolate", 10), soldOut: false },
   ];
 
   const bestsellers = (fatiaProducts && fatiaProducts.length ? fatiaProducts.slice(0, 5) : null)?.map((p, i) => ({
@@ -266,7 +282,8 @@ export default function HomePage() {
     priceNum: p.price,
     img: p.imageUrl || BESTSELLER_FALLBACK_IMG,
     rank: `${i + 1}º`,
-  })) ?? BESTSELLERS;
+    soldOut: p.stock === 0,
+  })) ?? BESTSELLERS.map((b) => ({ ...b, soldOut: false }));
 
   if (!ready) {
     return (
@@ -378,7 +395,7 @@ export default function HomePage() {
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 16 }}>
                 <span style={{ fontFamily: "var(--font-body)", fontSize: 16, color: "#3f2a26", fontWeight: 600 }}>{d.price}</span>
-                <AddButton onClick={d.add} />
+                <AddButton onClick={d.add} disabled={d.soldOut} />
               </div>
             </div>
           ))}
@@ -406,7 +423,7 @@ export default function HomePage() {
                     <span style={{ fontSize: 11 }}>★</span>
                     <span style={{ fontSize: 13, fontWeight: 700 }}>{sl.rank}</span>
                   </div>
-                  <BestsellerAddButton onClick={() => addToCart(sl.name, sl.priceNum)} />
+                  <BestsellerAddButton onClick={() => addToCart(sl.name, sl.priceNum)} disabled={sl.soldOut} />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={sl.img} alt={sl.name} style={{ position: "absolute", top: -44, left: "50%", transform: "translateX(-50%)", height: 100, objectFit: "contain", filter: "drop-shadow(0 14px 10px rgba(58,33,28,.22))" }} />
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 18, color: "#3f2a26", lineHeight: 1.2, marginTop: 10, letterSpacing: ".01em" }}>

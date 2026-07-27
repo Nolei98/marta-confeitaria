@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
+import { whatsappLink } from "@/lib/contact";
 import { useCustomerGate } from "@/lib/useCustomerGate";
 import { LoadingScreen } from "@/components/ui/Loading";
 import grid from "@/styles/grid.module.css";
@@ -47,7 +48,7 @@ export default function RevendaPage() {
       "Endereço: " + (address || "-"),
       notes ? "Observações: " + notes : "",
     ].filter(Boolean);
-    window.open("https://wa.me/5511967891234?text=" + encodeURIComponent(lines.join("\n")), "_blank");
+    window.open(whatsappLink(lines.join("\n")), "_blank");
   };
 
   if (blocking) {

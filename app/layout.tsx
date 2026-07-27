@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { SiteChrome } from "@/components/layout/SiteChrome";
+import { WHATSAPP_E164 } from "@/lib/contact";
 import "./globals.css";
 
 const SITE_URL = "https://marta-confeitaria.vercel.app";
@@ -43,7 +44,7 @@ const LOCAL_BUSINESS_JSON_LD = {
   image: `${SITE_URL}/images/logo.png`,
   logo: `${SITE_URL}/images/logo.png`,
   url: SITE_URL,
-  telephone: "+55 87 99876-5432",
+  telephone: WHATSAPP_E164,
   email: "contato@martaconfeitaria.com.br",
   priceRange: "R$",
   address: {

@@ -1,5 +1,6 @@
 import { SimpleHeader } from "@/components/layout/SimpleHeader";
 import { Footer } from "@/components/layout/Footer";
+import { WHATSAPP_DISPLAY } from "@/lib/contact";
 
 export default function PrivacidadePage() {
   return (
@@ -28,7 +29,7 @@ export default function PrivacidadePage() {
           <p>Você pode solicitar a qualquer momento a correção ou exclusão dos seus dados, ou cancelar notificações por e-mail, entrando em contato conosco.</p>
 
           <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 19, color: "#3f2a26", margin: "28px 0 10px" }}>6. Contato</h2>
-          <p>Para dúvidas sobre esta política, fale conosco em contato@martaconfeitaria.com.br ou pelo WhatsApp (11) 96789-1234.</p>
+          <p>Para dúvidas sobre esta política, fale conosco em contato@martaconfeitaria.com.br ou pelo WhatsApp {WHATSAPP_DISPLAY}.</p>
         </div>
       </section>
 

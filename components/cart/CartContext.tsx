@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
+import { whatsappLink } from "@/lib/contact";
 
 export type CartItem = { name: string; price: number; qty: number };
 
@@ -22,7 +23,6 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-const WHATSAPP_NUMBER = "5511967891234";
 const STORAGE_KEY = "martaCart";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
@@ -155,8 +155,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Network hiccup — fall back to the always-available WhatsApp flow so checkout never silently dies.
       const lines = cart.map((c) => `${c.qty}x ${c.name} — R$ ${c.price * c.qty}`);
-      const msg = encodeURIComponent(`Olá! Quero fazer este pedido:\n${lines.join("\n")}`);
-      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+      window.open(whatsappLink(`Olá! Quero fazer este pedido:\n${lines.join("\n")}`), "_blank");
     }
   }, [cart, loggedIn]);
 

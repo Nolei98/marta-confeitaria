@@ -4,12 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { useHoverStyle } from "@/lib/useHover";
 import { FacebookIcon, InstagramIcon, WhatsAppIcon } from "@/components/icons";
+import { WHATSAPP_URL } from "@/lib/contact";
 import grid from "@/styles/grid.module.css";
 
 // Fill these in once the client shares the real profile URLs.
 const FACEBOOK_URL = "";
 const INSTAGRAM_URL = "";
-const WHATSAPP_URL = "https://wa.me/5587998765432";
 
 const MAP_SRCDOC = `<!DOCTYPE html><html><head><meta charset='utf-8'/><link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'/><script src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'></script><style>html,body,#map{margin:0;padding:0;height:100%;width:100%}.leaflet-popup-content{margin:8px 10px;font-family:sans-serif;font-size:12px;color:#3f2a26}</style></head><body><div id='map'></div><script>window.onload=function(){const map=L.map('map',{zoomControl:true,attributionControl:false}).setView([-8.0742,-39.1225],14);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);setTimeout(()=>{map.invalidateSize()},200);const icon=L.divIcon({className:'',html:'<div style=\\'width:28px;height:28px;border-radius:50% 50% 50% 0;background:#c1531c;border:2px solid #fff;transform:rotate(-45deg);box-shadow:0 3px 8px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center\\'><span style=\\'transform:rotate(45deg);color:#fff;font-family:serif;font-weight:700;font-size:12px\\'>M</span></div>',iconSize:[28,28],iconAnchor:[14,28]});const pts=[{name:'<b>Marta Confeitaria</b><br>Cozinha Principal · Salgueiro PE',lat:-8.0742,lng:-39.1225},{name:'<b>Padaria Bela Vista</b><br>Ponto de Revenda',lat:-8.0698,lng:-39.1187},{name:'<b>Empório Vila Doce</b><br>Ponto de Revenda',lat:-8.0781,lng:-39.1274}];pts.forEach((p,i)=>{const m=L.marker([p.lat,p.lng],{icon}).addTo(map).bindPopup(p.name);if(i===0)m.openPopup();});};</script></body></html>`;
 
