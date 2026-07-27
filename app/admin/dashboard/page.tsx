@@ -72,7 +72,7 @@ const SECTIONS_META = [
   { key: "bolosCta", label: "Chamada de bolos inteiros", desc: "Banner convidando para encomendas" },
 ] as const;
 
-const inputStyle: React.CSSProperties = { width: "100%", padding: "11px 12px", border: "1px solid #eaddd0", borderRadius: 10, fontSize: 14, fontFamily: "Inter" };
+const inputStyle: React.CSSProperties = { width: "100%", padding: "11px 12px", border: "1px solid #eaddd0", borderRadius: 10, fontSize: 16, fontFamily: "Inter" };
 const smallLabelStyle: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 600, color: "#8b7d76", marginBottom: 6 };
 const tableHeaderStyle: React.CSSProperties = { padding: "16px 22px", background: "#f7f1e8", fontSize: 12, fontWeight: 700, color: "#8b7d76", textTransform: "uppercase", letterSpacing: ".04em" };
 const tableRowStyle: React.CSSProperties = { padding: "16px 22px", alignItems: "center", borderTop: "1px solid #eaddd0", fontSize: 14 };

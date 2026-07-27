@@ -21,6 +21,7 @@ export function BackToTop() {
       placeItems: "center",
       boxShadow: "0 12px 30px rgba(58,33,26,.16), 0 2px 8px rgba(0,0,0,.06)",
       backdropFilter: "blur(6px)",
+      WebkitBackdropFilter: "blur(6px)",
       zIndex: 70,
       cursor: "pointer",
       animation: "fabAppear 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) both",

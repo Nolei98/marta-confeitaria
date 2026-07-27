@@ -91,7 +91,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(LOCAL_BUSINESS_JSON_LD) }}
         />
       </head>
-      <body style={{ fontFamily: "Inter, system-ui, sans-serif", color: "#3a2b28", background: "#f5ead9", lineHeight: 1.5, minHeight: "100vh", margin: 0 }}>
+      {/* min-height lives in globals.css so it can carry a 100dvh fallback. */}
+      <body style={{ fontFamily: "Inter, system-ui, sans-serif", color: "#3a2b28", background: "#f5ead9", lineHeight: 1.5, margin: 0 }}>
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>

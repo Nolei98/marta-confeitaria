@@ -24,6 +24,7 @@ export function CardapioShortcut() {
       pointerEvents: "auto",
       textDecoration: "none",
       backdropFilter: "blur(6px)",
+      WebkitBackdropFilter: "blur(6px)",
       animation: "fabAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both",
     },
     { transform: "translateY(-4px) scale(1.08)", background: "rgba(193,83,28,.22)", borderColor: "rgba(193,83,28,.6)" }

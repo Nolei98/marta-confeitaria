@@ -22,7 +22,7 @@ function LegalHeader() {
     { transform: "scale(1.04)" }
   );
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(193,83,28,.95)", backdropFilter: "blur(12px)", boxShadow: "0 4px 20px rgba(58,33,28,.12)" }}>
+    <header style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(193,83,28,.95)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", boxShadow: "0 4px 20px rgba(58,33,28,.12)" }}>
       <div style={{ position: "relative", maxWidth: 1160, margin: "0 auto", padding: "0 24px", minHeight: 74, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 12, color: "#fff" }}>
         <Link href="/" aria-label="Marta Confeitaria" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", display: "flex", alignItems: "center" }}>
           <Image src="/images/logo.png" alt="Marta Confeitaria" width={54} height={54} {...logoHover.handlers} style={logoHover.style} />

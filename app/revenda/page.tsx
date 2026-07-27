@@ -10,7 +10,7 @@ import { LoadingScreen } from "@/components/ui/Loading";
 import grid from "@/styles/grid.module.css";
 import { BoxIcon, TrendingUpIcon, MessageCircleIcon } from "@/components/icons";
 
-const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 15, marginBottom: 18, background: "#f5ead9", fontFamily: "Inter" };
+const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 16, marginBottom: 18, background: "#f5ead9", fontFamily: "Inter" };
 const labelStyle: React.CSSProperties = { display: "block", fontSize: 13, fontWeight: 600, color: "#c1531c", marginBottom: 6 };
 
 const PERKS = [

@@ -108,7 +108,7 @@ export function SiteHeader({ floating = false }: { floating?: boolean }) {
               title={session?.user ? "Dashboard" : "Entrar"}
               aria-label={session?.user ? "Dashboard" : "Entrar"}
               className={`${styles.loginLink} ${styles.desktopOnly}`}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", color: "rgba(255,255,255,.9)", border: "1px solid rgba(255,255,255,.3)", backdropFilter: "blur(6px)" }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", color: "rgba(255,255,255,.9)", border: "1px solid rgba(255,255,255,.3)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }}
             >
               <UserIcon size={16} />
             </Link>

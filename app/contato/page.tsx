@@ -19,7 +19,7 @@ const DEFAULT_POINTS: Point[] = [
   { id: "default-3", name: "Empório Vila Doce", address: "Rua Cel. José Ozanan — Salgueiro - PE", lat: -8.0781, lng: -39.1274 },
 ];
 
-const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 15, marginBottom: 18, background: "#f5ead9", fontFamily: "Inter" };
+const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 16, marginBottom: 18, background: "#f5ead9", fontFamily: "Inter" };
 const labelStyle: React.CSSProperties = { display: "block", fontSize: 13, fontWeight: 600, color: "#c1531c", marginBottom: 6 };
 
 function InfoCard({ bg, color, icon, title, text }: { bg: string; color: string; icon: React.ReactNode; title: string; text: string }) {
