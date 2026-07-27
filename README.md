@@ -36,10 +36,23 @@ npm run db:seed                                 # popula produtos + conta admin 
 
 O banco local e o de produção são **o mesmo banco** (não há branch separada por ambiente) — qualquer migration/seed rodada localmente já reflete em produção.
 
+Por isso `npm run db:seed-demo` se recusa a rodar sem `ALLOW_DEMO_SEED=1`: ele cria clientes e pedidos falsos, e num banco de produção esses registros entram no histórico real e distorcem o faturamento no painel do admin. Nenhum dos seeds apaga nada — os dois só inserem.
+
+### Separando um banco de desenvolvimento
+
+Enquanto os dois ambientes compartilham banco, todo `migrate dev` local é uma alteração de schema em produção. O Neon resolve isso com **branches** (cópia instantânea, sem custo extra no plano atual):
+
+1. No console do Neon, no projeto `NEON_PROJECT_ID`, criar uma branch a partir de `main` chamada `dev`.
+2. Copiar a connection string da branch nova.
+3. No `.env` local, apontar `POSTGRES_PRISMA_URL` e `POSTGRES_URL_NON_POOLING` para ela — e **não** rodar `vercel env pull` por cima depois, que é o que restaura os valores de produção.
+4. `npx prisma migrate dev` para alinhar o schema, e `npm run db:seed` para ter catálogo.
+
+Feito isso, `ALLOW_DEMO_SEED=1 npm run db:seed-demo` passa a ser seguro, e o `prisma migrate deploy` do build (ver [Deploy](#deploy)) é o que aplica as migrations em produção.
+
 ### Modelo de dados (`prisma/schema.prisma`)
 
 - **User** — nome, e-mail, senha (hash), `role` (`CUSTOMER` | `PARTNER` | `ADMIN`)
-- **Product** — nome, categoria, preço, imagem, `active`
+- **Product** — nome, categoria, preço, imagem, `active`, `stock` (opcional: em branco = venda ilimitada; preenchido = carrinho recusa acima do disponível e o checkout decrementa de forma atômica)
 - **CartItem** — carrinho por usuário logado; ao excluir um produto, o item some do carrinho automaticamente (cascade), sem erro pro cliente
 - **Order** / **OrderItem** — pedidos finalizados, com ou sem conta (`userId` opcional; pedidos de visitante guardam `guestName`/`guestEmail`/`guestPhone`). Cada item guarda uma **cópia** (snapshot) do nome e preço do produto no momento da compra, então o histórico continua correto mesmo que o produto seja excluído depois (`productId` fica `null`, mas `nameSnapshot`/`priceSnapshot` preservam o registro). `status` é o preparo (pendente/em preparo/pronto/entregue, controlado pelo admin); `paymentStatus` é o pagamento (controlado pelo webhook do Mercado Pago).
 - **ActivityLog** — log de ações da conta (cadastro, login, adicionou ao carrinho, removeu, finalizou pedido), exibido no painel do cliente

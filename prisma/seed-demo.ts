@@ -19,7 +19,40 @@ function daysAgo(n: number) {
   return d;
 }
 
+/**
+ * The .env here is pulled straight from Vercel, so DATABASE_URL points at the
+ * same Neon database the live site uses. Nothing in this script deletes
+ * anything, but it does inject fake customers and dozens of fake orders — which
+ * would land in Marta's real order history and skew the admin dashboard's
+ * revenue numbers. Require an explicit opt-in rather than trusting the operator
+ * to remember which database they are pointed at.
+ */
+function assertDemoSeedAllowed() {
+  if (process.env.ALLOW_DEMO_SEED === "1") return;
+  const host = (process.env.POSTGRES_URL_NON_POOLING ?? process.env.DATABASE_URL ?? "")
+    .replace(/^.*@/, "")
+    .replace(/[/?].*$/, "");
+  console.error(
+    [
+      "",
+      "  Recusando rodar o seed de demonstração.",
+      "",
+      `  Banco alvo: ${host || "(desconhecido)"}`,
+      "",
+      "  Este script cria clientes e pedidos falsos. Se esse banco for o de",
+      "  produção, eles entram no histórico real da Marta e distorcem o",
+      "  faturamento no painel do admin.",
+      "",
+      "  Se for mesmo um banco descartável, rode:",
+      "    ALLOW_DEMO_SEED=1 npm run db:seed-demo",
+      "",
+    ].join("\n")
+  );
+  process.exit(1);
+}
+
 async function main() {
+  assertDemoSeedAllowed();
   const products = await prisma.product.findMany();
   if (!products.length) {
     console.log("Rode `npm run db:seed` primeiro para criar o catálogo.");
