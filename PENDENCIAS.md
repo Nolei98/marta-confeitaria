@@ -4,9 +4,11 @@ Levantado em 27/07/2026, direto do banco de produção e do código.
 
 **A parte técnica está pronta.** A loja está no ar, o fluxo de compra funciona, os testes passam e o deploy é automático. O que falta abaixo é **configuração e conteúdo** — quase nada exige programação.
 
-**Exceção importante:** os itens **8** (entrega) e **9** (contato do visitante) exigem programação e uma decisão de negócio da cliente. São bloqueadores de verdade — não dá para ativar o pagamento pelo site sem eles.
+**O bloqueador de verdade é o item 8 (entrega).** Não dá para ativar o pagamento pelo site sem ele — pedido pago sem endereço é pior que pedido pelo WhatsApp. E ele depende de uma decisão da cliente antes de virar código.
 
-Ordem sugerida: 1 → 2 → **8 e 9** → 3 → 4, depois o resto.
+Ordem sugerida: 1 → 2 → **8** → 3 → 4, depois o resto.
+
+**Já resolvidos:** item 9 (contato do visitante) e parte do 11 (acessibilidade do carrinho, formatação de moeda, URL do site, carregamento de imagens).
 
 ---
 
@@ -117,13 +119,13 @@ Dependendo da resposta, muda o modelo de dados, o checkout e a tela de pedidos d
 
 ---
 
-## 9. Pedido de visitante chega sem contato nenhum
+## 9. ~~Pedido de visitante chega sem contato nenhum~~ — RESOLVIDO
 
-**Situação:** `Order` tem `guestName`, `guestEmail` e `guestPhone`, mas o carrinho **nunca os preenche**. Em `components/cart/CartContext.tsx`, o checkout envia apenas `{ items: cart }` — os três campos ficam sempre nulos.
+Sem login, o carrinho agora pede **nome e WhatsApp** antes de finalizar. A validação existe na tela e também na rota (`400` se vierem faltando) — quem garante é o servidor. O telefone é comparado só pelos dígitos, então `(87) 99999-9999` e `87999999999` valem igual.
 
-**Consequência:** um visitante compra e o pedido aparece no painel como "Visitante", sem telefone e sem e-mail. Não há como avisar que ficou pronto, nem como resolver qualquer problema.
+O contato entra na mensagem do WhatsApp e, no painel de pedidos, o telefone do visitante virou link direto para a conversa. Seis testes cobrem o fluxo.
 
-**O que fazer:** pedir nome e WhatsApp no carrinho antes de finalizar, quando não houver login. São dois campos — resolve junto com o item 8, que também precisa mexer nessa tela.
+A tela ficou preparada para receber os campos de endereço do item 8.
 
 ---
 
@@ -144,12 +146,15 @@ Vale confirmar com contador ou advogado o que se aplica ao caso dela.
 
 Nada aqui impede vender. Fica registrado para não virar surpresa:
 
-- **Carrinho lateral não é um diálogo acessível** — não prende o foco, não fecha com `Esc`, não devolve o foco ao fechar. A navegação por teclado no resto do site já foi corrigida.
-- **Imagens sem largura e altura declaradas** — o layout dá um pequeno salto enquanto carregam.
+- ~~**Carrinho lateral não é um diálogo acessível**~~ — **resolvido.** Fecha com `Esc`, prende o foco enquanto aberto, devolve ao botão que o abriu, e os controles ganharam nome (antes o leitor de tela anunciava só `×`, `+` e `–`).
+- ~~**Formatador de moeda repetido**~~ — **resolvido.** Estava em treze pontos; agora em `lib/format.ts`.
+- ~~**URL do site fixa em três arquivos**~~ — **resolvido.** Vive em `lib/site.ts` e aceita `NEXT_PUBLIC_SITE_URL`, o que simplifica o item 6.
 - **Carrinho identifica produto pelo nome, não pelo id** — renomear um produto no painel esvazia esse item dos carrinhos abertos. `Product.name` também não é único no banco.
 - **Sem busca e sem ordenação** no catálogo. Com 12 produtos não incomoda; com 60, sim.
 - **`stock = 1` é indistinguível de estoque ilimitado** para o cliente — não existe aviso de "últimas unidades".
-- **Código repetido** — quatro cópias do botão de adicionar, três do componente de imagem e sete do formatador de moeda.
+- **Componentes repetidos** — quatro cópias do botão de adicionar ao carrinho e três do componente de imagem de produto.
+
+> **Correção de um registro anterior:** este documento afirmava que as imagens não tinham largura e altura declaradas e por isso causavam deslocamento de layout. Ao conferir, **todas já têm altura definida no CSS** — o espaço sempre esteve reservado e não havia salto a corrigir. O que de fato faltava era carregamento preguiçoso, já aplicado nas 14 imagens abaixo da dobra.
 
 ---
 
