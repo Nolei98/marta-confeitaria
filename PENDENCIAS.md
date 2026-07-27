@@ -8,7 +8,9 @@ Levantado em 27/07/2026, direto do banco de produção e do código.
 
 Ordem sugerida: 1 → 2 → **8** → 3 → 4, depois o resto.
 
-**Já resolvidos:** item 9 (contato do visitante) e parte do 11 (acessibilidade do carrinho, formatação de moeda, URL do site, carregamento de imagens).
+**Já resolvidos:** item **9** (contato do visitante) e item **11** inteiro (acessibilidade do carrinho, carrinho por id, busca, aviso de estoque baixo, deduplicação, formatação de moeda, URL do site e imagens).
+
+Restam, portanto, os itens **1 a 8** e o **10** — e só o 8 exige programação de verdade.
 
 ---
 
@@ -142,19 +144,21 @@ Vale confirmar com contador ou advogado o que se aplica ao caso dela.
 
 ---
 
-## 11. Dívidas técnicas conhecidas
+## 11. ~~Dívidas técnicas conhecidas~~ — RESOLVIDO
 
-Nada aqui impede vender. Fica registrado para não virar surpresa:
+Tudo o que estava nesta lista foi feito:
 
-- ~~**Carrinho lateral não é um diálogo acessível**~~ — **resolvido.** Fecha com `Esc`, prende o foco enquanto aberto, devolve ao botão que o abriu, e os controles ganharam nome (antes o leitor de tela anunciava só `×`, `+` e `–`).
-- ~~**Formatador de moeda repetido**~~ — **resolvido.** Estava em treze pontos; agora em `lib/format.ts`.
-- ~~**URL do site fixa em três arquivos**~~ — **resolvido.** Vive em `lib/site.ts` e aceita `NEXT_PUBLIC_SITE_URL`, o que simplifica o item 6.
-- **Carrinho identifica produto pelo nome, não pelo id** — renomear um produto no painel esvazia esse item dos carrinhos abertos. `Product.name` também não é único no banco.
-- **Sem busca e sem ordenação** no catálogo. Com 12 produtos não incomoda; com 60, sim.
-- **`stock = 1` é indistinguível de estoque ilimitado** para o cliente — não existe aviso de "últimas unidades".
-- **Componentes repetidos** — quatro cópias do botão de adicionar ao carrinho e três do componente de imagem de produto.
+- **Carrinho lateral virou diálogo acessível** — fecha com `Esc`, prende o foco enquanto aberto, devolve ao botão que o abriu, e os controles ganharam nome (antes o leitor de tela anunciava só `×`, `+` e `–`).
+- **Carrinho passou a usar o id do produto.** Renomear um produto no painel não esvazia mais os carrinhos abertos, e produtos homônimos deixaram de colidir. Curiosamente o banco sempre esteve certo — `CartItem` já usava `productId`; eram o cliente e as rotas que traduziam para nome e de volta.
+- **Busca no catálogo**, sem acento e sem caixa: "limao" acha "Limão siciliano". A mensagem de lista vazia distingue "não há produto" de "a busca não achou".
+- **Aviso de estoque baixo** — "Última!" e "Só 3". Antes, `stock = 1` era indistinguível de estoque ilimitado para quem comprava.
+- **Formatador de moeda** centralizado em `lib/format.ts` (estava em treze pontos).
+- **URL do site** em `lib/site.ts`, aceitando `NEXT_PUBLIC_SITE_URL` — o que simplifica o item 6.
+- **Botão de adicionar e imagem de produto** unificados em `components/product/`. Eram quatro e três cópias; foi essa duplicação que fez o estado de esgotado nascer só em algumas telas.
+- **Carregamento preguiçoso** nas 14 imagens abaixo da dobra.
+- **Catálogo inventado removido também da página inicial** — o mesmo problema já corrigido em `/cardapio` continuava lá, nas seções "Fatias do dia" e "Mais vendidos".
 
-> **Correção de um registro anterior:** este documento afirmava que as imagens não tinham largura e altura declaradas e por isso causavam deslocamento de layout. Ao conferir, **todas já têm altura definida no CSS** — o espaço sempre esteve reservado e não havia salto a corrigir. O que de fato faltava era carregamento preguiçoso, já aplicado nas 14 imagens abaixo da dobra.
+> **Correção de um registro anterior:** este documento afirmava que as imagens não tinham largura e altura declaradas e por isso causavam deslocamento de layout. Ao conferir, **todas já têm altura definida no CSS** — o espaço sempre esteve reservado e não havia salto a corrigir. O que de fato faltava era carregamento preguiçoso, já aplicado.
 
 ---
 
