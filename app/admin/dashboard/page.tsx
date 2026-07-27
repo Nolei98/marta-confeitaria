@@ -22,6 +22,7 @@ type Order = {
   user: { name: string; email: string } | null;
   guestName: string | null;
   guestEmail: string | null;
+  guestPhone: string | null;
 };
 type Ponto = { id: string; name: string; address: string; lat: number; lng: number };
 type HeroFlavor = { key: string; name: string; desc: string; price: string; img: string; bg: string };
@@ -622,7 +623,20 @@ export default function DashboardPage() {
               return (
                 <div key={o.id} className={styles.tableGrid} style={{ ...cssVars({ "--cols": "1fr 1.3fr 1fr 0.9fr 1fr 1fr" }), ...tableRowStyle }}>
                   <div style={{ fontWeight: 600, color: "#c1531c" }}>{o.code}</div>
-                  <div style={{ color: "#8b7d76" }}>{o.user?.name || o.guestName || (o.guestEmail ? o.guestEmail : "Visitante")}</div>
+                  <div style={{ color: "#8b7d76" }}>
+                    {o.user?.name || o.guestName || (o.guestEmail ? o.guestEmail : "Visitante")}
+                    {/* Sem conta, o WhatsApp é o único caminho até o cliente. */}
+                    {!o.user && o.guestPhone && (
+                      <a
+                        href={`https://wa.me/55${o.guestPhone.replace(/\D/g, "").replace(/^55/, "")}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ display: "block", fontSize: 12, color: "#c1531c", marginTop: 2 }}
+                      >
+                        {o.guestPhone}
+                      </a>
+                    )}
+                  </div>
                   <div style={{ color: "#8b7d76" }}>{o.items.map((i) => `${i.qty}x ${i.nameSnapshot}`).join(", ")}</div>
                   <div style={{ color: "#8b7d76" }}>{new Date(o.createdAt).toLocaleDateString("pt-BR")}</div>
                   <div>

@@ -1,14 +1,46 @@
 "use client";
 
+import { useState } from "react";
 import { useCart } from "./CartContext";
 import { useHoverStyle } from "@/lib/useHover";
 
+const fieldStyle: React.CSSProperties = {
+  width: "100%", padding: "11px 12px", border: "1px solid #eaddd0", borderRadius: 10,
+  fontSize: 16, background: "#fff", fontFamily: "Inter", marginBottom: 10,
+};
+const fieldLabel: React.CSSProperties = {
+  display: "block", fontSize: 12, fontWeight: 600, color: "#c1531c", marginBottom: 4,
+};
+
 export function CartDrawer() {
-  const { cartOpen, closeCart, cartEmpty, cart, incQty, decQty, removeItem, cartTotal, checkout, itemErrors, checkoutError, checkoutPending } = useCart();
+  const { cartOpen, closeCart, cartEmpty, cart, incQty, decQty, removeItem, cartTotal, checkout, itemErrors, checkoutError, checkoutPending, loggedIn } = useCart();
+  const [guestName, setGuestName] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
+  const [contactError, setContactError] = useState("");
   const checkoutHover = useHoverStyle(
     { width: "100%", border: "none", background: "#c1531c", color: "#fff", borderRadius: 40, padding: 15, fontWeight: 600, fontSize: 15, cursor: "pointer", minHeight: 44 },
     { background: "#9c3f14" }
   );
+
+  const handleCheckout = () => {
+    if (loggedIn) {
+      checkout();
+      return;
+    }
+    const name = guestName.trim();
+    // Só os dígitos importam: (87) 9 0000-0000 e 87900000000 são o mesmo número.
+    const digits = guestPhone.replace(/\D/g, "");
+    if (name.length < 2) {
+      setContactError("Informe seu nome para a gente saber de quem é o pedido.");
+      return;
+    }
+    if (digits.length < 10) {
+      setContactError("Informe um WhatsApp com DDD para avisarmos quando ficar pronto.");
+      return;
+    }
+    setContactError("");
+    checkout({ name, phone: guestPhone.trim() });
+  };
 
   if (!cartOpen) return null;
 
@@ -122,6 +154,37 @@ export function CartDrawer() {
         </div>
 
         <div style={{ padding: "20px 24px", borderTop: "1px solid #eaddd0" }}>
+          {/* Sem conta, o pedido chegaria sem nenhuma forma de contato — a
+              confeitaria não teria como avisar que ficou pronto. */}
+          {!loggedIn && !cartEmpty && (
+            <div style={{ marginBottom: 16 }}>
+              <label style={fieldLabel} htmlFor="cart-nome">Seu nome</label>
+              <input
+                id="cart-nome"
+                type="text"
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+                placeholder="Nome completo"
+                autoComplete="name"
+                style={fieldStyle}
+              />
+              <label style={fieldLabel} htmlFor="cart-whatsapp">WhatsApp</label>
+              <input
+                id="cart-whatsapp"
+                type="tel"
+                value={guestPhone}
+                onChange={(e) => setGuestPhone(e.target.value)}
+                placeholder="(87) 90000-0000"
+                autoComplete="tel"
+                style={{ ...fieldStyle, marginBottom: contactError ? 6 : 0 }}
+              />
+              {contactError && (
+                <p role="alert" style={{ margin: "0 0 4px", fontSize: 12, color: "#b3554d" }}>
+                  {contactError}
+                </p>
+              )}
+            </div>
+          )}
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
             <span style={{ color: "#8b7d76", fontSize: 14 }}>Subtotal</span>
             <span style={{ fontFamily: "'Playfair Display',serif", fontSize: 19, fontWeight: 700, color: "#c1531c" }}>{cartTotal}</span>
@@ -132,7 +195,7 @@ export function CartDrawer() {
             </p>
           )}
           <button
-            onClick={checkout}
+            onClick={handleCheckout}
             disabled={checkoutPending || cartEmpty}
             {...checkoutHover.handlers}
             style={{

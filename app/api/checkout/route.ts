@@ -91,6 +91,15 @@ export async function POST(req: Request) {
       email: sanitizeText(body.guestEmail, MAX_TEXT_LEN) ?? undefined,
       phone: sanitizeText(body.guestPhone, 30) ?? undefined,
     };
+    // Sem nome e telefone o pedido é impossível de atender: não há como
+    // identificar quem comprou nem avisar que ficou pronto. A tela também
+    // valida, mas quem garante é o servidor.
+    if (!guest.name || guest.name.length < 2) {
+      return NextResponse.json({ error: "Informe seu nome para finalizar o pedido." }, { status: 400 });
+    }
+    if (!guest.phone || guest.phone.replace(/\D/g, "").length < 10) {
+      return NextResponse.json({ error: "Informe um WhatsApp com DDD para finalizar o pedido." }, { status: 400 });
+    }
     if (guest.email && !EMAIL_RE.test(guest.email)) {
       return NextResponse.json({ error: "E-mail inválido." }, { status: 400 });
     }
@@ -163,7 +172,9 @@ export async function POST(req: Request) {
       `Olá! Gostaria de confirmar meu pedido ${order.code}:`,
       ...items.map((i) => `${i.qty}x ${i.name}`),
       `Total: R$ ${total.toFixed(2).replace(".", ",")}`,
-    ];
+      guest?.name ? `Nome: ${guest.name}` : "",
+      guest?.phone ? `WhatsApp: ${guest.phone}` : "",
+    ].filter(Boolean);
     const whatsappUrl = whatsappLink(lines.join("\n"));
     return NextResponse.json({ order, whatsappUrl });
   }

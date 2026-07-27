@@ -6,12 +6,17 @@ import { whatsappLink } from "@/lib/contact";
 
 export type CartItem = { name: string; price: number; qty: number };
 
+/** Dados de contato de quem compra sem conta. */
+export type GuestContact = { name: string; phone: string; email?: string };
+
 type CartContextValue = {
   cart: CartItem[];
   cartOpen: boolean;
   cartCount: number;
   cartTotal: string;
   cartEmpty: boolean;
+  /** Visitante precisa informar contato antes de fechar o pedido. */
+  loggedIn: boolean;
   /** Per-item message when the server refused a quantity (out of stock). */
   itemErrors: Record<string, string>;
   /** Why the last checkout attempt failed, if it did. */
@@ -24,7 +29,7 @@ type CartContextValue = {
   removeItem: (name: string) => void;
   toggleCart: () => void;
   closeCart: () => void;
-  checkout: () => void;
+  checkout: (guest?: GuestContact) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -191,7 +196,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const toggleCart = useCallback(() => setCartOpen((v) => !v), []);
   const closeCart = useCallback(() => setCartOpen(false), []);
 
-  const checkout = useCallback(async () => {
+  const checkout = useCallback(async (guest?: GuestContact) => {
     // Creating a Mercado Pago preference takes a network round-trip. Without
     // this guard a double click books two orders and decrements stock twice.
     if (checkoutInFlight.current) return;
@@ -202,7 +207,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: loggedIn ? undefined : JSON.stringify({ items: cart }),
+        // Sem conta, o contato do comprador vai junto — é a única forma de a
+        // confeitaria avisar que o pedido ficou pronto.
+        body: loggedIn
+          ? undefined
+          : JSON.stringify({
+              items: cart,
+              guestName: guest?.name,
+              guestPhone: guest?.phone,
+              guestEmail: guest?.email || undefined,
+            }),
       });
       const data: { initPoint?: string; whatsappUrl?: string; error?: string } = await res
         .json()
@@ -251,6 +265,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       cartCount,
       cartTotal,
       cartEmpty: cart.length === 0,
+      loggedIn,
       itemErrors,
       checkoutError,
       checkoutPending,
@@ -262,7 +277,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       closeCart,
       checkout,
     }),
-    [cart, cartOpen, cartCount, cartTotal, itemErrors, checkoutError, checkoutPending, addToCart, incQty, decQty, removeItem, toggleCart, closeCart, checkout]
+    [cart, cartOpen, cartCount, cartTotal, loggedIn, itemErrors, checkoutError, checkoutPending, addToCart, incQty, decQty, removeItem, toggleCart, closeCart, checkout]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
