@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCart } from "./CartContext";
 import { useHoverStyle } from "@/lib/useHover";
+
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 const fieldStyle: React.CSSProperties = {
   width: "100%", padding: "11px 12px", border: "1px solid #eaddd0", borderRadius: 10,
@@ -17,10 +20,55 @@ export function CartDrawer() {
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [contactError, setContactError] = useState("");
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const openerRef = useRef<Element | null>(null);
   const checkoutHover = useHoverStyle(
     { width: "100%", border: "none", background: "#c1531c", color: "#fff", borderRadius: 40, padding: 15, fontWeight: 600, fontSize: 15, cursor: "pointer", minHeight: 44 },
     { background: "#9c3f14" }
   );
+
+  // O carrinho cobre a página inteira, então precisa se comportar como diálogo:
+  // Escape fecha, o foco entra e fica preso dentro, e volta para o botão que o
+  // abriu. Sem isso, quem navega por teclado continua tabulando no catálogo
+  // atrás do overlay, sem perceber que saiu do carrinho.
+  useEffect(() => {
+    if (!cartOpen) return;
+    openerRef.current = document.activeElement;
+
+    const panel = panelRef.current;
+    panel?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        closeCart();
+        return;
+      }
+      if (e.key !== "Tab" || !panel) return;
+      const items = [...panel.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+        (el) => el.offsetParent !== null
+      );
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || !panel.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown, true);
+      // Devolve o foco para onde ele estava, se o elemento ainda existir.
+      const opener = openerRef.current;
+      if (opener instanceof HTMLElement && document.contains(opener)) opener.focus();
+    };
+  }, [cartOpen, closeCart]);
 
   const handleCheckout = () => {
     if (loggedIn) {
@@ -55,9 +103,14 @@ export function CartDrawer() {
     <>
       <div
         onClick={closeCart}
+        aria-hidden="true"
         style={{ position: "fixed", inset: 0, background: "rgba(47,32,29,.45)", zIndex: 90 }}
       />
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Seu carrinho"
         style={{
           position: "fixed",
           top: 0,
@@ -92,7 +145,9 @@ export function CartDrawer() {
             </h3>
           </div>
           <button
+            type="button"
             onClick={closeCart}
+            aria-label="Fechar carrinho"
             style={{ border: "none", background: "none", fontSize: 24, color: "#8b7d76", cursor: "pointer", lineHeight: 1 }}
           >
             ×
@@ -118,14 +173,18 @@ export function CartDrawer() {
                 <div style={{ fontWeight: 600, color: "#c1531c", fontSize: 14, marginBottom: 4 }}>{ci.name}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <button
+                    type="button"
                     onClick={() => decQty(ci.name)}
+                    aria-label={`Diminuir quantidade de ${ci.name}`}
                     style={{ width: 24, height: 24, borderRadius: "50%", border: "1px solid #eaddd0", background: "#fff", color: "#c1531c", cursor: "pointer", fontSize: 14, lineHeight: 1 }}
                   >
                     –
                   </button>
                   <span style={{ fontSize: 13, color: "#8b7d76", minWidth: 14, textAlign: "center" }}>{ci.qty}</span>
                   <button
+                    type="button"
                     onClick={() => incQty(ci.name)}
+                    aria-label={`Aumentar quantidade de ${ci.name}`}
                     style={{ width: 24, height: 24, borderRadius: "50%", border: "1px solid #eaddd0", background: "#fff", color: "#c1531c", cursor: "pointer", fontSize: 14, lineHeight: 1 }}
                   >
                     +
@@ -137,7 +196,9 @@ export function CartDrawer() {
                   {ci.lineTotal}
                 </div>
                 <button
+                  type="button"
                   onClick={() => removeItem(ci.name)}
+                  aria-label={`Remover ${ci.name} do carrinho`}
                   style={{ border: "none", background: "none", color: "#b3554d", fontSize: 12, cursor: "pointer", textDecoration: "underline" }}
                 >
                   remover
@@ -195,6 +256,7 @@ export function CartDrawer() {
             </p>
           )}
           <button
+            type="button"
             onClick={handleCheckout}
             disabled={checkoutPending || cartEmpty}
             {...checkoutHover.handlers}
