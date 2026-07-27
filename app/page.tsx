@@ -221,11 +221,12 @@ export default function HomePage() {
     img: p.imageUrl || BESTSELLER_FALLBACK_IMG,
     cardBg: DAILY_STYLES[i % DAILY_STYLES.length].cardBg,
     lineColor: DAILY_STYLES[i % DAILY_STYLES.length].lineColor,
-    add: () => addToCart(p.name, p.price),
+    add: () => addToCart(p.id, p.name, p.price),
     soldOut: p.stock === 0,
   }));
 
   const bestsellers = slices.slice(0, 5).map((p, i) => ({
+    id: p.id,
     name: p.name,
     price: formatBRL(p.price),
     priceNum: p.price,
@@ -372,7 +373,7 @@ export default function HomePage() {
                     <span style={{ fontSize: 11 }}>★</span>
                     <span style={{ fontSize: 13, fontWeight: 700 }}>{sl.rank}</span>
                   </div>
-                  <AddToCartButton variant="corner" className={hero.bestsellerAdd} onClick={() => addToCart(sl.name, sl.priceNum)} disabled={sl.soldOut} />
+                  <AddToCartButton variant="corner" className={hero.bestsellerAdd} onClick={() => addToCart(sl.id, sl.name, sl.priceNum)} disabled={sl.soldOut} />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={sl.img} alt={sl.name} style={{ position: "absolute", top: -44, left: "50%", transform: "translateX(-50%)", height: 100, objectFit: "contain", filter: "drop-shadow(0 14px 10px rgba(58,33,28,.22))" }} loading="lazy" decoding="async" />
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 18, color: "#3f2a26", lineHeight: 1.2, marginTop: 10, letterSpacing: ".01em" }}>

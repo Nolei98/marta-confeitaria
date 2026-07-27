@@ -23,6 +23,7 @@ export async function GET() {
 
   return NextResponse.json(
     valid.map((i) => ({
+      id: i.product.id,
       name: i.product.name,
       price: Number(i.product.price),
       qty: i.qty,
@@ -37,16 +38,16 @@ export async function POST(req: Request) {
   if (!session?.user) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
-  const name = typeof body?.name === "string" ? body.name.trim() : "";
+  const productId = typeof body?.productId === "string" ? body.productId.trim() : "";
   const qty = body?.qty === undefined ? 1 : body.qty;
-  if (!name) {
+  if (!productId) {
     return NextResponse.json({ error: "Produto inválido." }, { status: 400 });
   }
   if (typeof qty !== "number" || !Number.isInteger(qty) || qty <= 0 || qty > MAX_QTY) {
     return NextResponse.json({ error: "Quantidade inválida." }, { status: 400 });
   }
 
-  const product = await prisma.product.findFirst({ where: { name, active: true } });
+  const product = await prisma.product.findFirst({ where: { id: productId, active: true } });
   if (!product) {
     return NextResponse.json({ error: "Produto indisponível." }, { status: 404 });
   }

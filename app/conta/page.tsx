@@ -382,7 +382,7 @@ export default function ContaPage() {
               <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, margin: "0 0 14px", color: "#c1531c" }}>Fatias do catálogo</h2>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "28px 16px" }}>
                 {products.map((p, i) => (
-                  <ProductCard key={p.id} p={p} index={i} onAdd={() => addToCart(p.name, p.price)} />
+                  <ProductCard key={p.id} p={p} index={i} onAdd={() => addToCart(p.id, p.name, p.price)} />
                 ))}
                 {products.length === 0 && <p style={{ color: "#8b7d76", fontSize: 14 }}>Catálogo indisponível no momento.</p>}
               </div>

@@ -17,7 +17,7 @@ function Harness() {
   const { addToCart } = useCart();
   return (
     <>
-      <button onClick={() => addToCart("Red velvet", 14)}>abrir carrinho</button>
+      <button onClick={() => addToCart("prod-rv", "Red velvet", 14)}>abrir carrinho</button>
       <button>outro botão da página</button>
       <CartDrawer />
     </>

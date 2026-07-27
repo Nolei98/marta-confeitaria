@@ -5,7 +5,10 @@ import { useSession } from "next-auth/react";
 import { whatsappLink } from "@/lib/contact";
 import { formatBRL } from "@/lib/format";
 
-export type CartItem = { name: string; price: number; qty: number };
+/** `id` e o productId. Antes o carrinho era indexado pelo nome, entao
+ * renomear um produto no painel esvaziava esse item dos carrinhos abertos —
+ * e `Product.name` nem e unico no banco. */
+export type CartItem = { id: string; name: string; price: number; qty: number };
 
 /** Dados de contato de quem compra sem conta. */
 export type GuestContact = { name: string; phone: string; email?: string };
@@ -24,10 +27,10 @@ type CartContextValue = {
   checkoutError: string | null;
   /** True while a checkout request is in flight. */
   checkoutPending: boolean;
-  addToCart: (name: string, price: number) => void;
-  incQty: (name: string) => void;
-  decQty: (name: string) => void;
-  removeItem: (name: string) => void;
+  addToCart: (id: string, name: string, price: number) => void;
+  incQty: (id: string) => void;
+  decQty: (id: string) => void;
+  removeItem: (id: string) => void;
   toggleCart: () => void;
   closeCart: () => void;
   checkout: (guest?: GuestContact) => void;
@@ -62,7 +65,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     try {
-      setCart(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
+      const stored: CartItem[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      // Carrinhos salvos antes da mudança para id não têm como ser resolvidos:
+      // descarta esses itens em vez de mandá-los quebrados para o servidor.
+      setCart(Array.isArray(stored) ? stored.filter((c) => c && typeof c.id === "string") : []);
     } catch {
       // ignore malformed storage
     }
@@ -86,12 +92,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // optimistic quantity is a lie: snap it back to what the server allows and say
   // why, instead of leaving the customer looking at a quantity they can't buy.
   // Only reached while logged in; guests have no server cart to disagree with.
-  const reconcile = useCallback(async (res: Response, name: string) => {
+  const reconcile = useCallback(async (res: Response, id: string) => {
     if (res.ok) {
       setItemErrors((prev) => {
-        if (!(name in prev)) return prev;
+        if (!(id in prev)) return prev;
         const next = { ...prev };
-        delete next[name];
+        delete next[id];
         return next;
       });
       return;
@@ -101,21 +107,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const available = data.available;
       setCart((prev) =>
         available <= 0
-          ? prev.filter((c) => c.name !== name)
-          : prev.map((c) => (c.name === name ? { ...c, qty: Math.min(c.qty, available) } : c))
+          ? prev.filter((c) => c.id !== id)
+          : prev.map((c) => (c.id === id ? { ...c, qty: Math.min(c.qty, available) } : c))
       );
     }
-    setItemErrors((prev) => ({ ...prev, [name]: data.error ?? "Não foi possível atualizar este item." }));
+    setItemErrors((prev) => ({ ...prev, [id]: data.error ?? "Não foi possível atualizar este item." }));
   }, []);
 
   const addToCart = useCallback(
-    (name: string, price: number) => {
+    (id: string, name: string, price: number) => {
       setCart((prev) => {
-        const idx = prev.findIndex((c) => c.name === name);
+        const idx = prev.findIndex((c) => c.id === id);
         const next =
           idx >= 0
             ? prev.map((c, i) => (i === idx ? { ...c, qty: c.qty + 1 } : c))
-            : [...prev, { name, price, qty: 1 }];
+            : [...prev, { id, name, price, qty: 1 }];
         if (!loggedIn) {
           try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
@@ -129,9 +135,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         fetch("/api/cart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, price, qty: 1 }),
+          body: JSON.stringify({ productId: id, qty: 1 }),
         })
-          .then((res) => reconcile(res, name))
+          .then((res) => reconcile(res, id))
           .catch(() => {});
       }
     },
@@ -139,15 +145,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   const incQty = useCallback(
-    (name: string) => {
-      const next = cart.map((c) => (c.name === name ? { ...c, qty: c.qty + 1 } : c));
+    (id: string) => {
+      const next = cart.map((c) => (c.id === id ? { ...c, qty: c.qty + 1 } : c));
       persistCart(next);
       setCheckoutError(null);
       if (loggedIn) {
-        const item = next.find((c) => c.name === name);
+        const item = next.find((c) => c.id === id);
         if (item) {
-          fetch("/api/cart/" + encodeURIComponent(name), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ qty: item.qty }) })
-            .then((res) => reconcile(res, name))
+          fetch("/api/cart/" + encodeURIComponent(id), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ qty: item.qty }) })
+            .then((res) => reconcile(res, id))
             .catch(() => {});
         }
       }
@@ -156,37 +162,37 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   const removeItem = useCallback(
-    (name: string) => {
-      persistCart(cart.filter((c) => c.name !== name));
+    (id: string) => {
+      persistCart(cart.filter((c) => c.id !== id));
       setCheckoutError(null);
       setItemErrors((prev) => {
-        if (!(name in prev)) return prev;
+        if (!(id in prev)) return prev;
         const next = { ...prev };
-        delete next[name];
+        delete next[id];
         return next;
       });
       if (loggedIn) {
-        fetch("/api/cart/" + encodeURIComponent(name), { method: "DELETE" }).catch(() => {});
+        fetch("/api/cart/" + encodeURIComponent(id), { method: "DELETE" }).catch(() => {});
       }
     },
     [cart, persistCart, loggedIn]
   );
 
   const decQty = useCallback(
-    (name: string) => {
-      const item = cart.find((c) => c.name === name);
+    (id: string) => {
+      const item = cart.find((c) => c.id === id);
       if (item && item.qty <= 1) {
-        removeItem(name);
+        removeItem(id);
         return;
       }
-      const next = cart.map((c) => (c.name === name ? { ...c, qty: c.qty - 1 } : c));
+      const next = cart.map((c) => (c.id === id ? { ...c, qty: c.qty - 1 } : c));
       persistCart(next);
       setCheckoutError(null);
       if (loggedIn) {
-        const updated = next.find((c) => c.name === name);
+        const updated = next.find((c) => c.id === id);
         if (updated) {
-          fetch("/api/cart/" + encodeURIComponent(name), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ qty: updated.qty }) })
-            .then((res) => reconcile(res, name))
+          fetch("/api/cart/" + encodeURIComponent(id), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ qty: updated.qty }) })
+            .then((res) => reconcile(res, id))
             .catch(() => {});
         }
       }

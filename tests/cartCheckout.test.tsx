@@ -19,7 +19,19 @@ function Harness() {
   const { addToCart } = useCart();
   return (
     <>
-      <button onClick={() => addToCart("Red velvet", 14)}>add</button>
+      <button onClick={() => addToCart("prod-rv", "Red velvet", 14)}>add</button>
+      <CartDrawer />
+    </>
+  );
+}
+
+/** Dois produtos com o mesmo nome e ids diferentes — `Product.name` não é único. */
+function Dois() {
+  const { addToCart } = useCart();
+  return (
+    <>
+      <button onClick={() => addToCart("prod-a", "Bolo de pote", 10)}>add A</button>
+      <button onClick={() => addToCart("prod-b", "Bolo de pote", 15)}>add B</button>
       <CartDrawer />
     </>
   );
@@ -125,6 +137,43 @@ describe("checkout que dá certo", () => {
 
     await waitFor(() => expect(window.open).toHaveBeenCalledWith("https://wa.me/5587999021574?text=oi", "_blank"));
     expect(await screen.findByText("Seu carrinho está vazio. Que tal uma fatia?")).toBeInTheDocument();
+  });
+});
+
+// O carrinho era indexado pelo nome do produto. Renomear no painel esvaziava o
+// item dos carrinhos abertos, e `Product.name` nem é único no banco.
+describe("carrinho indexado pelo id do produto", () => {
+  it("distingue dois produtos de mesmo nome", async () => {
+    const user = userEvent.setup();
+    route({ "/api/cart": () => json(200, []) });
+    render(
+      <CartProvider>
+        <Dois />
+      </CartProvider>
+    );
+
+    await user.click(screen.getByText("add A"));
+    await user.click(screen.getByText("add B"));
+
+    // Mesmo nome, ids diferentes: são duas linhas, não uma com quantidade 2.
+    expect(await screen.findAllByText("Bolo de pote")).toHaveLength(2);
+    expect(screen.getByText("R$ 25,00")).toBeInTheDocument();
+  });
+
+  it("manda o id do produto ao servidor, não o nome", async () => {
+    const user = userEvent.setup();
+    route({ "/api/cart": () => json(200, []) });
+    renderCart();
+
+    await user.click(screen.getByText("add"));
+
+    await waitFor(() => {
+      const post = fetchMock.mock.calls.find(
+        ([u, o]) => String(u) === "/api/cart" && o?.method === "POST"
+      );
+      expect(post).toBeDefined();
+      expect(JSON.parse(post![1].body)).toEqual({ productId: "prod-rv", qty: 1 });
+    });
   });
 });
 

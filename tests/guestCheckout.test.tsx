@@ -18,7 +18,7 @@ function Harness() {
   const { addToCart } = useCart();
   return (
     <>
-      <button onClick={() => addToCart("Red velvet", 14)}>add</button>
+      <button onClick={() => addToCart("prod-rv", "Red velvet", 14)}>add</button>
       <CartDrawer />
     </>
   );
@@ -99,7 +99,7 @@ describe("contato do visitante no carrinho", () => {
     const body = checkoutBody();
     expect(body.guestName).toBe("Ana Paula");
     expect(body.guestPhone).toBe("(87) 99999-9999");
-    expect(body.items).toEqual([{ name: "Red velvet", price: 14, qty: 1 }]);
+    expect(body.items).toEqual([{ id: "prod-rv", name: "Red velvet", price: 14, qty: 1 }]);
   });
 
   it("aceita telefone escrito só com dígitos", async () => {

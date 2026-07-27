@@ -11,7 +11,7 @@ import { whatsappLink } from "@/lib/contact";
 const WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 15;
 
-type GuestItem = { name: string; qty: number };
+type GuestItem = { id: string; name?: string; qty: number };
 type ResolvedItem = { productId: string; name: string; price: number; qty: number; stock: number | null };
 
 const MAX_ITEM_LINES = 40;
@@ -69,9 +69,9 @@ export async function POST(req: Request) {
       .filter(
         (i) =>
           i &&
-          typeof i.name === "string" &&
-          i.name.trim().length > 0 &&
-          i.name.length <= MAX_TEXT_LEN &&
+          typeof i.id === "string" &&
+          i.id.trim().length > 0 &&
+          i.id.length <= MAX_TEXT_LEN &&
           typeof i.qty === "number" &&
           Number.isInteger(i.qty) &&
           i.qty > 0 &&
@@ -81,9 +81,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Seu carrinho está vazio." }, { status: 400 });
     }
     for (const r of requested) {
-      const product = await prisma.product.findFirst({ where: { name: r.name!.trim(), active: true } });
+      const product = await prisma.product.findFirst({ where: { id: r.id!.trim(), active: true } });
       if (!product) {
-        return NextResponse.json({ error: `Produto "${r.name}" não está mais disponível.` }, { status: 409 });
+        // O nome vem junto só para a mensagem; o preço e a existência sempre
+        // saem do banco, nunca do que o cliente mandou.
+        const label = typeof r.name === "string" && r.name.trim() ? `"${r.name.trim()}"` : "escolhido";
+        return NextResponse.json({ error: `Produto ${label} não está mais disponível.` }, { status: 409 });
       }
       items.push({ productId: product.id, name: product.name, price: Number(product.price), qty: r.qty!, stock: product.stock });
     }

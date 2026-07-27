@@ -112,6 +112,7 @@ export default function CardapioPage() {
   const SLICES = products
     .filter((p) => p.category === "Fatia" && matches(p.name))
     .map((p, i) => ({
+      id: p.id,
       name: p.name,
       price: formatBRL(p.price),
       priceNum: p.price,
@@ -218,7 +219,7 @@ export default function CardapioPage() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 16 }}>
                   <span style={{ fontFamily: "var(--font-body)", fontSize: 16, color: "#3f2a26", fontWeight: 600 }}>{s.price}</span>
-                  <AddToCartButton onClick={() => addToCart(s.name, s.priceNum)} disabled={s.soldOut} />
+                  <AddToCartButton onClick={() => addToCart(s.id, s.name, s.priceNum)} disabled={s.soldOut} />
                 </div>
               </div>
             ))}

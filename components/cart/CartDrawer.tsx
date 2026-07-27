@@ -94,10 +94,11 @@ export function CartDrawer() {
   if (!cartOpen) return null;
 
   const cartItems = cart.map((c) => ({
+    id: c.id,
     name: c.name,
     qty: c.qty,
     lineTotal: formatBRL(c.price * c.qty),
-    error: itemErrors[c.name],
+    error: itemErrors[c.id],
   }));
 
   return (
@@ -162,7 +163,7 @@ export function CartDrawer() {
             </p>
           )}
           {cartItems.map((ci) => (
-            <div key={ci.name} style={{ padding: "14px 0", borderBottom: "1px solid #eaddd0" }}>
+            <div key={ci.id} style={{ padding: "14px 0", borderBottom: "1px solid #eaddd0" }}>
               <div
                 style={{
                   display: "flex",
@@ -175,7 +176,7 @@ export function CartDrawer() {
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <button
                     type="button"
-                    onClick={() => decQty(ci.name)}
+                    onClick={() => decQty(ci.id)}
                     aria-label={`Diminuir quantidade de ${ci.name}`}
                     style={{ width: 24, height: 24, borderRadius: "50%", border: "1px solid #eaddd0", background: "#fff", color: "#c1531c", cursor: "pointer", fontSize: 14, lineHeight: 1 }}
                   >
@@ -184,7 +185,7 @@ export function CartDrawer() {
                   <span style={{ fontSize: 13, color: "#8b7d76", minWidth: 14, textAlign: "center" }}>{ci.qty}</span>
                   <button
                     type="button"
-                    onClick={() => incQty(ci.name)}
+                    onClick={() => incQty(ci.id)}
                     aria-label={`Aumentar quantidade de ${ci.name}`}
                     style={{ width: 24, height: 24, borderRadius: "50%", border: "1px solid #eaddd0", background: "#fff", color: "#c1531c", cursor: "pointer", fontSize: 14, lineHeight: 1 }}
                   >
@@ -198,7 +199,7 @@ export function CartDrawer() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => removeItem(ci.name)}
+                  onClick={() => removeItem(ci.id)}
                   aria-label={`Remover ${ci.name} do carrinho`}
                   style={{ border: "none", background: "none", color: "#b3554d", fontSize: 12, cursor: "pointer", textDecoration: "underline" }}
                 >
