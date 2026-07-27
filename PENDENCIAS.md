@@ -4,7 +4,9 @@ Levantado em 27/07/2026, direto do banco de produção e do código.
 
 **A parte técnica está pronta.** A loja está no ar, o fluxo de compra funciona, os testes passam e o deploy é automático. O que falta abaixo é **configuração e conteúdo** — quase nada exige programação.
 
-Ordem sugerida: 1 → 2 → 3 → 4, depois o resto.
+**Exceção importante:** os itens **8** (entrega) e **9** (contato do visitante) exigem programação e uma decisão de negócio da cliente. São bloqueadores de verdade — não dá para ativar o pagamento pelo site sem eles.
+
+Ordem sugerida: 1 → 2 → **8 e 9** → 3 → 4, depois o resto.
 
 ---
 
@@ -95,6 +97,59 @@ A variável `RESEND_FROM_EMAIL` **não existe no `.env`**, então vale o padrão
 **Situação:** `components/layout/Footer.tsx:11-12` — `FACEBOOK_URL` e `INSTAGRAM_URL` estão vazios. Os ícones aparecem no rodapé e não levam a lugar nenhum.
 
 **O que fazer:** pegar os perfis reais e preencher. Se não houver Facebook, remover o ícone em vez de deixá-lo morto.
+
+---
+
+## 8. Não existe entrega nem retirada
+
+**O buraco maior desta lista.** O modelo `Order` (`prisma/schema.prisma`) não tem endereço, não tem frete e não tem escolha entre retirar no local e receber em casa. Não há nenhuma menção a frete, entrega ou CEP em `app/api/checkout/` nem em `components/cart/`.
+
+**Consequência:** o pedido entra no sistema e ninguém sabe **para onde ele vai**. Hoje isso só não quebra porque o checkout está caindo no WhatsApp, onde a conversa resolve. No dia em que o pagamento pelo site for ativado (item 3), o pedido vai ser **pago** sem endereço nenhum.
+
+**Decisões que precisam vir da cliente antes de programar:**
+
+- Ela entrega, ou é só retirada no local?
+- Se entrega: cobra frete? Valor fixo, por bairro, ou grátis acima de um valor?
+- Tem raio de entrega? Quais bairros atende?
+- Tem prazo/janela de horário para agendar?
+
+Dependendo da resposta, muda o modelo de dados, o checkout e a tela de pedidos do painel. **Não dá para ativar o pagamento no site sem resolver isto.**
+
+---
+
+## 9. Pedido de visitante chega sem contato nenhum
+
+**Situação:** `Order` tem `guestName`, `guestEmail` e `guestPhone`, mas o carrinho **nunca os preenche**. Em `components/cart/CartContext.tsx`, o checkout envia apenas `{ items: cart }` — os três campos ficam sempre nulos.
+
+**Consequência:** um visitante compra e o pedido aparece no painel como "Visitante", sem telefone e sem e-mail. Não há como avisar que ficou pronto, nem como resolver qualquer problema.
+
+**O que fazer:** pedir nome e WhatsApp no carrinho antes de finalizar, quando não houver login. São dois campos — resolve junto com o item 8, que também precisa mexer nessa tela.
+
+---
+
+## 10. Obrigações legais de loja online
+
+Vendendo pela internet no Brasil, algumas coisas são exigidas por lei e hoje não existem:
+
+- **Identificação do vendedor** — CNPJ (ou CPF), razão social e endereço precisam estar visíveis, normalmente no rodapé.
+- **Política de troca e devolução** — o Código de Defesa do Consumidor dá 7 dias de arrependimento em compra online. Alimento perecível tem particularidades, mas a política precisa estar escrita.
+- **Prazo de entrega informado** antes da compra.
+- **Revisar `/termos` e `/privacidade`** — as duas páginas existem, mas foram escritas como texto de partida e precisam refletir o que a operação realmente faz e coleta.
+
+Vale confirmar com contador ou advogado o que se aplica ao caso dela.
+
+---
+
+## 11. Dívidas técnicas conhecidas
+
+Nada aqui impede vender. Fica registrado para não virar surpresa:
+
+- **Carrinho lateral não é um diálogo acessível** — não prende o foco, não fecha com `Esc`, não devolve o foco ao fechar. A navegação por teclado no resto do site já foi corrigida.
+- **Imagens sem largura e altura declaradas** — o layout dá um pequeno salto enquanto carregam.
+- **Carrinho identifica produto pelo nome, não pelo id** — renomear um produto no painel esvazia esse item dos carrinhos abertos. `Product.name` também não é único no banco.
+- **Sem busca e sem ordenação** no catálogo. Com 12 produtos não incomoda; com 60, sim.
+- **`stock = 1` é indistinguível de estoque ilimitado** para o cliente — não existe aviso de "últimas unidades".
+- **Código repetido** — quatro cópias do botão de adicionar, três do componente de imagem e sete do formatador de moeda.
 
 ---
 
