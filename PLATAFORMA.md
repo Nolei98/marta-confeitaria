@@ -84,6 +84,15 @@ Home, `/cardapio` e `/bolos` leem os produtos reais do banco (`/api/public/produ
 
 O admin gerencia esse catálogo na aba **Produtos** — as mudanças aparecem no site na hora (sem precisar de deploy).
 
+### Estoque
+
+Cada produto tem um campo `stock` opcional:
+
+- **Em branco (`null`):** estoque não controlado, venda ilimitada — é o padrão.
+- **Preenchido:** o carrinho recusa quantidade acima do disponível (HTTP 409, "Estoque insuficiente") e o checkout decrementa o estoque de forma atômica, com a condição `stock >= qty` na própria query. Dois clientes disputando a última fatia não conseguem comprar os dois.
+
+Se o pagamento for **rejeitado ou cancelado**, o webhook do Mercado Pago devolve o estoque — e só uma vez, mesmo que a mesma notificação chegue repetida.
+
 ---
 
 ## 4. Carrinho e checkout
@@ -178,7 +187,12 @@ Detalhe importante: quando um produto é excluído, ele some de qualquer carrinh
 - **Resend** — envio de e-mail transacional
 - **Mercado Pago** — gateway de pagamento (Checkout Pro)
 - Estilização em CSS Modules + inline styles (sem framework de UI)
+- **Vitest** — testes unitários da lógica pura (`npm test`)
 - Deploy automático na Vercel a cada push em `main`
+
+### Contato
+
+O número de WhatsApp da loja mora em um único lugar: [`lib/contact.ts`](./lib/contact.ts) (`WHATSAPP_NUMBER`, `WHATSAPP_URL`, `WHATSAPP_DISPLAY`, `WHATSAPP_E164`, `whatsappLink()`). Header, footer, home, `/contato`, `/revenda`, formulário de encomenda, carrinho, páginas legais e o JSON-LD do `layout.tsx` todos importam de lá. Para trocar o número, edite só esse arquivo.
 
 Para comandos de desenvolvimento, variáveis de ambiente e instruções de deploy, ver o [`README.md`](./README.md).
 
@@ -186,4 +200,10 @@ Para comandos de desenvolvimento, variáveis de ambiente e instruções de deplo
 
 ## 11. Estado atual
 
-Testado de ponta a ponta (visitante, cliente, parceiro e admin) — carrinho, checkout, cadastro, confirmação de e-mail, redefinição de senha, proteção de rotas por papel, e a regra de "produto excluído não quebra pedido/carrinho" — tudo funcionando. Não há pendências conhecidas em aberto no momento.
+Testado de ponta a ponta (visitante, cliente, parceiro e admin) — carrinho, checkout, cadastro, confirmação de e-mail, redefinição de senha, proteção de rotas por papel, controle de estoque, e a regra de "produto excluído não quebra pedido/carrinho" — tudo funcionando. `npm run build` e `npm test` passam limpos.
+
+Pontos que ficaram de fora de propósito:
+
+- **Formulários de contato/revenda/encomenda** entregam a mensagem via WhatsApp (deeplink `wa.me`), não por e-mail nem gravando no banco. Foi decisão de produto: a dona responde tudo pelo WhatsApp mesmo.
+- **Redes sociais** — `FACEBOOK_URL` e `INSTAGRAM_URL` em `components/layout/Footer.tsx` estão vazios até a cliente passar os perfis reais.
+- **Testes** cobrem a lógica pura (contato, base URL, IP do rate limit). Fluxos que dependem de banco (checkout, webhook, auth) foram validados manualmente, sem teste automatizado.
