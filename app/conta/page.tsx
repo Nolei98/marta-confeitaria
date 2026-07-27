@@ -13,6 +13,7 @@ import { useCart } from "@/components/cart/CartContext";
 import { useHoverStyle } from "@/lib/useHover";
 import { UserIcon, EditIcon, LogOutIcon, BoxIcon, CakeSliceIcon, CupcakeIcon } from "@/components/icons";
 import grid from "@/styles/grid.module.css";
+import { formatBRL } from "@/lib/format";
 
 type OrderItem = { id: string; nameSnapshot: string; priceSnapshot: string; qty: number };
 type Order = { id: string; code: string; status: string; paymentStatus: string; total: string; createdAt: string; items: OrderItem[] };
@@ -85,7 +86,7 @@ function ProductImg({ src, alt }: { src: string; alt: string }) {
     { transform: "translateX(-50%) translateY(-6px) scale(1.08)" }
   );
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={alt} {...hover.handlers} style={hover.style} />;
+  return <img src={src} alt={alt} {...hover.handlers} style={hover.style} loading="lazy" decoding="async" />;
 }
 
 function AddButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
@@ -122,7 +123,7 @@ function ProductCard({ p, index, onAdd }: { p: Product; index: number; onAdd: ()
         <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: "#3f2a26", fontSize: 16, lineHeight: 1.25, letterSpacing: ".01em" }}>{p.name}</div>
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 10 }}>
-        <span style={{ fontWeight: 700, color: "#c1531c", fontSize: 13 }}>R$ {p.price.toFixed(2).replace(".", ",")}</span>
+        <span style={{ fontWeight: 700, color: "#c1531c", fontSize: 13 }}>{formatBRL(p.price)}</span>
         <AddButton onClick={onAdd} disabled={soldOut} />
       </div>
     </div>
@@ -363,7 +364,7 @@ export default function ContaPage() {
               <div style={{ width: 52, height: 52, borderRadius: "50%", background: "#f6d9dd", display: "grid", placeItems: "center", fontFamily: "'Playfair Display',serif", fontSize: 20, color: "#c1531c", fontWeight: 700, flexShrink: 0, overflow: "hidden" }}>
                 {avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy" decoding="async" />
                 ) : (
                   (session.user.name || session.user.email || "?").charAt(0).toUpperCase()
                 )}
@@ -424,7 +425,7 @@ export default function ContaPage() {
                 <div key={o.id} style={{ borderTop: "1px solid #eaddd0", padding: "12px 0" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 600, color: "#3f2a26", fontSize: 14 }}>
                     <span>{o.code}</span>
-                    <span>R$ {Number(o.total).toFixed(2).replace(".", ",")}</span>
+                    <span>{formatBRL(Number(o.total))}</span>
                   </div>
                   <div style={{ fontSize: 13, color: "#8b7d76", margin: "4px 0" }}>
                     {o.items.map((i) => `${i.qty}x ${i.nameSnapshot}`).join(" · ")}
@@ -445,7 +446,7 @@ export default function ContaPage() {
                   <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#f6d9dd", display: "grid", placeItems: "center", fontFamily: "'Playfair Display',serif", fontSize: 22, color: "#c1531c", fontWeight: 700, flexShrink: 0, overflow: "hidden" }}>
                     {avatarUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy" decoding="async" />
                     ) : (
                       (profile.name || session.user.email || "?").charAt(0).toUpperCase()
                     )}

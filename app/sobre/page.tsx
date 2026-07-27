@@ -57,12 +57,12 @@ export default function SobrePage() {
           </div>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/scene-13.webp" alt="Mãos decorando um bolo na cozinha da Marta" style={{ width: "100%", height: 420, objectFit: "cover", borderRadius: 24 }} />
+        <img src="/images/scene-13.webp" alt="Mãos decorando um bolo na cozinha da Marta" style={{ width: "100%", height: 420, objectFit: "cover", borderRadius: 24 }} loading="lazy" decoding="async" />
       </section>
 
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "24px 24px 0" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/scene-14.webp" alt="Ambiente da cozinha da Marta Confeitaria" style={{ width: "100%", height: 280, objectFit: "cover", borderRadius: 24 }} />
+        <img src="/images/scene-14.webp" alt="Ambiente da cozinha da Marta Confeitaria" style={{ width: "100%", height: 280, objectFit: "cover", borderRadius: 24 }} loading="lazy" decoding="async" />
       </section>
 
       <section style={{ padding: "72px 24px", maxWidth: 1160, margin: "0 auto" }}>

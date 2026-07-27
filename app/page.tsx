@@ -11,6 +11,7 @@ import { WHATSAPP_URL } from "@/lib/contact";
 import grid from "@/styles/grid.module.css";
 import hero from "./HomeHero.module.css";
 import { HeartIcon, ClockIcon, TagIcon } from "@/components/icons";
+import { formatBRL } from "@/lib/format";
 
 type Flavor = { key: string; name: string; desc: string; price: string; img: string; bg: string; bgImg: string };
 
@@ -124,7 +125,7 @@ function DailySliceImg({ src, alt }: { src: string; alt: string }) {
     { transform: "translateX(-50%) translateY(-8px) scale(1.06)" }
   );
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={alt} {...hover.handlers} style={hover.style} />;
+  return <img src={src} alt={alt} {...hover.handlers} style={hover.style} loading="lazy" decoding="async" />;
 }
 
 function AddButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
@@ -264,7 +265,7 @@ export default function HomePage() {
   const dailySlices = (fatiaProducts && fatiaProducts.length ? fatiaProducts.slice(0, 3) : null)?.map((p, i) => ({
     name: p.name,
     tag: DAILY_STYLES[i % DAILY_STYLES.length].tag,
-    price: "R$ " + p.price.toFixed(2).replace(".", ","),
+    price: formatBRL(p.price),
     img: p.imageUrl || BESTSELLER_FALLBACK_IMG,
     cardBg: DAILY_STYLES[i % DAILY_STYLES.length].cardBg,
     lineColor: DAILY_STYLES[i % DAILY_STYLES.length].lineColor,
@@ -278,7 +279,7 @@ export default function HomePage() {
 
   const bestsellers = (fatiaProducts && fatiaProducts.length ? fatiaProducts.slice(0, 5) : null)?.map((p, i) => ({
     name: p.name,
-    price: "R$ " + p.price.toFixed(2).replace(".", ","),
+    price: formatBRL(p.price),
     priceNum: p.price,
     img: p.imageUrl || BESTSELLER_FALLBACK_IMG,
     rank: `${i + 1}º`,
@@ -425,7 +426,7 @@ export default function HomePage() {
                   </div>
                   <BestsellerAddButton onClick={() => addToCart(sl.name, sl.priceNum)} disabled={sl.soldOut} />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={sl.img} alt={sl.name} style={{ position: "absolute", top: -44, left: "50%", transform: "translateX(-50%)", height: 100, objectFit: "contain", filter: "drop-shadow(0 14px 10px rgba(58,33,28,.22))" }} />
+                  <img src={sl.img} alt={sl.name} style={{ position: "absolute", top: -44, left: "50%", transform: "translateX(-50%)", height: 100, objectFit: "contain", filter: "drop-shadow(0 14px 10px rgba(58,33,28,.22))" }} loading="lazy" decoding="async" />
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 18, color: "#3f2a26", lineHeight: 1.2, marginTop: 10, letterSpacing: ".01em" }}>
                     {sl.name}
                   </div>
@@ -491,7 +492,7 @@ export default function HomePage() {
           </div>
           <div style={{ height: "100%", minHeight: 330, borderRadius: 18, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,.25)" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/cake_clean.png" alt="Bolo temático sob encomenda" style={{ width: "100%", height: "100%", minHeight: 330, objectFit: "cover", display: "block", borderRadius: 18 }} />
+            <img src="/images/cake_clean.png" alt="Bolo temático sob encomenda" style={{ width: "100%", height: "100%", minHeight: 330, objectFit: "cover", display: "block", borderRadius: 18 }} loading="lazy" decoding="async" />
           </div>
         </div>
       </section>

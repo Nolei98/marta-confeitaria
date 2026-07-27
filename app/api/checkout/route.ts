@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { formatBRL } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activityLog";
 import { getPreferenceClient } from "@/lib/mercadopago";
@@ -171,7 +172,7 @@ export async function POST(req: Request) {
     const lines = [
       `Olá! Gostaria de confirmar meu pedido ${order.code}:`,
       ...items.map((i) => `${i.qty}x ${i.name}`),
-      `Total: R$ ${total.toFixed(2).replace(".", ",")}`,
+      `Total: ${formatBRL(total)}`,
       guest?.name ? `Nome: ${guest.name}` : "",
       guest?.phone ? `WhatsApp: ${guest.phone}` : "",
     ].filter(Boolean);

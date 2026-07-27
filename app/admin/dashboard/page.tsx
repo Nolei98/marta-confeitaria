@@ -6,6 +6,7 @@ import grid from "@/styles/grid.module.css";
 import styles from "./Dashboard.module.css";
 import { StatTile, RevenueChart, StatusBreakdown, TopProductsChart } from "@/components/admin/Charts";
 import { LoadingScreen } from "@/components/ui/Loading";
+import { formatBRL } from "@/lib/format";
 
 const cssVars = (vars: Record<string, string>) => vars as React.CSSProperties;
 
@@ -357,9 +358,9 @@ export default function DashboardPage() {
             ) : (
               <>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 24 }}>
-                  <StatTile label="Receita (30 dias)" value={"R$ " + analytics.totalRevenue.toFixed(2).replace(".", ",")} />
+                  <StatTile label="Receita (30 dias)" value={formatBRL(analytics.totalRevenue)} />
                   <StatTile label="Pedidos (30 dias)" value={String(analytics.totalOrders)} />
-                  <StatTile label="Ticket médio" value={"R$ " + analytics.avgTicket.toFixed(2).replace(".", ",")} />
+                  <StatTile label="Ticket médio" value={formatBRL(analytics.avgTicket)} />
                   <StatTile label="Clientes cadastrados" value={String(analytics.userCount)} />
                   <StatTile label="Produtos ativos" value={String(analytics.productCount)} />
                 </div>
@@ -394,7 +395,7 @@ export default function DashboardPage() {
                 <div style={{ width: 64, height: 64, borderRadius: 12, background: "#f7f1e8", border: "1px dashed #eaddd0", overflow: "hidden", flexShrink: 0, display: "grid", placeItems: "center" }}>
                   {form.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={form.image} alt="Prévia do produto" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <img src={form.image} alt="Prévia do produto" style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy" decoding="async" />
                   ) : (
                     <span style={{ fontSize: 10, color: "#8b7d76", textAlign: "center", padding: 4 }}>Sem foto</span>
                   )}
@@ -441,7 +442,7 @@ export default function DashboardPage() {
                   <div style={{ height: 140, background: "#f7f1e8", display: "grid", placeItems: "center", overflow: "hidden" }}>
                     {p.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={p.imageUrl} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <img src={p.imageUrl} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy" decoding="async" />
                     ) : (
                       <span style={{ fontSize: 12, color: "#8b7d76" }}>Sem foto</span>
                     )}
@@ -458,7 +459,7 @@ export default function DashboardPage() {
                     </div>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 13, color: "#8b7d76" }}>
                       <span style={{ background: "#f7f1e8", padding: "3px 10px", borderRadius: 20, fontSize: 12 }}>{p.category}</span>
-                      <span style={{ fontWeight: 600, color: "#3f2a26" }}>R$ {p.price.toFixed(2).replace(".", ",")}</span>
+                      <span style={{ fontWeight: 600, color: "#3f2a26" }}>{formatBRL(p.price)}</span>
                     </div>
                     <div style={{ fontSize: 12, color: p.stock === 0 ? "#a05353" : "#8b7d76" }}>
                       {p.stock === null ? "Estoque: sem limite" : p.stock === 0 ? "Esgotado" : `Estoque: ${p.stock}`}

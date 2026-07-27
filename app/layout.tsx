@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import { WHATSAPP_E164 } from "@/lib/contact";
 import "./globals.css";
+import { SITE_URL } from "@/lib/site";
 
-const SITE_URL = "https://marta-confeitaria.vercel.app";
 const SITE_TITLE = "Marta Confeitaria — Bolos artesanais";
 const SITE_DESCRIPTION = "Bolos e fatias artesanais feitos à mão, direto da nossa cozinha para a sua mesa.";
 

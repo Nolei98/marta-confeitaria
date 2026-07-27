@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "./CartContext";
 import { useHoverStyle } from "@/lib/useHover";
+import { formatBRL } from "@/lib/format";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -95,7 +96,7 @@ export function CartDrawer() {
   const cartItems = cart.map((c) => ({
     name: c.name,
     qty: c.qty,
-    lineTotal: "R$ " + (c.price * c.qty).toFixed(2).replace(".", ","),
+    lineTotal: formatBRL(c.price * c.qty),
     error: itemErrors[c.name],
   }));
 

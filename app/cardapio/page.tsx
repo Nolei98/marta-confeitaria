@@ -9,6 +9,7 @@ import { useHoverStyle } from "@/lib/useHover";
 import { useCustomerGate } from "@/lib/useCustomerGate";
 import { LoadingScreen } from "@/components/ui/Loading";
 import grid from "@/styles/grid.module.css";
+import { formatBRL } from "@/lib/format";
 
 type DbProduct = { id: string; name: string; category: string; price: number; imageUrl: string | null; stock: number | null };
 
@@ -56,7 +57,7 @@ function SliceImg({ src, alt }: { src: string; alt: string }) {
     { transform: "translateX(-50%) translateY(-8px) scale(1.06)" }
   );
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={alt} {...hover.handlers} style={hover.style} />;
+  return <img src={src} alt={alt} {...hover.handlers} style={hover.style} loading="lazy" decoding="async" />;
 }
 
 function AddButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
@@ -130,7 +131,7 @@ export default function CardapioPage() {
     .filter((p) => p.category === "Fatia")
     .map((p, i) => ({
       name: p.name,
-      price: "R$ " + p.price.toFixed(2).replace(".", ","),
+      price: formatBRL(p.price),
       priceNum: p.price,
       img: p.imageUrl || FALLBACK_SLICE_IMG,
       tag: FALLBACK_TAG,
@@ -141,7 +142,7 @@ export default function CardapioPage() {
 
   const CAKE_MODELS = products
     .filter((p) => p.category === "Bolo inteiro")
-    .map((p) => ({ name: p.name, desc: "Sob encomenda, personalizável.", img: p.imageUrl || FALLBACK_CAKE_IMG, price: "A partir de R$ " + p.price.toFixed(2).replace(".", ",") }));
+    .map((p) => ({ name: p.name, desc: "Sob encomenda, personalizável.", img: p.imageUrl || FALLBACK_CAKE_IMG, price: "A partir de " + formatBRL(p.price) }));
 
   if (blocking) {
     return (
@@ -219,7 +220,7 @@ export default function CardapioPage() {
             {CAKE_MODELS.map((m) => (
               <div key={m.name} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 16, overflow: "hidden" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={m.img} alt={m.name} style={{ width: "100%", height: 210, objectFit: "cover" }} />
+                <img src={m.img} alt={m.name} style={{ width: "100%", height: 210, objectFit: "cover" }} loading="lazy" decoding="async" />
                 <div style={{ padding: 22 }}>
                   <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 22, margin: "0 0 8px", color: "#3f2a26", lineHeight: 1.2, letterSpacing: ".02em" }}>{m.name}</h3>
                   <p style={{ fontSize: 14, color: "#8b7d76", margin: "0 0 16px", fontFamily: "var(--font-body)" }}>{m.desc}</p>

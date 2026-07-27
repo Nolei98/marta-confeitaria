@@ -99,7 +99,7 @@ export function EncomendaForm() {
           {MODELS.map((m) => (
             <div key={m.name} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 16, overflow: "hidden" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={m.img} alt={m.name} style={{ width: "100%", height: 220, objectFit: "cover" }} />
+              <img src={m.img} alt={m.name} style={{ width: "100%", height: 220, objectFit: "cover" }} loading="lazy" decoding="async" />
               <div style={{ padding: 22 }}>
                 <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 22, margin: "0 0 8px", color: "#3f2a26", lineHeight: 1.2, letterSpacing: ".02em" }}>{m.name}</h3>
                 <p style={{ fontSize: 14, color: "#8b7d76", margin: 0, fontFamily: "var(--font-body)" }}>{m.desc}</p>

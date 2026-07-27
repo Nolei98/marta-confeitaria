@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatBRL } from "@/lib/format";
 
 // Chart tokens — light surface only (admin panel doesn't support dark mode),
 // validated against #fcfcfb per the palette reference.
@@ -12,7 +13,6 @@ const BASELINE = "#c3c2b7";
 const BRAND = "#c1531c";
 const CATEGORICAL = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]; // validated order, slots 1-4
 
-const fmtMoney = (n: number) => "R$ " + n.toFixed(2).replace(".", ",");
 const fmtCompact = (n: number) => (n >= 1000 ? (n / 1000).toFixed(1).replace(".0", "") + "k" : String(Math.round(n)));
 
 export function StatTile({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -108,7 +108,7 @@ export function RevenueChart({ data }: { data: { date: string; revenue: number; 
             boxShadow: "0 4px 12px rgba(0,0,0,.2)",
           }}
         >
-          <strong>{fmtMoney(data[hover].revenue)}</strong> · {data[hover].orders} pedido{data[hover].orders === 1 ? "" : "s"}
+          <strong>{formatBRL(data[hover].revenue)}</strong> · {data[hover].orders} pedido{data[hover].orders === 1 ? "" : "s"}
           <div style={{ color: "rgba(255,255,255,.7)", fontSize: 11 }}>
             {new Date(data[hover].date + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "long" })}
           </div>

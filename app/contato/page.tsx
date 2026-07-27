@@ -198,7 +198,7 @@ export default function ContatoPage() {
         </div>
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/scene-15.webp" alt="Fachada da Marta Confeitaria" style={{ width: "100%", height: 340, objectFit: "cover", borderRadius: 20, marginBottom: 16 }} />
+          <img src="/images/scene-15.webp" alt="Fachada da Marta Confeitaria" style={{ width: "100%", height: 340, objectFit: "cover", borderRadius: 20, marginBottom: 16 }} loading="lazy" decoding="async" />
           <div style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 16, padding: 20, fontSize: 14, color: "#8b7d76" }}>
             <strong style={{ color: "#c1531c", display: "block", marginBottom: 6 }}>Horário de funcionamento</strong>
             Terça a sábado, das 9h às 18h · Domingo, das 9h às 13h · Fechado às segundas

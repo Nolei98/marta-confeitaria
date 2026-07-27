@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { whatsappLink } from "@/lib/contact";
+import { formatBRL } from "@/lib/format";
 
 export type CartItem = { name: string; price: number; qty: number };
 
@@ -256,7 +257,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const cartCount = cart.reduce((n, c) => n + c.qty, 0);
   const cartTotal =
-    "R$ " + cart.reduce((n, c) => n + c.price * c.qty, 0).toFixed(2).replace(".", ",");
+    formatBRL(cart.reduce((n, c) => n + c.price * c.qty, 0));
 
   const value = useMemo<CartContextValue>(
     () => ({
