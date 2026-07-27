@@ -11,6 +11,7 @@ import { PageDecor } from "./PageDecor";
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
+  const isCardapio = pathname?.startsWith("/cardapio");
 
   return (
     <SessionProvider>
@@ -21,7 +22,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
         </div>
         {!isAdmin && (
           <>
-            <CardapioShortcut />
+            {!isCardapio && <CardapioShortcut />}
             <BackToTop />
             <CartDrawer />
           </>
