@@ -31,7 +31,7 @@ const PAYMENT_STATUS_LABELS: Record<string, string> = {
   CANCELLED: "Pagamento cancelado",
   REFUNDED: "Pagamento reembolsado",
 };
-type Product = { id: string; name: string; category: string; price: number; imageUrl: string | null };
+type Product = { id: string; name: string; category: string; price: number; imageUrl: string | null; stock: number | null };
 type View = "catalogo" | "encomenda" | "pedidos" | "editar";
 
 const inputStyle: React.CSSProperties = { width: "100%", padding: "13px 14px", border: "1px solid #eaddd0", borderRadius: 12, fontSize: 15, marginBottom: 16, background: "#f5ead9", fontFamily: "Inter" };
@@ -88,11 +88,18 @@ function ProductImg({ src, alt }: { src: string; alt: string }) {
   return <img src={src} alt={alt} {...hover.handlers} style={hover.style} />;
 }
 
-function AddButton({ onClick }: { onClick: () => void }) {
+function AddButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
   const hover = useHoverStyle(
     { border: "none", background: "#c1531c", color: "#fff", width: 28, height: 28, borderRadius: "50%", fontSize: 15, cursor: "pointer", fontWeight: 700, transition: "transform .2s ease, background-color .2s ease" },
     { background: "#8a6470", transform: "scale(1.18)" }
   );
+  if (disabled) {
+    return (
+      <button disabled aria-label="Esgotado" style={{ ...hover.style, background: "#c9beb5", cursor: "not-allowed" }}>
+        +
+      </button>
+    );
+  }
   return (
     <button onClick={onClick} aria-label="Adicionar ao carrinho" {...hover.handlers} style={hover.style}>
       +
@@ -102,15 +109,21 @@ function AddButton({ onClick }: { onClick: () => void }) {
 
 function ProductCard({ p, index, onAdd }: { p: Product; index: number; onAdd: () => void }) {
   const bg = PEDESTAL_COLORS[index % PEDESTAL_COLORS.length];
+  const soldOut = p.stock === 0;
   return (
     <div style={{ textAlign: "center" }}>
       <div style={{ position: "relative", background: bg, borderRadius: 14, padding: "58px 10px 14px", marginTop: 34 }}>
+        {soldOut && (
+          <div style={{ position: "absolute", top: 10, left: 10, lineHeight: 1, color: "#8b7d76", zIndex: 3, padding: "4px 6px", border: "1.5px solid #8b7d76", borderRadius: 6, background: "#fff" }}>
+            <span style={{ fontFamily: "var(--font-body)", fontSize: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".02em" }}>Esgotado</span>
+          </div>
+        )}
         {p.imageUrl && <ProductImg src={p.imageUrl} alt={p.name} />}
         <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: "#3f2a26", fontSize: 16, lineHeight: 1.25, letterSpacing: ".01em" }}>{p.name}</div>
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 10 }}>
         <span style={{ fontWeight: 700, color: "#c1531c", fontSize: 13 }}>R$ {p.price.toFixed(2).replace(".", ",")}</span>
-        <AddButton onClick={onAdd} />
+        <AddButton onClick={onAdd} disabled={soldOut} />
       </div>
     </div>
   );
