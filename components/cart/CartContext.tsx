@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { whatsappLink } from "@/lib/contact";
 
@@ -12,6 +12,12 @@ type CartContextValue = {
   cartCount: number;
   cartTotal: string;
   cartEmpty: boolean;
+  /** Per-item message when the server refused a quantity (out of stock). */
+  itemErrors: Record<string, string>;
+  /** Why the last checkout attempt failed, if it did. */
+  checkoutError: string | null;
+  /** True while a checkout request is in flight. */
+  checkoutPending: boolean;
   addToCart: (name: string, price: number) => void;
   incQty: (name: string) => void;
   decQty: (name: string) => void;
@@ -24,6 +30,7 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 
 const STORAGE_KEY = "martaCart";
+const GENERIC_CHECKOUT_ERROR = "Não foi possível finalizar o pedido. Tente de novo.";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -31,6 +38,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [itemErrors, setItemErrors] = useState<Record<string, string>>({});
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [checkoutPending, setCheckoutPending] = useState(false);
+  // Ref rather than state: the guard has to be readable synchronously inside
+  // checkout, before React has had a chance to re-render with the new value.
+  const checkoutInFlight = useRef(false);
 
   // Guests keep the original localStorage-only cart. Logged-in customers get
   // their cart from the database, so it's saved to their account/history.
@@ -62,6 +75,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [loggedIn]
   );
 
+  // Every cart mutation updates local state optimistically and then tells the
+  // server. When the server refuses (409 — someone else took the last one), the
+  // optimistic quantity is a lie: snap it back to what the server allows and say
+  // why, instead of leaving the customer looking at a quantity they can't buy.
+  // Only reached while logged in; guests have no server cart to disagree with.
+  const reconcile = useCallback(async (res: Response, name: string) => {
+    if (res.ok) {
+      setItemErrors((prev) => {
+        if (!(name in prev)) return prev;
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+      return;
+    }
+    const data: { error?: string; available?: number } = await res.json().catch(() => ({}));
+    if (res.status === 409 && typeof data.available === "number") {
+      const available = data.available;
+      setCart((prev) =>
+        available <= 0
+          ? prev.filter((c) => c.name !== name)
+          : prev.map((c) => (c.name === name ? { ...c, qty: Math.min(c.qty, available) } : c))
+      );
+    }
+    setItemErrors((prev) => ({ ...prev, [name]: data.error ?? "Não foi possível atualizar este item." }));
+  }, []);
+
   const addToCart = useCallback(
     (name: string, price: number) => {
       setCart((prev) => {
@@ -78,32 +118,47 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return next;
       });
       setCartOpen(true);
+      setCheckoutError(null);
       if (loggedIn) {
         fetch("/api/cart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, price, qty: 1 }),
-        }).catch(() => {});
+        })
+          .then((res) => reconcile(res, name))
+          .catch(() => {});
       }
     },
-    [loggedIn]
+    [loggedIn, reconcile]
   );
 
   const incQty = useCallback(
     (name: string) => {
       const next = cart.map((c) => (c.name === name ? { ...c, qty: c.qty + 1 } : c));
       persistCart(next);
+      setCheckoutError(null);
       if (loggedIn) {
         const item = next.find((c) => c.name === name);
-        if (item) fetch("/api/cart/" + encodeURIComponent(name), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ qty: item.qty }) }).catch(() => {});
+        if (item) {
+          fetch("/api/cart/" + encodeURIComponent(name), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ qty: item.qty }) })
+            .then((res) => reconcile(res, name))
+            .catch(() => {});
+        }
       }
     },
-    [cart, persistCart, loggedIn]
+    [cart, persistCart, loggedIn, reconcile]
   );
 
   const removeItem = useCallback(
     (name: string) => {
       persistCart(cart.filter((c) => c.name !== name));
+      setCheckoutError(null);
+      setItemErrors((prev) => {
+        if (!(name in prev)) return prev;
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
       if (loggedIn) {
         fetch("/api/cart/" + encodeURIComponent(name), { method: "DELETE" }).catch(() => {});
       }
@@ -120,25 +175,46 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       const next = cart.map((c) => (c.name === name ? { ...c, qty: c.qty - 1 } : c));
       persistCart(next);
+      setCheckoutError(null);
       if (loggedIn) {
         const updated = next.find((c) => c.name === name);
-        if (updated) fetch("/api/cart/" + encodeURIComponent(name), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ qty: updated.qty }) }).catch(() => {});
+        if (updated) {
+          fetch("/api/cart/" + encodeURIComponent(name), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ qty: updated.qty }) })
+            .then((res) => reconcile(res, name))
+            .catch(() => {});
+        }
       }
     },
-    [cart, persistCart, removeItem, loggedIn]
+    [cart, persistCart, removeItem, loggedIn, reconcile]
   );
 
   const toggleCart = useCallback(() => setCartOpen((v) => !v), []);
   const closeCart = useCallback(() => setCartOpen(false), []);
 
   const checkout = useCallback(async () => {
+    // Creating a Mercado Pago preference takes a network round-trip. Without
+    // this guard a double click books two orders and decrements stock twice.
+    if (checkoutInFlight.current) return;
+    checkoutInFlight.current = true;
+    setCheckoutPending(true);
+    setCheckoutError(null);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: loggedIn ? undefined : JSON.stringify({ items: cart }),
       });
-      const data: { initPoint?: string; whatsappUrl?: string; error?: string } = await res.json();
+      const data: { initPoint?: string; whatsappUrl?: string; error?: string } = await res
+        .json()
+        .catch(() => ({}));
+
+      // Out of stock, rate limited, product gone, server error — the order was
+      // NOT placed. Keep the cart exactly as it is and say what happened.
+      if (!res.ok) {
+        setCheckoutError(data.error ?? GENERIC_CHECKOUT_ERROR);
+        return;
+      }
+
       if (data.initPoint) {
         window.location.href = data.initPoint;
         return;
@@ -146,7 +222,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (data.whatsappUrl) {
         window.open(data.whatsappUrl, "_blank");
       }
+      // Only past this point is the order actually placed.
       setCart([]);
+      setItemErrors({});
       if (!loggedIn) {
         try {
           localStorage.removeItem(STORAGE_KEY);
@@ -156,6 +234,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       // Network hiccup — fall back to the always-available WhatsApp flow so checkout never silently dies.
       const lines = cart.map((c) => `${c.qty}x ${c.name} — R$ ${c.price * c.qty}`);
       window.open(whatsappLink(`Olá! Quero fazer este pedido:\n${lines.join("\n")}`), "_blank");
+    } finally {
+      checkoutInFlight.current = false;
+      setCheckoutPending(false);
     }
   }, [cart, loggedIn]);
 
@@ -170,6 +251,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       cartCount,
       cartTotal,
       cartEmpty: cart.length === 0,
+      itemErrors,
+      checkoutError,
+      checkoutPending,
       addToCart,
       incQty,
       decQty,
@@ -178,7 +262,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       closeCart,
       checkout,
     }),
-    [cart, cartOpen, cartCount, cartTotal, addToCart, incQty, decQty, removeItem, toggleCart, closeCart, checkout]
+    [cart, cartOpen, cartCount, cartTotal, itemErrors, checkoutError, checkoutPending, addToCart, incQty, decQty, removeItem, toggleCart, closeCart, checkout]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

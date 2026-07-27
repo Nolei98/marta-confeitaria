@@ -4,7 +4,7 @@ import { useCart } from "./CartContext";
 import { useHoverStyle } from "@/lib/useHover";
 
 export function CartDrawer() {
-  const { cartOpen, closeCart, cartEmpty, cart, incQty, decQty, removeItem, cartTotal, checkout } = useCart();
+  const { cartOpen, closeCart, cartEmpty, cart, incQty, decQty, removeItem, cartTotal, checkout, itemErrors, checkoutError, checkoutPending } = useCart();
   const checkoutHover = useHoverStyle(
     { width: "100%", border: "none", background: "#c1531c", color: "#fff", borderRadius: 40, padding: 15, fontWeight: 600, fontSize: 15, cursor: "pointer", minHeight: 44 },
     { background: "#9c3f14" }
@@ -16,6 +16,7 @@ export function CartDrawer() {
     name: c.name,
     qty: c.qty,
     lineTotal: "R$ " + (c.price * c.qty).toFixed(2).replace(".", ","),
+    error: itemErrors[c.name],
   }));
 
   return (
@@ -73,16 +74,14 @@ export function CartDrawer() {
             </p>
           )}
           {cartItems.map((ci) => (
-            <div
-              key={ci.name}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "14px 0",
-                borderBottom: "1px solid #eaddd0",
-              }}
-            >
+            <div key={ci.name} style={{ padding: "14px 0", borderBottom: "1px solid #eaddd0" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
               <div>
                 <div style={{ fontWeight: 600, color: "#c1531c", fontSize: 14, marginBottom: 4 }}>{ci.name}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -112,6 +111,12 @@ export function CartDrawer() {
                   remover
                 </button>
               </div>
+              </div>
+              {ci.error && (
+                <p role="status" style={{ margin: "8px 0 0", fontSize: 12, color: "#b3554d", background: "#f2e4e4", borderRadius: 8, padding: "6px 10px" }}>
+                  {ci.error}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -121,8 +126,23 @@ export function CartDrawer() {
             <span style={{ color: "#8b7d76", fontSize: 14 }}>Subtotal</span>
             <span style={{ fontFamily: "'Playfair Display',serif", fontSize: 19, fontWeight: 700, color: "#c1531c" }}>{cartTotal}</span>
           </div>
-          <button onClick={checkout} {...checkoutHover.handlers} style={checkoutHover.style}>
-            Finalizar pedido
+          {checkoutError && (
+            <p role="alert" style={{ margin: "0 0 12px", fontSize: 13, color: "#b3554d", background: "#f2e4e4", borderRadius: 10, padding: "10px 12px" }}>
+              {checkoutError}
+            </p>
+          )}
+          <button
+            onClick={checkout}
+            disabled={checkoutPending || cartEmpty}
+            {...checkoutHover.handlers}
+            style={{
+              ...checkoutHover.style,
+              ...(checkoutPending || cartEmpty
+                ? { background: "#c9beb5", cursor: "not-allowed" }
+                : null),
+            }}
+          >
+            {checkoutPending ? "Enviando..." : "Finalizar pedido"}
           </button>
         </div>
       </div>
