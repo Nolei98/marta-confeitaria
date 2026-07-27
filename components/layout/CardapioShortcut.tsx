@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useHoverStyle } from "@/lib/useHover";
 import styles from "./FloatingActions.module.css";
 import { BookOpenIcon, CakeSliceIcon } from "@/components/icons";
 
 export function CardapioShortcut() {
-  const { data: session } = useSession();
   const [loaded, setLoaded] = useState(false);
   const fabHover = useHoverStyle(
     {
@@ -40,7 +38,10 @@ export function CardapioShortcut() {
     return () => window.removeEventListener("load", onLoad);
   }, []);
 
-  if (session?.user || !loaded) return null;
+  // Quem decide em quais páginas o atalho aparece é o SiteChrome (fora do admin
+  // e fora do próprio /cardapio). Aqui só esperamos a página terminar de
+  // carregar, para o botão não piscar antes do conteúdo.
+  if (!loaded) return null;
 
   return (
     <div className={styles.cardapioWrap} style={{ position: "fixed", right: 24, bottom: 24, zIndex: 60, display: "flex", flexDirection: "row-reverse", alignItems: "center", gap: 12, pointerEvents: "none" }}>
