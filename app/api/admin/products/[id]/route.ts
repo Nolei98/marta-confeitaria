@@ -6,6 +6,17 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (!(await requireAdmin())) return NextResponse.json({ error: "Acesso negado." }, { status: 403 });
   const { id } = await params;
   const data = await req.json();
+  if ("stock" in data) {
+    if (data.stock === null || data.stock === "") {
+      data.stock = null;
+    } else {
+      const n = Number(data.stock);
+      if (!Number.isInteger(n) || n < 0) {
+        return NextResponse.json({ error: "Estoque deve ser um número inteiro maior ou igual a zero." }, { status: 400 });
+      }
+      data.stock = n;
+    }
+  }
   const product = await prisma.product
     .update({ where: { id }, data })
     .catch(() => null);

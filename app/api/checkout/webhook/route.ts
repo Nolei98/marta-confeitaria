@@ -53,13 +53,31 @@ async function handle(req: Request) {
   });
   if (!payment?.external_reference) return NextResponse.json({ ok: true });
 
-  const order = await prisma.order.findUnique({ where: { id: payment.external_reference } });
+  const order = await prisma.order.findUnique({ where: { id: payment.external_reference }, include: { items: true } });
   if (!order) return NextResponse.json({ ok: true });
 
   const paymentStatus = STATUS_MAP[payment.status ?? ""] ?? "PENDING";
-  await prisma.order.update({
-    where: { id: order.id },
-    data: { paymentStatus, paymentId: String(payment.id) },
+  const wasTerminalFailure = order.paymentStatus === "REJECTED" || order.paymentStatus === "CANCELLED";
+  const isNowTerminalFailure = paymentStatus === "REJECTED" || paymentStatus === "CANCELLED";
+
+  await prisma.$transaction(async (tx) => {
+    await tx.order.update({
+      where: { id: order.id },
+      data: { paymentStatus, paymentId: String(payment.id) },
+    });
+
+    // Estoque foi decrementado na criação do pedido, antes do pagamento confirmar.
+    // Se o pagamento falhar/cancelar, devolve o estoque — só uma vez (evita
+    // reprocessar e devolver em dobro se o mesmo webhook chegar de novo).
+    if (isNowTerminalFailure && !wasTerminalFailure) {
+      for (const item of order.items) {
+        if (!item.productId) continue;
+        await tx.product.updateMany({
+          where: { id: item.productId, stock: { not: null } },
+          data: { stock: { increment: item.qty } },
+        });
+      }
+    }
   });
 
   if (paymentStatus === "APPROVED" && order.userId) {

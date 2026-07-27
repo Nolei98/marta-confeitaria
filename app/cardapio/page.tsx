@@ -10,7 +10,7 @@ import { useCustomerGate } from "@/lib/useCustomerGate";
 import { LoadingScreen } from "@/components/ui/Loading";
 import grid from "@/styles/grid.module.css";
 
-type DbProduct = { id: string; name: string; category: string; price: number; imageUrl: string | null };
+type DbProduct = { id: string; name: string; category: string; price: number; imageUrl: string | null; stock: number | null };
 
 const PEDESTAL_COLORS = ["#f6d9dd", "#e6dcef", "#f3e2cf"];
 const LINE_COLORS = ["#c1531c", "#7d52a8", "#d49a37"];
@@ -65,11 +65,18 @@ function SliceImg({ src, alt }: { src: string; alt: string }) {
   return <img src={src} alt={alt} {...hover.handlers} style={hover.style} />;
 }
 
-function AddButton({ onClick }: { onClick: () => void }) {
+function AddButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
   const hover = useHoverStyle(
     { border: "none", background: "#c1531c", color: "#fff", fontSize: 16, cursor: "pointer", width: 32, height: 32, borderRadius: "50%", transition: "transform .2s ease, background-color .2s ease" },
     { background: "#8a6470", transform: "scale(1.18)" }
   );
+  if (disabled) {
+    return (
+      <button disabled aria-label="Esgotado" style={{ ...hover.style, background: "#c9beb5", cursor: "not-allowed" }}>
+        +
+      </button>
+    );
+  }
   return (
     <button onClick={onClick} aria-label="Adicionar" {...hover.handlers} style={hover.style}>
       +
@@ -110,10 +117,11 @@ export default function CardapioPage() {
           price: "R$ " + p.price.toFixed(2).replace(".", ","),
           priceNum: p.price,
           img: p.imageUrl || FALLBACK_SLICE_IMG,
-          badge: "",
+          badge: p.stock === 0 ? "Esgotado" : "",
           tag: FALLBACK_TAG,
           cardBg: PEDESTAL_COLORS[i % PEDESTAL_COLORS.length],
           lineColor: LINE_COLORS[i % LINE_COLORS.length],
+          soldOut: p.stock === 0,
         }))
       : products === null
       ? SLICES_FALLBACK
@@ -177,7 +185,7 @@ export default function CardapioPage() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 16 }}>
                   <span style={{ fontFamily: "var(--font-body)", fontSize: 16, color: "#3f2a26", fontWeight: 600 }}>{s.price}</span>
-                  <AddButton onClick={() => addToCart(s.name, s.priceNum)} />
+                  <AddButton onClick={() => addToCart(s.name, s.priceNum)} disabled={"soldOut" in s ? Boolean(s.soldOut) : false} />
                 </div>
               </div>
             ))}

@@ -9,7 +9,7 @@ import { LoadingScreen } from "@/components/ui/Loading";
 
 const cssVars = (vars: Record<string, string>) => vars as React.CSSProperties;
 
-type Product = { id: string; name: string; category: string; price: number; imageUrl?: string | null; active: boolean };
+type Product = { id: string; name: string; category: string; price: number; imageUrl?: string | null; active: boolean; stock: number | null };
 type OrderItem = { id: string; nameSnapshot: string; priceSnapshot: number; qty: number };
 type Order = {
   id: string;
@@ -50,7 +50,7 @@ const PAYMENT_STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   REFUNDED: { bg: "#eee", color: "#8b7d76" },
 };
 
-const EMPTY_FORM = { id: null as string | null, name: "", price: "", category: "Fatia", image: "" };
+const EMPTY_FORM = { id: null as string | null, name: "", price: "", category: "Fatia", image: "", stock: "" };
 const EMPTY_PONTO_FORM = { id: null as string | null, name: "", address: "", lat: "", lng: "" };
 
 const IMAGE_OPTIONS = [
@@ -262,7 +262,9 @@ export default function DashboardPage() {
   const submitForm = async () => {
     if (!form.name.trim()) return;
     const price = parseFloat(form.price.replace(",", ".").replace(/[^\d.]/g, ""));
-    const body = { name: form.name, category: form.category, price: isNaN(price) ? 0 : price, imageUrl: form.image || null };
+    const stockTrim = form.stock.trim();
+    const stock = stockTrim === "" ? null : parseInt(stockTrim.replace(/[^\d]/g, ""), 10);
+    const body = { name: form.name, category: form.category, price: isNaN(price) ? 0 : price, imageUrl: form.image || null, stock: stockTrim === "" ? null : isNaN(stock as number) ? null : stock };
     if (form.id) {
       await fetch(`/api/admin/products/${form.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     } else {
@@ -290,7 +292,7 @@ export default function DashboardPage() {
       e.target.value = "";
     }
   };
-  const editProduct = (p: Product) => setForm({ id: p.id, name: p.name, price: String(p.price), category: p.category, image: p.imageUrl || "" });
+  const editProduct = (p: Product) => setForm({ id: p.id, name: p.name, price: String(p.price), category: p.category, image: p.imageUrl || "", stock: p.stock === null ? "" : String(p.stock) });
   const removeProduct = async (id: string) => {
     // Deleting the product silently drops it from any customer carts (cascade)
     // and just unlinks it from past order history, which keeps its snapshot.
@@ -401,7 +403,7 @@ export default function DashboardPage() {
                   <input type="file" accept="image/*" onChange={setFormImage} disabled={uploadingImage} style={{ display: "none" }} />
                 </label>
               </div>
-              <div className={styles.formRow} style={cssVars({ "--cols": "1.4fr 1fr 1fr auto" })}>
+              <div className={styles.formRow} style={cssVars({ "--cols": "1.4fr 1fr 1fr 1fr auto" })}>
                 <div>
                   <label style={smallLabelStyle}>Nome</label>
                   <input type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Nome do produto" style={inputStyle} />
@@ -416,6 +418,10 @@ export default function DashboardPage() {
                     <option value="Fatia">Fatia</option>
                     <option value="Bolo inteiro">Bolo inteiro</option>
                   </select>
+                </div>
+                <div>
+                  <label style={smallLabelStyle}>Estoque</label>
+                  <input type="text" value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))} placeholder="Sem limite" style={inputStyle} />
                 </div>
                 <button onClick={submitForm} style={{ border: "none", background: "#c1531c", color: "#fff", borderRadius: 10, padding: "12px 22px", fontWeight: 600, fontSize: 14, cursor: "pointer", height: 44 }}>
                   {form.id ? "Salvar" : "Adicionar"}
@@ -452,6 +458,9 @@ export default function DashboardPage() {
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 13, color: "#8b7d76" }}>
                       <span style={{ background: "#f7f1e8", padding: "3px 10px", borderRadius: 20, fontSize: 12 }}>{p.category}</span>
                       <span style={{ fontWeight: 600, color: "#3f2a26" }}>R$ {p.price.toFixed(2).replace(".", ",")}</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: p.stock === 0 ? "#a05353" : "#8b7d76" }}>
+                      {p.stock === null ? "Estoque: sem limite" : p.stock === 0 ? "Esgotado" : `Estoque: ${p.stock}`}
                     </div>
                     <div style={{ display: "flex", gap: 14, marginTop: "auto", paddingTop: 8, borderTop: "1px solid #eaddd0" }}>
                       <button onClick={() => editProduct(p)} style={linkButtonStyle("#a07882")}>

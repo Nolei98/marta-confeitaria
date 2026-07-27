@@ -7,7 +7,7 @@ export async function GET() {
   const products = await prisma.product.findMany({
     where: { active: true },
     orderBy: { createdAt: "asc" },
-    select: { id: true, name: true, category: true, price: true, imageUrl: true },
+    select: { id: true, name: true, category: true, price: true, imageUrl: true, stock: true },
   });
   return NextResponse.json(products.map((p) => ({ ...p, price: Number(p.price) })));
 }

@@ -30,14 +30,36 @@ export async function GET() {
   );
 }
 
+const MAX_QTY = 99;
+
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
 
-  const { name, qty = 1 } = await req.json();
+  const body = await req.json().catch(() => ({}));
+  const name = typeof body?.name === "string" ? body.name.trim() : "";
+  const qty = body?.qty === undefined ? 1 : body.qty;
+  if (!name) {
+    return NextResponse.json({ error: "Produto inválido." }, { status: 400 });
+  }
+  if (typeof qty !== "number" || !Number.isInteger(qty) || qty <= 0 || qty > MAX_QTY) {
+    return NextResponse.json({ error: "Quantidade inválida." }, { status: 400 });
+  }
+
   const product = await prisma.product.findFirst({ where: { name, active: true } });
   if (!product) {
     return NextResponse.json({ error: "Produto indisponível." }, { status: 404 });
+  }
+
+  const existing = await prisma.cartItem.findUnique({
+    where: { userId_productId: { userId: session.user.id, productId: product.id } },
+  });
+  const nextQty = (existing?.qty ?? 0) + qty;
+  if (nextQty > MAX_QTY) {
+    return NextResponse.json({ error: "Quantidade máxima por item excedida." }, { status: 400 });
+  }
+  if (product.stock !== null && nextQty > product.stock) {
+    return NextResponse.json({ error: "Estoque insuficiente.", available: product.stock }, { status: 409 });
   }
 
   const item = await prisma.cartItem.upsert({

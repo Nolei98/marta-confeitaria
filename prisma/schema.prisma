@@ -64,6 +64,9 @@ model Product {
   price     Decimal  @db.Decimal(10, 2)
   imageUrl  String?
   active    Boolean  @default(true)
+  // null = estoque não controlado (venda ilimitada). Definido = decrementado
+  // atomicamente no checkout para impedir venda excedida.
+  stock     Int?
   createdAt DateTime @default(now())
 
   // Deleting a product silently drops it from any open carts (no error for the customer).
