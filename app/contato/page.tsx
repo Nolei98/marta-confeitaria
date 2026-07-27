@@ -7,6 +7,7 @@ import "leaflet/dist/leaflet.css";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useHoverStyle } from "@/lib/useHover";
+import { whatsappLink, WHATSAPP_DISPLAY } from "@/lib/contact";
 import grid from "@/styles/grid.module.css";
 import { WhatsAppIcon, MailIcon, MapPinIcon } from "@/components/icons";
 
@@ -31,13 +32,13 @@ function InfoCard({ bg, color, icon, title, text }: { bg: string; color: string;
   );
 }
 
-function SendButton() {
+function SendButton({ onClick }: { onClick: () => void }) {
   const hover = useHoverStyle(
     { width: "100%", border: "none", background: "#c1531c", color: "#fff", borderRadius: 40, padding: 16, fontWeight: 600, fontSize: 15, cursor: "pointer", minHeight: 44 },
     { background: "#9c3f14" }
   );
   return (
-    <button {...hover.handlers} style={hover.style}>
+    <button onClick={onClick} {...hover.handlers} style={hover.style}>
       Enviar mensagem
     </button>
   );
@@ -70,6 +71,10 @@ function RevendaCta() {
 
 export default function ContatoPage() {
   const [points, setPoints] = useState<Point[]>(DEFAULT_POINTS);
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactMessage, setContactMessage] = useState("");
+  const [formError, setFormError] = useState("");
   const mapElRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
   const markersRef = useRef<import("leaflet").Marker[]>([]);
@@ -135,6 +140,23 @@ export default function ContatoPage() {
     mapRef.current?.flyTo([p.lat, p.lng], 16);
   };
 
+  // Same delivery channel as /revenda and the encomenda form: hand the message
+  // to WhatsApp instead of a mailbox nobody watches.
+  const sendMessage = () => {
+    if (!contactName.trim() || !contactMessage.trim()) {
+      setFormError("Preencha seu nome e a mensagem.");
+      return;
+    }
+    setFormError("");
+    const lines = [
+      "Olá! Vim pelo site da Marta Confeitaria:",
+      "Nome: " + contactName.trim(),
+      contactEmail.trim() ? "E-mail: " + contactEmail.trim() : "",
+      "Mensagem: " + contactMessage.trim(),
+    ].filter(Boolean);
+    window.open(whatsappLink(lines.join("\n")), "_blank");
+  };
+
   return (
     <>
       <SiteHeader />
@@ -166,12 +188,13 @@ export default function ContatoPage() {
         <div className={grid.formPanel} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 20 }}>
           <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 22, margin: "0 0 20px" }}>Envie uma mensagem</h2>
           <label style={labelStyle}>Nome</label>
-          <input type="text" placeholder="Seu nome" style={inputStyle} />
+          <input type="text" value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="Seu nome" style={inputStyle} />
           <label style={labelStyle}>E-mail</label>
-          <input type="email" placeholder="seu@email.com" style={inputStyle} />
+          <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="seu@email.com" style={inputStyle} />
           <label style={labelStyle}>Mensagem</label>
-          <textarea placeholder="Como podemos ajudar?" rows={4} style={{ ...inputStyle, marginBottom: 20, resize: "vertical" }} />
-          <SendButton />
+          <textarea value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} placeholder="Como podemos ajudar?" rows={4} style={{ ...inputStyle, marginBottom: formError ? 8 : 20, resize: "vertical" }} />
+          {formError && <p style={{ color: "#c1531c", fontSize: 13, margin: "0 0 12px" }}>{formError}</p>}
+          <SendButton onClick={sendMessage} />
         </div>
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -184,7 +207,7 @@ export default function ContatoPage() {
       </section>
 
       <section className={grid.threeCol} style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px 60px", gap: 24 }}>
-        <InfoCard bg="#f6d9dd" color="#c1531c" title="WhatsApp" text="(87) 99876-5432" icon={<WhatsAppIcon size={22} />} />
+        <InfoCard bg="#f6d9dd" color="#c1531c" title="WhatsApp" text={WHATSAPP_DISPLAY} icon={<WhatsAppIcon size={22} />} />
         <InfoCard bg="#e6dcef" color="#7d52a8" title="E-mail" text="contato@martaconfeitaria.com.br" icon={<MailIcon size={22} />} />
         <InfoCard bg="#f3e2cf" color="#d49a37" title="Endereço" text="Rua das Framboesas, 122 — Centro, Salgueiro - PE" icon={<MapPinIcon size={22} />} />
       </section>
