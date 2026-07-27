@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
@@ -18,23 +18,17 @@ const FALLBACK_SLICE_IMG = "/images/slice-chocolate.webp";
 const FALLBACK_CAKE_IMG = "/images/cake-10.jpg";
 const FALLBACK_TAG = "Feito na hora";
 
-const SLICES_FALLBACK = [
-  { name: "Chocolate intenso", price: "R$ 12,00", priceNum: 12, img: "/images/slice-chocolate.webp", badge: "Mais pedida", tag: "Cacau 70% · Callebaut" },
-  { name: "Red velvet", price: "R$ 14,00", priceNum: 14, img: "/images/slice-red-velvet.webp", badge: "", tag: "Cream cheese tradicional" },
-  { name: "Cenoura com chocolate", price: "R$ 10,00", priceNum: 10, img: "/images/slice-cenoura.webp", badge: "", tag: "Cobertura fofinha" },
-  { name: "Prestígio", price: "R$ 13,00", priceNum: 13, img: "/images/slice-prestigio.webp", badge: "", tag: "Coco ralado fresco" },
-  { name: "Ninho com Nutella", price: "R$ 15,00", priceNum: 15, img: "/images/slice-ninho.webp", badge: "Novidade", tag: "Leite Ninho cremoso" },
-  { name: "Limão siciliano", price: "R$ 12,00", priceNum: 12, img: "/images/slice-limao.webp", badge: "", tag: "Toque cítrico suave" },
-  { name: "Floresta negra", price: "R$ 16,00", priceNum: 16, img: "/images/slice-floresta-negra.webp", badge: "", tag: "Cerejas selecionadas" },
-  { name: "Maracujá", price: "R$ 12,00", priceNum: 12, img: "/images/slice-maracuja.webp", badge: "", tag: "Calda de fruta natural" },
-  { name: "Fubá cremoso", price: "R$ 9,00", priceNum: 9, img: "/images/slice-fuba.webp", badge: "", tag: "Erva-doce e queijo" },
-].map((s, i) => ({ ...s, cardBg: PEDESTAL_COLORS[i % PEDESTAL_COLORS.length], lineColor: LINE_COLORS[i % LINE_COLORS.length] }));
+// There is deliberately no hardcoded fallback catalogue here. A made-up
+// catalogue is worse than no catalogue: it is indistinguishable from the real
+// one, and every item in it leads to an order the server cannot honour.
 
-const CAKE_MODELS_FALLBACK = [
-  { name: "Bolo de aniversário", desc: "Chantilly, frutas vermelhas e velinhas.", img: "/images/cake-10.jpg", price: "A partir de R$ 75,00" },
-  { name: "Bolo de festa", desc: "Andares em tons pastel com rosas de açúcar.", img: "/images/cake-11.webp", price: "A partir de R$ 75,00" },
-  { name: "Bolo temático", desc: "Chocolate coberto de rosas, personalizável.", img: "/images/cake-12.jpg", price: "A partir de R$ 75,00" },
-];
+function EmptyNotice({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{ gridColumn: "1 / -1", textAlign: "center", color: "#8b7d76", fontFamily: "var(--font-body)", fontSize: 15, margin: "40px 0" }}>
+      {children}
+    </p>
+  );
+}
 
 function FilterButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
@@ -84,6 +78,18 @@ function AddButton({ onClick, disabled }: { onClick: () => void; disabled?: bool
   );
 }
 
+function RetryButton({ onClick }: { onClick: () => void }) {
+  const hover = useHoverStyle(
+    { border: "none", background: "#c1531c", color: "#fff", borderRadius: 40, padding: "13px 30px", fontWeight: 600, fontSize: 15, cursor: "pointer", minHeight: 44, fontFamily: "var(--font-body)" },
+    { background: "#9c3f14" }
+  );
+  return (
+    <button onClick={onClick} {...hover.handlers} style={hover.style}>
+      Tentar de novo
+    </button>
+  );
+}
+
 function EncomendarLink() {
   const hover = useHoverStyle(
     { background: "#c1531c", color: "#fff", borderRadius: 30, padding: "9px 16px", fontWeight: 600, fontSize: 13, fontFamily: "var(--font-body)" },
@@ -99,41 +105,43 @@ function EncomendarLink() {
 export default function CardapioPage() {
   const blocking = useCustomerGate();
   const [filter, setFilter] = useState<"fatias" | "bolos">("fatias");
-  const [products, setProducts] = useState<DbProduct[] | null>(null);
+  const [products, setProducts] = useState<DbProduct[]>([]);
+  const [loadState, setLoadState] = useState<"loading" | "error" | "ready">("loading");
   const { addToCart } = useCart();
 
-  useEffect(() => {
+  const loadProducts = useCallback(() => {
+    setLoadState("loading");
     fetch("/api/public/products")
-      .then((r) => r.json())
-      .then((data) => Array.isArray(data) && setProducts(data))
-      .catch(() => {});
+      .then((r) => {
+        if (!r.ok) throw new Error("catálogo indisponível");
+        return r.json();
+      })
+      .then((data) => {
+        if (!Array.isArray(data)) throw new Error("resposta inesperada");
+        setProducts(data);
+        setLoadState("ready");
+      })
+      .catch(() => setLoadState("error"));
   }, []);
 
-  const dbFatias = products?.filter((p) => p.category === "Fatia") ?? [];
-  const SLICES =
-    dbFatias.length > 0
-      ? dbFatias.map((p, i) => ({
-          name: p.name,
-          price: "R$ " + p.price.toFixed(2).replace(".", ","),
-          priceNum: p.price,
-          img: p.imageUrl || FALLBACK_SLICE_IMG,
-          badge: p.stock === 0 ? "Esgotado" : "",
-          tag: FALLBACK_TAG,
-          cardBg: PEDESTAL_COLORS[i % PEDESTAL_COLORS.length],
-          lineColor: LINE_COLORS[i % LINE_COLORS.length],
-          soldOut: p.stock === 0,
-        }))
-      : products === null
-      ? SLICES_FALLBACK
-      : [];
+  useEffect(loadProducts, [loadProducts]);
 
-  const dbBolos = products?.filter((p) => p.category === "Bolo inteiro") ?? [];
-  const CAKE_MODELS =
-    dbBolos.length > 0
-      ? dbBolos.map((p) => ({ name: p.name, desc: "Sob encomenda, personalizável.", img: p.imageUrl || FALLBACK_CAKE_IMG, price: "A partir de R$ " + p.price.toFixed(2).replace(".", ",") }))
-      : products === null
-      ? CAKE_MODELS_FALLBACK
-      : [];
+  const SLICES = products
+    .filter((p) => p.category === "Fatia")
+    .map((p, i) => ({
+      name: p.name,
+      price: "R$ " + p.price.toFixed(2).replace(".", ","),
+      priceNum: p.price,
+      img: p.imageUrl || FALLBACK_SLICE_IMG,
+      tag: FALLBACK_TAG,
+      cardBg: PEDESTAL_COLORS[i % PEDESTAL_COLORS.length],
+      lineColor: LINE_COLORS[i % LINE_COLORS.length],
+      soldOut: p.stock === 0,
+    }));
+
+  const CAKE_MODELS = products
+    .filter((p) => p.category === "Bolo inteiro")
+    .map((p) => ({ name: p.name, desc: "Sob encomenda, personalizável.", img: p.imageUrl || FALLBACK_CAKE_IMG, price: "A partir de R$ " + p.price.toFixed(2).replace(".", ",") }));
 
   if (blocking) {
     return (
@@ -164,16 +172,27 @@ export default function CardapioPage() {
         </div>
       </section>
 
-      {filter === "fatias" && (
+      {loadState === "loading" && <LoadingScreen />}
+
+      {loadState === "error" && (
+        <section style={{ padding: "24px 24px 100px", maxWidth: 560, margin: "0 auto", textAlign: "center" }}>
+          <p style={{ color: "#8b7d76", fontFamily: "var(--font-body)", fontSize: 15, margin: "0 0 20px" }}>
+            Não conseguimos carregar o cardápio agora. Pode ser uma instabilidade passageira.
+          </p>
+          <RetryButton onClick={loadProducts} />
+        </section>
+      )}
+
+      {loadState === "ready" && filter === "fatias" && (
         <section style={{ padding: "24px 24px 80px", maxWidth: 1160, margin: "0 auto" }}>
           <div className={grid.threeCol} style={{ gap: "40px 32px" }}>
+            {SLICES.length === 0 && <EmptyNotice>Nenhuma fatia disponível no momento. Volte logo mais!</EmptyNotice>}
             {SLICES.map((s) => (
               <div key={s.name} style={{ textAlign: "center" }}>
                 <div style={{ position: "relative", background: s.cardBg, borderRadius: 14, padding: "76px 20px 22px", marginTop: 64 }}>
-                  {s.badge && (
-                    <div style={{ position: "absolute", top: 14, left: 14, display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1, color: "#c1531c", zIndex: 3, padding: "4px 6px", border: "1.5px solid #c1531c", borderRadius: 6, background: "#fff" }}>
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".02em", maxWidth: 44, textAlign: "center" }}>{s.badge}</span>
-                      <span style={{ fontSize: 11, marginTop: 1 }}>★</span>
+                  {s.soldOut && (
+                    <div style={{ position: "absolute", top: 14, left: 14, lineHeight: 1, color: "#8b7d76", zIndex: 3, padding: "5px 7px", border: "1.5px solid #8b7d76", borderRadius: 6, background: "#fff" }}>
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".02em" }}>Esgotado</span>
                     </div>
                   )}
                   <SliceImg src={s.img} alt={s.name} />
@@ -185,7 +204,7 @@ export default function CardapioPage() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 16 }}>
                   <span style={{ fontFamily: "var(--font-body)", fontSize: 16, color: "#3f2a26", fontWeight: 600 }}>{s.price}</span>
-                  <AddButton onClick={() => addToCart(s.name, s.priceNum)} disabled={"soldOut" in s ? Boolean(s.soldOut) : false} />
+                  <AddButton onClick={() => addToCart(s.name, s.priceNum)} disabled={s.soldOut} />
                 </div>
               </div>
             ))}
@@ -193,9 +212,10 @@ export default function CardapioPage() {
         </section>
       )}
 
-      {filter === "bolos" && (
+      {loadState === "ready" && filter === "bolos" && (
         <section style={{ padding: "24px 24px 80px", maxWidth: 1160, margin: "0 auto" }}>
           <div className={grid.threeCol} style={{ gap: 32 }}>
+            {CAKE_MODELS.length === 0 && <EmptyNotice>Nenhum modelo de bolo cadastrado no momento. Fale com a gente pelo WhatsApp!</EmptyNotice>}
             {CAKE_MODELS.map((m) => (
               <div key={m.name} style={{ background: "#fff", border: "1px solid #eaddd0", borderRadius: 16, overflow: "hidden" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
