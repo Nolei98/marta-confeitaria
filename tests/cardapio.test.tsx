@@ -124,7 +124,7 @@ describe("estoque no catálogo", () => {
     vi.stubGlobal("fetch", vi.fn(async () => json(200, [product({ stock: null })])));
     renderPage();
 
-    expect(await screen.findByRole("button", { name: "Adicionar" })).toBeEnabled();
+    expect(await screen.findByRole("button", { name: "Adicionar ao carrinho" })).toBeEnabled();
     expect(screen.queryByText("Esgotado")).toBeNull();
   });
 
@@ -132,6 +132,6 @@ describe("estoque no catálogo", () => {
     vi.stubGlobal("fetch", vi.fn(async () => json(200, [product({ stock: 1 })])));
     renderPage();
 
-    expect(await screen.findByRole("button", { name: "Adicionar" })).toBeEnabled();
+    expect(await screen.findByRole("button", { name: "Adicionar ao carrinho" })).toBeEnabled();
   });
 });

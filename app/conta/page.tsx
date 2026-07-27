@@ -14,6 +14,8 @@ import { useHoverStyle } from "@/lib/useHover";
 import { UserIcon, EditIcon, LogOutIcon, BoxIcon, CakeSliceIcon, CupcakeIcon } from "@/components/icons";
 import grid from "@/styles/grid.module.css";
 import { formatBRL } from "@/lib/format";
+import { AddToCartButton } from "@/components/product/AddToCartButton";
+import { ProductImage } from "@/components/product/ProductImage";
 
 type OrderItem = { id: string; nameSnapshot: string; priceSnapshot: string; qty: number };
 type Order = { id: string; code: string; status: string; paymentStatus: string; total: string; createdAt: string; items: OrderItem[] };
@@ -80,34 +82,6 @@ function ProfileIconButton({ onClick, active, label, children }: { onClick: () =
 
 const PEDESTAL_COLORS = ["#f6d9dd", "#e6dcef", "#f3e2cf"];
 
-function ProductImg({ src, alt }: { src: string; alt: string }) {
-  const hover = useHoverStyle(
-    { position: "absolute", top: -40, left: "50%", transform: "translateX(-50%)", height: 92, objectFit: "contain", filter: "drop-shadow(0 12px 10px rgba(58,33,28,.24))", transition: "transform .25s ease-out" },
-    { transform: "translateX(-50%) translateY(-6px) scale(1.08)" }
-  );
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={alt} {...hover.handlers} style={hover.style} loading="lazy" decoding="async" />;
-}
-
-function AddButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
-  const hover = useHoverStyle(
-    { border: "none", background: "#c1531c", color: "#fff", width: 28, height: 28, borderRadius: "50%", fontSize: 15, cursor: "pointer", fontWeight: 700, transition: "transform .2s ease, background-color .2s ease" },
-    { background: "#8a6470", transform: "scale(1.18)" }
-  );
-  if (disabled) {
-    return (
-      <button disabled aria-label="Esgotado" style={{ ...hover.style, background: "#c9beb5", cursor: "not-allowed" }}>
-        +
-      </button>
-    );
-  }
-  return (
-    <button onClick={onClick} aria-label="Adicionar ao carrinho" {...hover.handlers} style={hover.style}>
-      +
-    </button>
-  );
-}
-
 function ProductCard({ p, index, onAdd }: { p: Product; index: number; onAdd: () => void }) {
   const bg = PEDESTAL_COLORS[index % PEDESTAL_COLORS.length];
   const soldOut = p.stock === 0;
@@ -119,12 +93,12 @@ function ProductCard({ p, index, onAdd }: { p: Product; index: number; onAdd: ()
             <span style={{ fontFamily: "var(--font-body)", fontSize: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".02em" }}>Esgotado</span>
           </div>
         )}
-        {p.imageUrl && <ProductImg src={p.imageUrl} alt={p.name} />}
+        {p.imageUrl && <ProductImage size="small" src={p.imageUrl} alt={p.name} />}
         <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: "#3f2a26", fontSize: 16, lineHeight: 1.25, letterSpacing: ".01em" }}>{p.name}</div>
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 10 }}>
         <span style={{ fontWeight: 700, color: "#c1531c", fontSize: 13 }}>{formatBRL(p.price)}</span>
-        <AddButton onClick={onAdd} disabled={soldOut} />
+        <AddToCartButton variant="compact" onClick={onAdd} disabled={soldOut} />
       </div>
     </div>
   );

@@ -12,6 +12,8 @@ import grid from "@/styles/grid.module.css";
 import hero from "./HomeHero.module.css";
 import { HeartIcon, ClockIcon, TagIcon } from "@/components/icons";
 import { formatBRL } from "@/lib/format";
+import { AddToCartButton } from "@/components/product/AddToCartButton";
+import { ProductImage } from "@/components/product/ProductImage";
 
 type Flavor = { key: string; name: string; desc: string; price: string; img: string; bg: string; bgImg: string };
 
@@ -116,53 +118,6 @@ function WhatsAppHeroButton() {
         <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.85 9.85 0 0 0 12.04 2zm5.8 14.07c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.12.11-1.81-.11-.42-.13-.95-.31-1.64-.6-2.88-1.24-4.76-4.14-4.9-4.33-.14-.19-1.17-1.55-1.17-2.96 0-1.4.74-2.09 1-2.38.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.18.01.41-.07.64.49.24.57.81 1.98.88 2.12.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.42.49-.14.14-.28.29-.12.57.16.28.71 1.17 1.52 1.9 1.05.94 1.93 1.23 2.21 1.37.28.14.44.12.6-.07.16-.19.69-.8.88-1.08.19-.28.37-.23.63-.14.26.09 1.64.77 1.92.91.28.14.47.21.53.33.07.12.07.68-.17 1.36z" />
       </svg>
     </a>
-  );
-}
-
-function DailySliceImg({ src, alt }: { src: string; alt: string }) {
-  const hover = useHoverStyle(
-    { position: "absolute", top: -64, left: "50%", transform: "translateX(-50%)", height: 150, objectFit: "contain", filter: "drop-shadow(0 20px 16px rgba(58,33,28,.28))", transition: "transform .28s ease-out" },
-    { transform: "translateX(-50%) translateY(-8px) scale(1.06)" }
-  );
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={alt} {...hover.handlers} style={hover.style} loading="lazy" decoding="async" />;
-}
-
-function AddButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
-  const hover = useHoverStyle(
-    { border: "none", background: "#c1531c", color: "#fff", fontSize: 16, cursor: "pointer", width: 32, height: 32, borderRadius: "50%" },
-    { background: "#8a6470" }
-  );
-  if (disabled) {
-    return (
-      <button disabled aria-label="Esgotado" style={{ ...hover.style, background: "#c9beb5", cursor: "not-allowed" }}>
-        +
-      </button>
-    );
-  }
-  return (
-    <button onClick={onClick} aria-label="Adicionar" {...hover.handlers} style={hover.style}>
-      +
-    </button>
-  );
-}
-
-function BestsellerAddButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
-  const hover = useHoverStyle(
-    { position: "absolute", top: 8, right: 8, width: 26, height: 26, borderRadius: "50%", border: "none", background: "#f6d9dd", color: "#c1531c", fontSize: 14, cursor: "pointer", zIndex: 1, transition: "transform .2s ease,background .2s ease", fontWeight: 700, display: "grid", placeItems: "center" },
-    { color: "#fff", background: "#c1531c", transform: "scale(1.15)" }
-  );
-  if (disabled) {
-    return (
-      <button disabled aria-label="Esgotado" className={hero.bestsellerAdd} style={{ ...hover.style, background: "#e7dcd6", color: "#a08c85", cursor: "not-allowed" }}>
-        +
-      </button>
-    );
-  }
-  return (
-    <button onClick={onClick} aria-label="Adicionar ao carrinho" className={hero.bestsellerAdd} {...hover.handlers} style={hover.style}>
-      +
-    </button>
   );
 }
 
@@ -387,7 +342,7 @@ export default function HomePage() {
           {dailySlices.map((d) => (
             <div key={d.name} style={{ textAlign: "center" }}>
               <div style={{ position: "relative", background: d.cardBg, borderRadius: 14, padding: "76px 20px 22px", marginTop: 64 }}>
-                <DailySliceImg src={d.img} alt={d.name} />
+                <ProductImage src={d.img} alt={d.name} />
                 <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 24, lineHeight: 1.2, color: "#3f2a26", textAlign: "center", marginTop: 14, letterSpacing: ".02em" }}>
                   {d.name}
                 </div>
@@ -396,7 +351,7 @@ export default function HomePage() {
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 16 }}>
                 <span style={{ fontFamily: "var(--font-body)", fontSize: 16, color: "#3f2a26", fontWeight: 600 }}>{d.price}</span>
-                <AddButton onClick={d.add} disabled={d.soldOut} />
+                <AddToCartButton onClick={d.add} disabled={d.soldOut} />
               </div>
             </div>
           ))}
@@ -424,7 +379,7 @@ export default function HomePage() {
                     <span style={{ fontSize: 11 }}>★</span>
                     <span style={{ fontSize: 13, fontWeight: 700 }}>{sl.rank}</span>
                   </div>
-                  <BestsellerAddButton onClick={() => addToCart(sl.name, sl.priceNum)} disabled={sl.soldOut} />
+                  <AddToCartButton variant="corner" className={hero.bestsellerAdd} onClick={() => addToCart(sl.name, sl.priceNum)} disabled={sl.soldOut} />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={sl.img} alt={sl.name} style={{ position: "absolute", top: -44, left: "50%", transform: "translateX(-50%)", height: 100, objectFit: "contain", filter: "drop-shadow(0 14px 10px rgba(58,33,28,.22))" }} loading="lazy" decoding="async" />
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 18, color: "#3f2a26", lineHeight: 1.2, marginTop: 10, letterSpacing: ".01em" }}>

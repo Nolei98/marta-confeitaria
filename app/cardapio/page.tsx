@@ -10,6 +10,8 @@ import { useCustomerGate } from "@/lib/useCustomerGate";
 import { LoadingScreen } from "@/components/ui/Loading";
 import grid from "@/styles/grid.module.css";
 import { formatBRL } from "@/lib/format";
+import { AddToCartButton } from "@/components/product/AddToCartButton";
+import { ProductImage } from "@/components/product/ProductImage";
 
 type DbProduct = { id: string; name: string; category: string; price: number; imageUrl: string | null; stock: number | null };
 
@@ -47,34 +49,6 @@ function FilterButton({ active, onClick, children }: { active: boolean; onClick:
       }}
     >
       {children}
-    </button>
-  );
-}
-
-function SliceImg({ src, alt }: { src: string; alt: string }) {
-  const hover = useHoverStyle(
-    { position: "absolute", top: -64, left: "50%", transform: "translateX(-50%)", height: 150, objectFit: "contain", filter: "drop-shadow(0 20px 16px rgba(58,33,28,.28))", transition: "transform .28s ease-out", zIndex: 2 },
-    { transform: "translateX(-50%) translateY(-8px) scale(1.06)" }
-  );
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={alt} {...hover.handlers} style={hover.style} loading="lazy" decoding="async" />;
-}
-
-function AddButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
-  const hover = useHoverStyle(
-    { border: "none", background: "#c1531c", color: "#fff", fontSize: 16, cursor: "pointer", width: 32, height: 32, borderRadius: "50%", transition: "transform .2s ease, background-color .2s ease" },
-    { background: "#8a6470", transform: "scale(1.18)" }
-  );
-  if (disabled) {
-    return (
-      <button disabled aria-label="Esgotado" style={{ ...hover.style, background: "#c9beb5", cursor: "not-allowed" }}>
-        +
-      </button>
-    );
-  }
-  return (
-    <button onClick={onClick} aria-label="Adicionar" {...hover.handlers} style={hover.style}>
-      +
     </button>
   );
 }
@@ -196,7 +170,7 @@ export default function CardapioPage() {
                       <span style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".02em" }}>Esgotado</span>
                     </div>
                   )}
-                  <SliceImg src={s.img} alt={s.name} />
+                  <ProductImage src={s.img} alt={s.name} />
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 24, lineHeight: 1.2, color: "#3f2a26", textAlign: "center", marginTop: 14, letterSpacing: ".02em" }}>
                     {s.name}
                   </div>
@@ -205,7 +179,7 @@ export default function CardapioPage() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 16 }}>
                   <span style={{ fontFamily: "var(--font-body)", fontSize: 16, color: "#3f2a26", fontWeight: 600 }}>{s.price}</span>
-                  <AddButton onClick={() => addToCart(s.name, s.priceNum)} disabled={s.soldOut} />
+                  <AddToCartButton onClick={() => addToCart(s.name, s.priceNum)} disabled={s.soldOut} />
                 </div>
               </div>
             ))}
