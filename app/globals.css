@@ -1,9 +1,15 @@
 *{box-sizing:border-box}
 html{overflow-x:hidden}
-body{margin:0;background:#f5ead9}
+/* 100dvh tracks the viewport as mobile Safari's chrome slides away; the 100vh
+   line above it is the fallback for browsers that lack dvh. */
+body{margin:0;background:#f5ead9;min-height:100vh;min-height:100dvh}
 a{color:inherit;text-decoration:none}
 img{max-width:100%}
 :root{--font-display:'Cormorant Garamond',serif;--font-script:'Pinyon Script',cursive;--font-body:'Inter',sans-serif}
+
+/* Keyboard focus ring. Dark brown reads against both the cream page and the
+   orange buttons, and the offset keeps it outside the element either way. */
+:focus-visible{outline:3px solid #3f2a26;outline-offset:3px}
 
 ::-webkit-scrollbar{width:10px}
 ::-webkit-scrollbar-track{background:#f5ead9}
